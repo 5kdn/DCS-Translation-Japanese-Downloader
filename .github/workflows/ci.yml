@@ -1,0 +1,83 @@
+# ------------------------------------------------------------
+# Workflow Name : CI
+# Trigger       : pull_request to master
+# Purpose       :
+#   - 変更に対して Lint / Format / Type / Build Check, UnitTest を実行
+# ------------------------------------------------------------
+name: CI
+on:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'src/**/*'
+      - 'tests/**/*'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'vitest.config.*'
+
+concurrency:
+  group: ci-${{ github.event.pull_request.head.repo.full_name }}-${{ github.event.pull_request.head.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  VITE_API_BASE_URL: http://example.com
+
+jobs:
+
+  LintAndFormat:
+    name: Lint and format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 'latest'
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 'latest'
+          cache: 'pnpm'
+          cache-dependency-path: pnpm-lock.yaml
+
+      - run: pnpm i --frozen-lockfile
+      - run: pnpm biome check .
+
+  TypeCheck:
+    name: TypeCheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 'latest'
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 'latest'
+          cache: 'pnpm'
+          cache-dependency-path: pnpm-lock.yaml
+
+      - run: pnpm i --frozen-lockfile
+      - run: pnpm vue-tsc -b
+
+  BuildCheck:
+    name: Build Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 'latest'
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 'latest'
+          cache: 'pnpm'
+          cache-dependency-path: pnpm-lock.yaml
+
+      - run: pnpm i --frozen-lockfile
+      - run: pnpm vite build

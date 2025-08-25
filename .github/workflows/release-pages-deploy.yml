@@ -1,0 +1,100 @@
+# ------------------------------------------------------------
+# Workflow Name : Release Pages Deploy
+# Trigger       : Release published
+# Purpose       :
+#   - リリース作成時にビルドし GitHub Pages へ公開
+# ------------------------------------------------------------
+name: Release Pages Deploy
+
+on:
+  release:
+    types:
+      - published
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'デプロイ対象のタグを入力してください'
+        required: true
+        type: string
+
+env:
+  NODE_VERSION: '24'
+  PNPM_VERSION: '10'
+  VITE_API_BASE_URL: ${{ vars.API_BASE_URL }}
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  Build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set release tag
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "RELEASE_TAG=${{ inputs.tag }}" >> "$GITHUB_ENV"
+          else
+            echo "RELEASE_TAG=${{ github.event.release.tag_name }}" >> "$GITHUB_ENV"
+          fi
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build project
+        run: pnpm build
+
+      - name: add no Jekyll file
+        run: touch dist/.nojekyll
+
+      # GitHub Pages へ渡すアーティファクト（/dist）をアップロード
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          name: github-pages
+          path: dist
+
+  Deploy:
+    name: Deploy to GitHub Pages
+    needs: Build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deploy
+        uses: actions/deploy-pages@v4
+        with:
+          artifact_name: github-pages
+
+      - name: Summarize URL
+        if: always()
+        run: |
+          {
+            echo "### GitHub Pages URL"
+            echo ""
+            echo "${{ steps.deploy.outputs.page_url }}"
+          } >> "$GITHUB_STEP_SUMMARY"

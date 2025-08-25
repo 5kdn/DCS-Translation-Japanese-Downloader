@@ -1,0 +1,22 @@
+diff --git a/tsconfig.base.json b/tsconfig.base.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..5c669cd64cd5f69b4a721fc8c6af0cafb14dc01c
+--- /dev/null
++++ b/tsconfig.base.json
+@@ -0,0 +1,4 @@
++{
++    "$schema": "https://json.schemastore.org/tsconfig",
++    "compilerOptions": {}
++}
+diff --git a/tsconfig.json b/tsconfig.json
+index 5e72b51a968a22dc1dcb4c7f50aefabe489656ca..cb45e36d39d0e63b2464b0da9d0697dc0740c731 100644
+--- a/tsconfig.json
++++ b/tsconfig.json
+@@ -1,6 +1,6 @@
+ {
+     "$schema": "https://json.schemastore.org/tsconfig",
+-    "extends": "../../tsconfig.base.json",
++    "extends": "./tsconfig.base.json",
+     "compilerOptions": {
+         "outDir": "dist/es/"
+     },

@@ -1,0 +1,7 @@
+ignoredBuiltDependencies:
+  - '@parcel/watcher'
+  - esbuild
+  - javascript-obfuscator
+
+patchedDependencies:
+  '@microsoft/kiota-abstractions@1.0.0-preview.99': patches/@microsoft__kiota-abstractions@1.0.0-preview.99.patch

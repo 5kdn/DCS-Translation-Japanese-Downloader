@@ -1,0 +1,64 @@
+name: 📝 ドキュメント改善
+description: README / OpenAPI / 運用ガイドなどの改善提案や不備報告
+title: "[Docs]: "
+labels: [documentation]
+body:
+  - type: input
+    id: summary
+    attributes:
+      label: 概要
+      description: 改善したい内容を 1 行でまとめてください
+      placeholder: "例: インストール手順のpnpm使用例を追記してほしい"
+    validations:
+      required: true
+
+  - type: input
+    id: doc_path
+    attributes:
+      label: 対象ファイル / URL
+      description: 対象となるドキュメントのパスやURLを記載してください
+      placeholder: "例: docs/getting-started.md（または該当セクションのURL）"
+    validations:
+      required: true
+
+  - type: textarea
+    id: current
+    attributes:
+      label: 現状の記述 / 誤り
+      description: 問題となる現状の抜粋や状況を記載してください
+      placeholder: |
+        例:
+        - 対応 Node.js バージョンが 16 と記載されている
+        - `/download-zip` のレスポンス例が古い
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 提案する修正内容
+      description: 具体的な修正案や追記案、サンプルコードがあれば記載してください
+      placeholder: |
+        例:
+        - Node.js >= 20 を前提とする
+        - 実際の curl コマンド例を追加する
+    validations:
+      required: true
+
+  - type: textarea
+    id: proof
+    attributes:
+      label: 根拠・参照URL
+      description: 修正内容を裏付けるリンクや資料があれば記載してください
+      placeholder: "例: Cloudflare Docs / GitHub API リファレンス / 内部メモ"
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: 補足
+      description: 期待する読者、反映希望時期など補足事項があれば記載してください
+      placeholder: "例: 初学者向けに段階的な手順を追加したい"
+    validations:
+      required: false
