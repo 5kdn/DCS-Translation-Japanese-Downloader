@@ -1,0 +1,23 @@
+# ts ファイル
+[*.ts]
+# インデントと間隔
+indent_size = 2
+indent_style = space
+tab_width = 2
+
+# 改行設定
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# vue ファイル
+[*.vue]
+# インデントと間隔
+indent_size = 2
+indent_style = space
+tab_width = 2
+
+# 改行設定
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
