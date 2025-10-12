@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.3](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/compare/dcs-translation-japanese-downloader-v0.0.2...dcs-translation-japanese-downloader-v0.0.3) (2025-10-12)
+
+
+### Bug Fixes
+
+* bugs ([#5](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/issues/5)) ([e2942fa](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/commit/e2942fa61fae185e27bef551f1e1889a56f22777))
+
 ## [0.0.2](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/compare/dcs-translation-japanese-downloader-v0.0.1...dcs-translation-japanese-downloader-v0.0.2) (2025-10-12)
 
 
