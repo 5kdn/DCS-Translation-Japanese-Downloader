@@ -1,27 +1,26 @@
 <script lang="ts" setup>
-import { computed, ref } from 'vue';
-import Button from './Button.vue'
-import { downloadRepoDirAsZip } from '@/Services/github'
+import { ref } from 'vue';
+import Button from './Button.vue';
+import { ApiClient } from '@/Services/apiClient'
 
-const isEnable = ref(true)
+const isEnable = ref(true);
 
 const props = defineProps<{
+  title: string;
   path: string;
 }>()
 
-const title = computed(()=>{
-  return props.path.split("/").pop() ?? "!! undefined !!"
-})
-
 const ButtonClickCommand = async () => {
+  isEnable.value = false;
+  console.log(`title: ${props.title}`)
+  console.log(`path: ${props.path}`)
   try{
-    isEnable.value = false
-    await downloadRepoDirAsZip(props.path)
+    await ApiClient.DownloadZip(props.path, props.title);
   } catch(err) {
-    console.error(err)
-    alert("ファイルダウンロードに失敗しました")
+    console.error(err);
+    alert("ファイルダウンロードに失敗しました");
   } finally {
-    isEnable.value = true
+    isEnable.value = true;
   }
 }
 
@@ -30,7 +29,7 @@ const ButtonClickCommand = async () => {
 <template lang="pug">
 v-container#wrapper.d-flex.align-center.rounded
   div.text-area(style="min-width:0")
-    p.d-print-block {{ title }}
+    p.d-print-block {{ props.title }}
   v-spacer
   div#button-wrapper.ml-1
     Button(label='DL' size='small' :disable="!isEnable" @click='ButtonClickCommand')

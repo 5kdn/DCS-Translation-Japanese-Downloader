@@ -17,7 +17,6 @@ export default defineConfig(({ command }) => {
                 controlFlowFlattening: true,
                 deadCodeInjection: true,
                 identifierNamesGenerator: 'hexadecimal',
-                stringArray: true,
                 stringArrayEncoding: ['base64'],
                 stringArrayThreshold: 1,
               },
