@@ -1,9 +1,13 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
-import Button from '@/Views/parts/Button.vue';
-import DownloadItem from '@/Views/parts/DownloadItem.vue';
+import { computed, defineAsyncComponent, onMounted, ref } from 'vue';
 import { ApiClient }  from '@/Services/apiClient';
 import type { Category, TreeItem } from '@/type';
+
+defineOptions({
+  components: {
+    DownloadItem: defineAsyncComponent(() => import('@/Views/parts/DownloadItem.vue')),
+  },
+});
 
 const fetchingTreeFlg = ref(false);
 const treeItems = ref([] as TreeItem[]);
@@ -75,6 +79,7 @@ onMounted( async () => {
   console.log('App.onMounted finished')
 });
 
+defineExpose({ aircrafts, dlcCampaigns });
 </script>
 
 

@@ -1,7 +1,12 @@
 <script lang="ts" setup>
-import { ref } from 'vue';
-import Button from './Button.vue';
+import { defineAsyncComponent, ref } from 'vue';
 import { ApiClient } from '@/Services/apiClient'
+
+defineOptions({
+  components: {
+    Button: defineAsyncComponent(() => import('./Button.vue')),
+  },
+});
 
 const isEnable = ref(true);
 
@@ -23,6 +28,8 @@ const ButtonClickCommand = async () => {
     isEnable.value = true;
   }
 }
+
+defineExpose({ ButtonClickCommand });
 
 </script>
 

@@ -37,11 +37,8 @@ TYPES="${BRANCH_TYPES:-feat|fix|docs|style|refactor|perf|test|build|ci|chore|rev
 #  - 例: feat/123-add-login, fix/ABC-456/fix-npe
 PATTERN="^(${TYPES})/(([A-Z]+-[0-9]+|[0-9]+)[-_/])?.+$"
 
-if echo "${branch}" | grep -Eq "${PATTERN}"; then
-    exit 0
-fi
-
-cat >&2 <<EOF
+if ! echo "${branch}" | grep -Eq "${PATTERN}"; then
+    cat >&2 <<EOF
 ERROR: ブランチ名が命名規則に一致しません: ${branch}
 
 許可される形式の例:
@@ -64,4 +61,10 @@ ERROR: ブランチ名が命名規則に一致しません: ${branch}
 ブランチ名の変更:
     git branch -m <new-branch-name>
 EOF
-exit 1
+    exit 1
+fi
+
+if ! pnpm vue-tsc -b; then
+    echo "ERROR: pnpm vue-tsc -b が失敗しました。" >&2
+    exit 1
+fi

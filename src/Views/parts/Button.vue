@@ -27,6 +27,8 @@
   })
 
   const onClick = () => emit('click');
+
+  defineExpose({ color, size, onClick });
 </script>
 
 <template lang="pug">
