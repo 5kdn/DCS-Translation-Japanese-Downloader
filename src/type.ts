@@ -29,7 +29,7 @@ export type TreeResponse = ApiResponseBase<TreeItem[]>;
 /**
  * /download-zip エントリの失敗レスポンスを表現する。
  */
-export type DownloadZipFailueResponse = ApiResponseBase<undefined>;
+export type DownloadZipFailureResponse = ApiResponseBase<undefined>;
 
 export interface Category {
   name: string;

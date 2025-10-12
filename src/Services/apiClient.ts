@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { DownloadZipFailueResponse, DownloadZipRequest, TreeItem, TreeResponse } from '@/type';
+import type { DownloadZipFailureResponse, DownloadZipRequest, TreeItem, TreeResponse } from '@/type';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_BACKGROUND_BASE_URL,
@@ -115,9 +115,9 @@ export const ApiClient = {
       const buffer = new Uint8Array(response.data);
       const text = new TextDecoder('utf-8').decode(buffer);
 
-      let failure: DownloadZipFailueResponse | undefined;
+      let failure: DownloadZipFailureResponse | undefined;
       try {
-        failure = JSON.parse(text) as DownloadZipFailueResponse;
+        failure = JSON.parse(text) as DownloadZipFailureResponse;
       } catch {
         throw new Error('ZIP ダウンロードに失敗した。レスポンスを解析できなかった。');
       }

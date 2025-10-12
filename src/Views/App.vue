@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import Button from '@/Views/parts/Button.vue';
 import DownloadItem from '@/Views/parts/DownloadItem.vue';
 import { ApiClient }  from '@/Services/apiClient';
-import type { Category, TreeItem, TreeResponse } from '@/type';
+import type { Category, TreeItem } from '@/type';
 
 const fetchingTreeFlg = ref(false);
-
 const treeItems = ref([] as TreeItem[]);
 
 const aircrafts = computed<Category[]>(() => {
@@ -65,8 +64,17 @@ const fetchTree = async () => {
   }
 };
 
-const dummypath = ref("DCSWorld/Mods/aircraft/Uh-1H/Missions/QuickStart")
-const dummytitle = ref("QuickStart")
+onMounted( async () => {
+  console.log('App.onMounted called')
+  try{
+    await fetchTree();
+  } catch(err){
+    console.error(err);
+    alert(err);
+  }
+  console.log('App.onMounted finished')
+});
+
 </script>
 
 
@@ -74,7 +82,6 @@ const dummytitle = ref("QuickStart")
 v-container#app-wrapper.pt-10
   h1.text-h1.text-center DCS Transition Japanese
   v-divider
-  Button(:primary='true', label='Fetch' :disable='fetchingTreeFlg' @click='fetchTree')
 
   h2.text-h2.mt-10.mb-5 Aircrafts
   v-list
