@@ -1,36 +1,72 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { listFilesInDir } from '@/Services/github'
-import { download } from '@/Services/download'
-import Button from '@/Views/parts/Button.vue'
-import DownloadItem from '@/Views/parts/DownloadItem.vue'
+import { computed, ref } from 'vue';
+import Button from '@/Views/parts/Button.vue';
+import DownloadItem from '@/Views/parts/DownloadItem.vue';
+import { ApiClient }  from '@/Services/apiClient';
+import type { Category, TreeItem, TreeResponse } from '@/type';
 
-const downloadAllFlg = ref(true)
-const aircrafts = ref([] as string[])
-const dlcCampaigns = ref([] as string[])
-try{
-  (async () => {
-    aircrafts.value = await listFilesInDir('DCSWorld/Mods/aircraft')
-    dlcCampaigns.value = await listFilesInDir('DCSWorld/Mods/campaigns')
-  })()
-}
-catch(err){
-  alert(err)
-}
+const fetchingTreeFlg = ref(false);
 
-const onClickDownloadAll = async () => {
-  const url = 'https://github.com/5kdn/DCS-Translation-Japanese/archive/refs/heads/master.zip'
-  const fname = 'DCS-Translation-Japanese.zip'
-  downloadAllFlg.value = false
-  try {
-    await download(url, fname)
-  } catch(err){
-    console.log(err)
-    alert('ダウンロードに失敗しました')
-  }finally{
-    downloadAllFlg.value = true
+const treeItems = ref([] as TreeItem[]);
+
+const aircrafts = computed<Category[]>(() => {
+  const PREFIX = "DCSWorld/Mods/aircraft/";
+  const names = new Set<string>();
+
+  for (const { path } of treeItems.value) {
+    if (!path.startsWith(PREFIX)) continue;
+    const rest = path.slice(PREFIX.length);
+    const end = rest.indexOf("/");
+    const name = end === -1 ? rest : rest.slice(0, end);
+    if (name) names.add(name);
   }
-}
+
+  return [...names]
+    .sort((a, b) => a.localeCompare(b))
+    .map((name) => ({
+      name,
+      path: `${PREFIX}${name}`,
+    }));
+});
+
+const dlcCampaigns = computed<Category[]>(() => {
+  const PREFIX = "DCSWorld/Mods/campaigns/";
+  const names = new Set<string>();
+
+  for (const { path } of treeItems.value) {
+    if (!path.startsWith(PREFIX)) continue;
+    const rest = path.slice(PREFIX.length);
+    const end = rest.indexOf("/");
+    const name = end === -1 ? rest : rest.slice(0, end);
+    if (name) names.add(name);
+  }
+
+  return [...names]
+    .sort((a, b) => a.localeCompare(b))
+    .map((name) => ({
+      name,
+      path: `${PREFIX}${name}`,
+    }));
+});
+
+/**
+ * treeを取得する。
+ */
+const fetchTree = async () => {
+  console.log("start fetch");
+  fetchingTreeFlg.value = true;
+  try {
+    treeItems.value = await ApiClient.Tree();
+  } catch (err) {
+    console.error(err);
+  } finally {
+    fetchingTreeFlg.value = false;
+    console.log("end fetch");
+  }
+};
+
+const dummypath = ref("DCSWorld/Mods/aircraft/Uh-1H/Missions/QuickStart")
+const dummytitle = ref("QuickStart")
 </script>
 
 
@@ -38,20 +74,17 @@ const onClickDownloadAll = async () => {
 v-container#app-wrapper.pt-10
   h1.text-h1.text-center DCS Transition Japanese
   v-divider
-
-  h2.text-h2.mt-10.mb-5 All files
-  Button(:primary='true', label='DL' :disable='!downloadAllFlg' @click='onClickDownloadAll')
-
+  Button(:primary='true', label='Fetch' :disable='fetchingTreeFlg' @click='fetchTree')
 
   h2.text-h2.mt-10.mb-5 Aircrafts
   v-list
-    v-list-item(v-for="file in aircrafts" :key="file")
-      DownloadItem(:path="file")
+    v-list-item(v-for="item in aircrafts" :key="item.name")
+      DownloadItem(:path="item.path" :title="item.name")
 
   h2.text-h2.mt-10.mb-5 DLC Campaigns
   v-list
-    v-list-item(v-for="file in dlcCampaigns" :key="file")
-      DownloadItem(:path="file")
+    v-list-item(v-for="item in dlcCampaigns" :key="item.name")
+      DownloadItem(:path="item.path" :title="item.name")
 </template>
 
 <style lang="scss" scoped>
