@@ -7,14 +7,12 @@
       "DOM",
       "DOM.Iterable"
     ],
-
     "baseUrl": ".",
     "paths": {
       "@/*": [
         "src/*"
       ]
     },
-
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,
@@ -22,6 +20,11 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
+  },
+  "vueCompilerOptions": {
+    "plugins": [
+      "@vue/language-plugin-pug"
+    ]
   },
   "include": [
     "src/**/*.ts",

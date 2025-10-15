@@ -3,11 +3,8 @@ import { computed, defineAsyncComponent, onMounted, ref } from 'vue';
 import { ApiClient } from '@/Services/apiClient';
 import type { Category, TreeItem } from '@/type';
 
-defineOptions({
-  components: {
-    DownloadItem: defineAsyncComponent(() => import('@/Views/parts/DownloadItem.vue')),
-  },
-});
+// biome-ignore lint/correctness/noUnusedVariables: Templateで使用している
+const DownloadItem = defineAsyncComponent(() => import('./parts/DownloadItem.vue'));
 
 const fetchingTreeFlg = ref(false);
 const treeItems = ref([] as TreeItem[]);

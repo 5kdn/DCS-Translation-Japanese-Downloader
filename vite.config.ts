@@ -1,32 +1,14 @@
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import vue from '@vitejs/plugin-vue';
-import { obfuscator } from 'rollup-obfuscator';
 import { defineConfig } from 'vite';
 
 // https://vite.dev/config/
-export default defineConfig(({ command }) => {
+export default defineConfig(() => {
   const currentDir = dirname(fileURLToPath(import.meta.url));
 
   return {
-    plugins: [
-      vue(),
-      ...(command === 'build'
-        ? [
-            obfuscator({
-              sourceMap: false,
-              stringArray: false,
-              controlFlowFlattening: true,
-              deadCodeInjection: true,
-              identifierNamesGenerator: 'hexadecimal',
-              stringArrayEncoding: ['base64'],
-              stringArrayThreshold: 1,
-              include: ['**/*.js', '**/*.ts'],
-              exclude: ['node_modules/**', 'docs/**'],
-            }),
-          ]
-        : []),
-    ],
+    plugins: [vue()],
     base: './',
     resolve: {
       alias: {
