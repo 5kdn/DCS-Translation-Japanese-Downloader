@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.1.0](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/compare/v0.0.7...v0.1.0) (2025-10-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* rp2 ([#15](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/issues/15))
+
+### Continuous Integration
+
+* rp2 ([#15](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/issues/15)) ([6ce6104](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/commit/6ce6104b8a2b4c233c1299450498620086ab17e5))
+
 ## [0.0.7](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/compare/v0.0.6...v0.0.7) (2025-10-15)
 
 
