@@ -2,7 +2,7 @@ import axios from 'axios';
 import type { DownloadZipFailureResponse, DownloadZipRequest, TreeItem, TreeResponse } from '@/type';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_BACKGROUND_BASE_URL,
+  baseURL: import.meta.env.VITE_API_SERVER_URL,
 });
 
 export const ApiClient = {
