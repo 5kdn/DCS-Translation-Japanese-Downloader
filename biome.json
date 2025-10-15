@@ -39,6 +39,7 @@
   "files": {
     "includes": [
       "**",
+      "!.release*",
       "!node_modules",
       "!docs"
     ]
