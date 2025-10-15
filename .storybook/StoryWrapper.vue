@@ -3,7 +3,7 @@ export default {
   props: {
     themeName: String,
   },
-}
+};
 </script>
 
 <template>

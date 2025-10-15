@@ -1,34 +1,36 @@
 <script lang="ts" setup>
-  import { computed } from 'vue';
+import { computed } from 'vue';
 
-  const props = withDefaults(
-    defineProps<{
-      label: string;
-      primary?: boolean;
-      size?: 'small' | 'medium' | 'large';
-      disable?: boolean;
+const props = withDefaults(
+  defineProps<{
+    label: string;
+    primary?: boolean;
+    size?: 'small' | 'medium' | 'large';
+    disable?: boolean;
   }>(),
   {
     primary: true,
-    disable: false
-  })
+    disable: false,
+  },
+);
 
-  const emit = defineEmits<{
-    (e: 'click'): void;
-  }>();
+const emit = defineEmits<(e: 'click') => void>();
 
-  const color = computed(() => props.primary == false ? 'secondary' : 'primary')
-  const size = computed(() => {
-    switch (props.size) {
-      case 'small': return 'small'
-      case 'large': return 'large'
-      default: return undefined
-    }
-  })
+const color = computed(() => (props.primary === false ? 'secondary' : 'primary'));
+const size = computed(() => {
+  switch (props.size) {
+    case 'small':
+      return 'small';
+    case 'large':
+      return 'large';
+    default:
+      return undefined;
+  }
+});
 
-  const onClick = () => emit('click');
+const onClick = () => emit('click');
 
-  defineExpose({ color, size, onClick });
+defineExpose({ color, size, onClick });
 </script>
 
 <template lang="pug">

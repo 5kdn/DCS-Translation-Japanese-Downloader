@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue';
-import { ApiClient }  from '@/Services/apiClient';
+import { ApiClient } from '@/Services/apiClient';
 import type { Category, TreeItem } from '@/type';
 
 defineOptions({
@@ -13,13 +13,13 @@ const fetchingTreeFlg = ref(false);
 const treeItems = ref([] as TreeItem[]);
 
 const aircrafts = computed<Category[]>(() => {
-  const PREFIX = "DCSWorld/Mods/aircraft/";
+  const PREFIX = 'DCSWorld/Mods/aircraft/';
   const names = new Set<string>();
 
   for (const { path } of treeItems.value) {
     if (!path.startsWith(PREFIX)) continue;
     const rest = path.slice(PREFIX.length);
-    const end = rest.indexOf("/");
+    const end = rest.indexOf('/');
     const name = end === -1 ? rest : rest.slice(0, end);
     if (name) names.add(name);
   }
@@ -33,13 +33,13 @@ const aircrafts = computed<Category[]>(() => {
 });
 
 const dlcCampaigns = computed<Category[]>(() => {
-  const PREFIX = "DCSWorld/Mods/campaigns/";
+  const PREFIX = 'DCSWorld/Mods/campaigns/';
   const names = new Set<string>();
 
   for (const { path } of treeItems.value) {
     if (!path.startsWith(PREFIX)) continue;
     const rest = path.slice(PREFIX.length);
-    const end = rest.indexOf("/");
+    const end = rest.indexOf('/');
     const name = end === -1 ? rest : rest.slice(0, end);
     if (name) names.add(name);
   }
@@ -56,7 +56,7 @@ const dlcCampaigns = computed<Category[]>(() => {
  * treeを取得する。
  */
 const fetchTree = async () => {
-  console.log("start fetch");
+  console.log('start fetch');
   fetchingTreeFlg.value = true;
   try {
     treeItems.value = await ApiClient.Tree();
@@ -64,19 +64,19 @@ const fetchTree = async () => {
     console.error(err);
   } finally {
     fetchingTreeFlg.value = false;
-    console.log("end fetch");
+    console.log('end fetch');
   }
 };
 
-onMounted( async () => {
-  console.log('App.onMounted called')
-  try{
+onMounted(async () => {
+  console.log('App.onMounted called');
+  try {
     await fetchTree();
-  } catch(err){
+  } catch (err) {
     console.error(err);
     alert(err);
   }
-  console.log('App.onMounted finished')
+  console.log('App.onMounted finished');
 });
 
 defineExpose({ aircrafts, dlcCampaigns });

@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from 'axios';
 import type { DownloadZipFailureResponse, DownloadZipRequest, TreeItem, TreeResponse } from '@/type';
 
 const api = axios.create({
@@ -6,11 +6,10 @@ const api = axios.create({
 });
 
 export const ApiClient = {
-  get: async <T>(path: string, params?: Record<string, any>): Promise<T> =>
+  get: async <T, P extends Record<string, unknown> = Record<string, never>>(path: string, params?: P): Promise<T> =>
     (await api.get<T>(path, { params })).data,
 
-  post: async <T>(path: string, body?: unknown): Promise<T> =>
-    (await api.post<T>(path, body)).data,
+  post: async <T, B = unknown>(path: string, body?: B): Promise<T> => (await api.post<T>(path, body)).data,
 
   // ---- ここから個別API ----
 
@@ -48,7 +47,7 @@ export const ApiClient = {
    * /download-zip エンドポイントからファイルをダウンロードする。
    */
   DownloadZip: async (path: string, name: string): Promise<void> => {
-    console.log("DownloadZip called");
+    console.log('DownloadZip called');
     try {
       if (!path || path.trim().length === 0) {
         throw new Error('ダウンロード対象のパスが指定されていない。');
@@ -66,7 +65,10 @@ export const ApiClient = {
       if (response.status >= 200 && response.status < 300) {
         const contentType = response.headers['content-type'] ?? 'application/zip';
         const fallbackName = (() => {
-          const segments = path.split('/').map((segment) => segment.trim()).filter(Boolean);
+          const segments = path
+            .split('/')
+            .map((segment) => segment.trim())
+            .filter(Boolean);
           const last = segments.length > 0 ? segments[segments.length - 1] : undefined;
           return `${last ?? 'download'}.zip`;
         })();
@@ -81,20 +83,16 @@ export const ApiClient = {
           if (!disposition) {
             return fallbackName;
           }
-          const utf8Match = disposition.match(/filename\*=(?:UTF-8'')?([^;]+)/i);
-          if (utf8Match && utf8Match[1]) {
-            const raw = utf8Match[1].trim().replace(/^['"]|['"]$/g, '');
+          const raw = utf8Match?.[1]?.trim().replace(/^['"]|['"]$/g, '');
+          if (raw) {
             try {
               return decodeURIComponent(raw);
             } catch {
               return raw || fallbackName;
             }
           }
-          const asciiMatch = disposition.match(/filename="?([^";]+)"?/i);
-          if (asciiMatch && asciiMatch[1]) {
-            return asciiMatch[1].trim() || fallbackName;
-          }
-          return fallbackName;
+          const ascii = asciiMatch?.[1]?.trim();
+          return ascii || fallbackName;
         })();
 
         const blob = new Blob([response.data], { type: contentType });
@@ -130,5 +128,5 @@ export const ApiClient = {
       }
       throw new Error(String(error));
     }
-  }
+  },
 };

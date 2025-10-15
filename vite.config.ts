@@ -1,12 +1,12 @@
-import { defineConfig } from 'vite'
-import { dirname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import vue from '@vitejs/plugin-vue'
-import { obfuscator } from 'rollup-obfuscator'
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import vue from '@vitejs/plugin-vue';
+import { obfuscator } from 'rollup-obfuscator';
+import { defineConfig } from 'vite';
 
 // https://vite.dev/config/
 export default defineConfig(({ command }) => {
-  const currentDir = dirname(fileURLToPath(import.meta.url))
+  const currentDir = dirname(fileURLToPath(import.meta.url));
 
   return {
     plugins: [
@@ -22,7 +22,7 @@ export default defineConfig(({ command }) => {
               stringArrayEncoding: ['base64'],
               stringArrayThreshold: 1,
               include: ['**/*.js', '**/*.ts'],
-              exclude: ['node_modules/**'],
+              exclude: ['node_modules/**', 'docs/**'],
             }),
           ]
         : []),
@@ -41,15 +41,15 @@ export default defineConfig(({ command }) => {
       rollupOptions: {
         output: {
           manualChunks: (id) => {
-            if (!id.includes('node_modules')) return undefined
-            if (id.includes('vuetify')) return 'chunk-vuetify'
-            if (id.includes('vue')) return 'chunk-vue'
-            if (id.includes('axios')) return 'chunk-axios'
+            if (!id.includes('node_modules')) return undefined;
+            if (id.includes('vuetify')) return 'chunk-vuetify';
+            if (id.includes('vue')) return 'chunk-vue';
+            if (id.includes('axios')) return 'chunk-axios';
 
-            return 'chunk-vendor'
+            return 'chunk-vendor';
           },
         },
       },
     },
-  }
-})
+  };
+});

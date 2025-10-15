@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { defineAsyncComponent, ref } from 'vue';
-import { ApiClient } from '@/Services/apiClient'
+import { ApiClient } from '@/Services/apiClient';
 
 defineOptions({
   components: {
@@ -13,24 +13,23 @@ const isEnable = ref(true);
 const props = defineProps<{
   title: string;
   path: string;
-}>()
+}>();
 
 const ButtonClickCommand = async () => {
   isEnable.value = false;
-  console.log(`title: ${props.title}`)
-  console.log(`path: ${props.path}`)
-  try{
+  console.log(`title: ${props.title}`);
+  console.log(`path: ${props.path}`);
+  try {
     await ApiClient.DownloadZip(props.path, props.title);
-  } catch(err) {
+  } catch (err) {
     console.error(err);
-    alert("ファイルダウンロードに失敗しました");
+    alert('ファイルダウンロードに失敗しました');
   } finally {
     isEnable.value = true;
   }
-}
+};
 
 defineExpose({ ButtonClickCommand });
-
 </script>
 
 <template lang="pug">
