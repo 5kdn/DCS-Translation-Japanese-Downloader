@@ -1,8 +1,8 @@
 export interface TreeItem {
-	path: string,
-	sha: string,
-	size?: number,
-	url?: string,
+  path: string;
+  sha: string;
+  size?: number;
+  url?: string;
 }
 
 /**
@@ -10,15 +10,15 @@ export interface TreeItem {
  */
 export type DownloadZipRequest = {
   path: string; // ダウンロード対象のパス
-}
+};
 
 /**
  * エントリ返却の共通構造を定義する。
  */
 export interface ApiResponseBase<T> {
-  success: boolean;       // 成否
-  data?: T;               // 実データ
-  message?: string;       // 任意のメッセージ
+  success: boolean; // 成否
+  data?: T; // 実データ
+  message?: string; // 任意のメッセージ
 }
 
 /**

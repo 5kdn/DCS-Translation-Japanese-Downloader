@@ -62,6 +62,6 @@ export const Large: Story = {
 export const Disable: Story = {
   args: {
     label: 'Button',
-    disable: true
+    disable: true,
   },
 };

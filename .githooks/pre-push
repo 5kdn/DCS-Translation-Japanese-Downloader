@@ -24,6 +24,17 @@ if [ "${ALLOW_DIRECT_PUSH_TO_PROTECTED:-}" = "1" ]; then
     exit 0
 fi
 
+# テスト検証
+if command -v pnpm >/dev/null 2>&1; then
+    echo "INFO: Running test..."
+    if ! pnpm vitest run --run >/dev/null 2>&1; then
+        echo "ERROR: vitest によるテストに失敗しました。" >&2
+        echo "以下を実行して詳細を確認してください:" >&2
+        echo "    pnpm vitest run" >&2
+        exit 1
+    fi
+fi
+
 # pre-push は stdin に複数行流れてくる:
 # <local ref> <local sha> <remote ref> <remote sha>
 blocked=0
