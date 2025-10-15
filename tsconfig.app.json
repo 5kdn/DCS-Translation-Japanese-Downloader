@@ -3,7 +3,9 @@
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "lib": [
-      "es2024"
+      "es2024",
+      "DOM",
+      "DOM.Iterable"
     ],
 
     "baseUrl": ".",
