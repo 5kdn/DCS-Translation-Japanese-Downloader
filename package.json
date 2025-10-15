@@ -1,10 +1,14 @@
 {
   "name": "dcs-translation-japanese-downloader",
+  "version": "0.0.3",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
+    "lint": "biome lint .",
+    "fmt": "biome format . --write",
+    "check": "biome check .",
     "preview": "vite preview",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
@@ -17,11 +21,14 @@
     "vuetify": "^3.10.5"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.2.6",
     "@octokit/types": "^14.1.0",
     "@storybook/vue3": "^9.1.10",
     "@storybook/vue3-vite": "9.1.5",
+    "@types/node": "^24.7.2",
     "@vitejs/plugin-vue": "^6.0.1",
     "@vue/tsconfig": "^0.8.1",
+    "esbuild": "^0.25.11",
     "rollup-obfuscator": "^4.1.1",
     "sass": "^1.93.2",
     "storybook": "9.1.5",
@@ -29,6 +36,5 @@
     "typescript": "^5.9.3",
     "vite": "^7.1.9",
     "vue-tsc": "^3.1.1"
-  },
-  "version": "0.0.5"
+  }
 }

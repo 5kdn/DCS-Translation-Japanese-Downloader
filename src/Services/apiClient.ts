@@ -1,5 +1,7 @@
 import axios from 'axios';
-import type { DownloadZipFailureResponse, DownloadZipRequest, TreeItem, TreeResponse } from '@/type';
+import type { TreeItem, TreeResponse } from '@/type';
+
+// import type { DownloadZipFailureResponse, DownloadZipRequest, TreeItem, TreeResponse } from '@/type';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_SERVER_URL,
@@ -43,90 +45,90 @@ export const ApiClient = {
     }
   },
 
-  /**
-   * /download-zip エンドポイントからファイルをダウンロードする。
-   */
-  DownloadZip: async (path: string, name: string): Promise<void> => {
-    console.log('DownloadZip called');
-    try {
-      if (!path || path.trim().length === 0) {
-        throw new Error('ダウンロード対象のパスが指定されていない。');
-      }
-      if (!name || name.trim().length === 0) {
-        throw new Error('ダウンロードファイル名が指定されていない。');
-      }
+  // /**
+  //  * /download-zip エンドポイントからファイルをダウンロードする。
+  //  */
+  // DownloadZip: async (path: string, name: string): Promise<void> => {
+  //   console.log('DownloadZip called');
+  //   try {
+  //     if (!path || path.trim().length === 0) {
+  //       throw new Error('ダウンロード対象のパスが指定されていない。');
+  //     }
+  //     if (!name || name.trim().length === 0) {
+  //       throw new Error('ダウンロードファイル名が指定されていない。');
+  //     }
 
-      const payload: DownloadZipRequest = { path };
-      const response = await api.post<ArrayBuffer>('/download-zip', payload, {
-        responseType: 'arraybuffer',
-        validateStatus: (status) => status >= 200 && status < 500,
-      });
+  //     const payload: DownloadZipRequest = { path };
+  //     const response = await api.post<ArrayBuffer>('/download-zip', payload, {
+  //       responseType: 'arraybuffer',
+  //       validateStatus: (status) => status >= 200 && status < 500,
+  //     });
 
-      if (response.status >= 200 && response.status < 300) {
-        const contentType = response.headers['content-type'] ?? 'application/zip';
-        const fallbackName = (() => {
-          const segments = path
-            .split('/')
-            .map((segment) => segment.trim())
-            .filter(Boolean);
-          const last = segments.length > 0 ? segments[segments.length - 1] : undefined;
-          return `${last ?? 'download'}.zip`;
-        })();
+  //     if (response.status >= 200 && response.status < 300) {
+  //       const contentType = response.headers['content-type'] ?? 'application/zip';
+  //       const fallbackName = (() => {
+  //         const segments = path
+  //           .split('/')
+  //           .map((segment) => segment.trim())
+  //           .filter(Boolean);
+  //         const last = segments.length > 0 ? segments[segments.length - 1] : undefined;
+  //         return `${last ?? 'download'}.zip`;
+  //       })();
 
-        const filename = (() => {
-          const sanitized = name.trim();
-          if (sanitized.length > 0) {
-            return sanitized.endsWith('.zip') ? sanitized : `${sanitized}.zip`;
-          }
+  //       const filename = (() => {
+  //         const sanitized = name.trim();
+  //         if (sanitized.length > 0) {
+  //           return sanitized.endsWith('.zip') ? sanitized : `${sanitized}.zip`;
+  //         }
 
-          const disposition = response.headers['content-disposition'];
-          if (!disposition) {
-            return fallbackName;
-          }
-          const raw = utf8Match?.[1]?.trim().replace(/^['"]|['"]$/g, '');
-          if (raw) {
-            try {
-              return decodeURIComponent(raw);
-            } catch {
-              return raw || fallbackName;
-            }
-          }
-          const ascii = asciiMatch?.[1]?.trim();
-          return ascii || fallbackName;
-        })();
+  //         const disposition = response.headers['content-disposition'];
+  //         if (!disposition) {
+  //           return fallbackName;
+  //         }
+  //         const raw = utf8Match?.[1]?.trim().replace(/^['"]|['"]$/g, '');
+  //         if (raw) {
+  //           try {
+  //             return decodeURIComponent(raw);
+  //           } catch {
+  //             return raw || fallbackName;
+  //           }
+  //         }
+  //         const ascii = asciiMatch?.[1]?.trim();
+  //         return ascii || fallbackName;
+  //       })();
 
-        const blob = new Blob([response.data], { type: contentType });
-        const objectUrl = URL.createObjectURL(blob);
-        try {
-          const anchor = document.createElement('a');
-          anchor.href = objectUrl;
-          anchor.download = filename;
-          document.body.appendChild(anchor);
-          anchor.click();
-          document.body.removeChild(anchor);
-        } finally {
-          URL.revokeObjectURL(objectUrl);
-        }
-        return;
-      }
+  //       const blob = new Blob([response.data], { type: contentType });
+  //       const objectUrl = URL.createObjectURL(blob);
+  //       try {
+  //         const anchor = document.createElement('a');
+  //         anchor.href = objectUrl;
+  //         anchor.download = filename;
+  //         document.body.appendChild(anchor);
+  //         anchor.click();
+  //         document.body.removeChild(anchor);
+  //       } finally {
+  //         URL.revokeObjectURL(objectUrl);
+  //       }
+  //       return;
+  //     }
 
-      const buffer = new Uint8Array(response.data);
-      const text = new TextDecoder('utf-8').decode(buffer);
+  //     const buffer = new Uint8Array(response.data);
+  //     const text = new TextDecoder('utf-8').decode(buffer);
 
-      let failure: DownloadZipFailureResponse | undefined;
-      try {
-        failure = JSON.parse(text) as DownloadZipFailureResponse;
-      } catch {
-        throw new Error('ZIP ダウンロードに失敗した。レスポンスを解析できなかった。');
-      }
+  //     let failure: DownloadZipFailureResponse | undefined;
+  //     try {
+  //       failure = JSON.parse(text) as DownloadZipFailureResponse;
+  //     } catch {
+  //       throw new Error('ZIP ダウンロードに失敗した。レスポンスを解析できなかった。');
+  //     }
 
-      throw new Error(failure.message ?? 'ZIP ダウンロードに失敗した。');
-    } catch (error) {
-      console.error('ApiClient.DownloadZip error:', error);
-      if (error instanceof Error) {
-        throw error;
-      }
-      throw new Error(String(error));
-    }
-  },
+  //     throw new Error(failure.message ?? 'ZIP ダウンロードに失敗した。');
+  //   } catch (error) {
+  //     console.error('ApiClient.DownloadZip error:', error);
+  //     if (error instanceof Error) {
+  //       throw error;
+  //     }
+  //     throw new Error(String(error));
+  //   }
+  // },
 };
