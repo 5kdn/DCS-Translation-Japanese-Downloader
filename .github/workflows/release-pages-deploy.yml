@@ -1,0 +1,78 @@
+# ------------------------------------------------------------
+# Workflow Name : Release Pages Deploy
+# Trigger       : Release published
+# Purpose       :
+#   - リリース作成時にビルドし外部リポジトリの GitHub Pages へ公開
+# ------------------------------------------------------------
+name: Release Pages Deploy
+
+on:
+  release:
+    types:
+      - published
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'デプロイ対象のタグを入力してください'
+        required: true
+        type: string
+
+env:
+  TARGET_OWNER: ${{ vars.TARGET_OWNER }}
+  TARGET_REPO: ${{ vars.TARGET_REPO }}
+  NODE_VERSION: '24'
+  PNPM_VERSION: '10'
+  VITE_API_BASE_URL: ${{ vars.API_BASE_URL }}
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  Deploy:
+    name: Build and publish
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set release tag
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "RELEASE_TAG=${{ inputs.tag }}" >> "$GITHUB_ENV"
+          else
+            echo "RELEASE_TAG=${{ github.event.release.tag_name }}" >> "$GITHUB_ENV"
+          fi
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build project
+        run: pnpm build
+
+      - name: Copy file
+        run: cp dist/index.html dist/404.html || true
+
+      - name: Publish to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          personal_token: ${{ secrets.EXTERNAL_REPO_TOKEN }}
+          external_repository: ${{ env.TARGET_OWNER }}/${{ env.TARGET_REPO }}
+          publish_branch: gh-pages
+          publish_dir: dist
+          commit_message: Deploy release ${{ env.RELEASE_TAG }}
