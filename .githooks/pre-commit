@@ -17,15 +17,21 @@ set -eu
 branch="$(git symbolic-ref --quiet --short HEAD || true)"
 [ -n "${branch}" ] || exit 0
 
-if command -v pnpm >/dev/null 2>&1; then
-    # コードフォーマット検証
-    echo "INFO: Running format check..."
-    if ! pnpm check >/dev/null 2>&1; then
-        echo "ERROR: biome によるフォーマットチェックに失敗しました。" >&2
-        echo "以下を実行して修正してください:" >&2
-        echo "    pnpm check --fix" >&2
-        exit 1
-    fi
+# pnpm の存在確認
+if ! command -v pnpm >/dev/null 2>&1; then
+    echo "ERROR: pnpm がインストールされていません。" >&2
+    echo "以下を実行してインストールしてください:" >&2
+    echo "  npm install -g pnpm" >&2
+    exit 1
+fi
+
+# コードフォーマット検証
+echo "INFO: Running format check..."
+if ! pnpm check; then
+    echo "ERROR: biome によるフォーマットチェックに失敗しました。" >&2
+    echo "以下を実行して修正してください:" >&2
+    echo "    pnpm check --fix" >&2
+    exit 1
 fi
 
 # master/main 直接コミットは禁止（緊急時のみ環境変数で一時解除）
