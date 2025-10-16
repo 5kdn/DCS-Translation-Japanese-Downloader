@@ -31,27 +31,23 @@ jobs:
       - name: Show event context
         run: |
           echo "event_name=${{ github.event_name }}"
-          echo "dispatch.event_type=${{ github.event.action }}"
-          echo "payload.tag=${{ github.event.client_payload.tag }}"
-          echo "inputs.tag=${{ inputs.tag }}"
-
-      - name: Ensure token set
-        if: ${{ env.PAGE_BUILD_REPOSITORY != '' }}
-        run: |
-          if [ -z "${{ secrets.PAGES_SOURCE_TOKEN }}" ]; then
-            echo "PAGES_SOURCE_TOKEN is not set" >&2
-            exit 1
-          fi
+          echo "event_type=pages_release"
+          echo "tag_resolved=${{ inputs.tag || github.event.release.tag_name || github.ref_name }}"
+          echo "repo=${{ github.repository }}"
 
       - name: Send repository_dispatch to external repository
         env:
-          TARGET_OWNER: ${{ vars.TARGET_OWNER }}
+          TARGET_OWNER: ${{ vars.TARGET_OWNER || github.repository_owner }}
           TARGET_REPO: ${{ vars.TARGET_REPO }}
           EVENT_TYPE: 'pages_release'
           TOKEN: ${{ secrets.EXTERNAL_REPO_TOKEN }}
         run: |
           if [ -z "$TARGET_REPO" ]; then
-            echo "Error: TARGET_REPO not set (define in Repository → Settings → Variables)."
+            echo "Error: TARGET_REPO not set (define in Repository → Settings → Variables)." >&2
+            exit 1
+          fi
+          if [ -z "$TOKEN" ]; then
+            echo "Error: EXTERNAL_REPO_TOKEN not set." >&2
             exit 1
           fi
 
@@ -61,8 +57,19 @@ jobs:
             --arg sha "${{ github.sha }}" \
             '{source_repo:$source_repo, tag:$tag, sha:$sha}')
 
-          curl -sS -X POST \
+          BODY=$(jq -n --arg et "$EVENT_TYPE" --argjson pl "$PAYLOAD" \
+            '{event_type:$et, client_payload:$pl}')
+
+          echo "::group::dispatch-body"
+          echo "$BODY"
+          echo "::endgroup::"
+
+          RESP=$(curl -sS -o /dev/null -w "%{http_code}" -X POST \
             -H "Authorization: token ${TOKEN}" \
             -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/${TARGET_OWNER}/${TARGET_REPO}/dispatches" \
-            -d "$(jq -n --arg et "$EVENT_TYPE" --argjson pl "$PAYLOAD" '{event_type:$et, client_payload:$pl}')"
+            -H "Content-Type: application/json" \
+            -d "$BODY" \
+            "https://api.github.com/repos/${TARGET_OWNER}/${TARGET_REPO}/dispatches")
+
+          echo "dispatch status=$RESP"  # ← 204 expected
+          test "$RESP" = "204"
