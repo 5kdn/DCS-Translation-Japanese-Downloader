@@ -8,6 +8,8 @@ const meta = {
   tags: ['autodocs'],
   argTypes: {
     size: { control: 'select', options: ['small', 'medium', 'large'] },
+    loading: { control: 'boolean' },
+    disabled: { control: 'boolean' },
   },
   args: {
     primary: undefined,
@@ -62,6 +64,13 @@ export const Large: Story = {
 export const Disable: Story = {
   args: {
     label: 'Button',
-    disable: true,
+    disabled: true,
+  },
+};
+
+export const Loading: Story = {
+  args: {
+    label: 'Button',
+    loading: true,
   },
 };

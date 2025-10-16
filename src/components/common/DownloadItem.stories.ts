@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/vue3-vite';
 import DownloadItem from './DownloadItem.vue';
 
 const meta = {
-  title: 'Parts/DownloadItem',
+  title: 'Common/DownloadItem',
   component: DownloadItem,
   tags: ['autodocs'],
   argTypes: {},

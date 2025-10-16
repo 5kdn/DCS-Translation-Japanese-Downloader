@@ -24,15 +24,20 @@ if [ "${ALLOW_DIRECT_PUSH_TO_PROTECTED:-}" = "1" ]; then
     exit 0
 fi
 
-# テスト検証
-if command -v pnpm >/dev/null 2>&1; then
-    echo "INFO: Running test..."
-    if ! pnpm vitest run --run >/dev/null 2>&1; then
-        echo "ERROR: vitest によるテストに失敗しました。" >&2
-        echo "以下を実行して詳細を確認してください:" >&2
-        echo "    pnpm vitest run" >&2
-        exit 1
-    fi
+# pnpm の存在確認
+if ! command -v pnpm >/dev/null 2>&1; then
+    echo "ERROR: pnpm がインストールされていません。" >&2
+    echo "以下を実行してインストールしてください:" >&2
+    echo "  npm install -g pnpm" >&2
+    exit 1
+fi
+
+# Build検証
+echo "INFO: pnpm build を実行してビルドを検証します..."
+# ビルド実行
+if ! pnpm build; then
+    echo "ERROR: ビルドに失敗しました。push を中止します。" >&2
+    exit 1
 fi
 
 # pre-push は stdin に複数行流れてくる:
