@@ -12,6 +12,13 @@ const treeItems = ref([] as TreeItem[]);
 const isLoading = ref(true);
 const errorMessage = ref<string | null>(null);
 
+/** エラー表示位置までスクロールする。 */
+const scrollToAnnounce = (): void => {
+  if (typeof window === 'undefined') return;
+  const target = document.getElementById('announce-area');
+  target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
+
 /** APIの死活監視を行う。正常時にtrueを返す。 */
 const checkApiHealth = async (): Promise<boolean> => {
   try {
@@ -27,6 +34,7 @@ const checkApiHealth = async (): Promise<boolean> => {
     const msg = err instanceof Error ? err.message : 'APIヘルスチェックに失敗しました';
     console.error(err);
     errorMessage.value = msg;
+    scrollToAnnounce();
     return false;
   }
 };
@@ -47,9 +55,22 @@ const fetchTree = async (): Promise<void> => {
     const msg = err instanceof Error ? err.message : '不明なエラーが発生しました';
     console.error(err);
     errorMessage.value = msg;
+    scrollToAnnounce();
   } finally {
     isLoading.value = false;
   }
+};
+
+/** ダウンロード失敗時のエラーメッセージを設定する。 */
+// biome-ignore lint/correctness/noUnusedVariables: Templateで使用している
+const handleDownloadError = (message: string): void => {
+  errorMessage.value = message;
+  scrollToAnnounce();
+};
+
+// biome-ignore lint/correctness/noUnusedVariables: Templateで使用している
+const handleAlertClose = (): void => {
+  errorMessage.value = null;
 };
 
 const createCategoryList = (treeItems: Ref<{ path: string }[]>, prefix: string) =>
@@ -95,19 +116,19 @@ v-container#app-wrapper.pt-10
 
   v-container#announce-area
     v-alert(type="info" variant="tonal" v-if="isLoading") 読み込み中です...
-    v-alert(type="error" variant="tonal" v-if="errorMessage" class="my-4") {{ errorMessage }}
+    v-alert(type="error" variant="tonal" :text="errorMessage" v-if="errorMessage" class="my-4" closable @click:close="handleAlertClose")
 
   v-container(v-if="aircrafts.length > 0")
     h2.text-h2.mt-10.mb-5 Aircrafts
     v-list
       v-list-item(v-for="item in aircrafts" :key="item.name")
-        DownloadItem(:path="item.path" :title="item.name")
+        DownloadItem(:path="item.path" :title="item.name" @error="handleDownloadError")
 
   v-container(v-if="dlcCampaigns.length > 0")
     h2.text-h2.mt-10.mb-5 DLC Campaigns
     v-list
       v-list-item(v-for="item in dlcCampaigns" :key="item.name")
-        DownloadItem(:path="item.path" :title="item.name")
+        DownloadItem(:path="item.path" :title="item.name" @error="handleDownloadError")
 </template>
 
 

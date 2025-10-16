@@ -14,10 +14,6 @@
     - any-glob-to-any-file: "src/**/*.stories.ts"
     - any-glob-to-any-file: "src/**/*.vue"
 
-"Services":
-  - changed-files:
-    - any-glob-to-any-file: "src/services/*.ts"
-
 "Utils":
   - changed-files:
     - any-glob-to-any-file: "src/utils/*.ts"

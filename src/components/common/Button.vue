@@ -6,11 +6,13 @@ const props = withDefaults(
     label: string;
     primary?: boolean;
     size?: 'small' | 'medium' | 'large';
-    disable?: boolean;
+    disabled?: boolean;
+    loading?: boolean;
   }>(),
   {
     primary: true,
-    disable: false,
+    disabled: false,
+    loading: false,
   },
 );
 
@@ -28,9 +30,24 @@ const size = computed(() => {
   }
 });
 
-const onClick = () => emit('click');
+const isDisabled = computed(() => props.disabled || props.loading);
+const spinnerSize = computed(() => {
+  switch (props.size) {
+    case 'small':
+      return 16;
+    case 'large':
+      return 24;
+    default:
+      return 20;
+  }
+});
 
-defineExpose({ color, size, onClick });
+const onClick = () => {
+  if (props.loading) return;
+  emit('click');
+};
+
+defineExpose({ color, size, onClick, isDisabled, spinnerSize });
 </script>
 
 <template lang="pug">
@@ -38,6 +55,10 @@ v-btn(
   @click='onClick'
   :color='color'
   :size='size'
-  :disabled='disable'
-) {{ label }}
+  :disabled='isDisabled'
+)
+  template(v-if='props.loading')
+    v-progress-circular(indeterminate color='currentColor' :size='spinnerSize' width='2')
+  template(v-else)
+    | {{ label }}
 </template>

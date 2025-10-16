@@ -1,3 +1,5 @@
+import type { Hono } from 'hono';
+
 /** 共通レスポンスラッパ */
 export type ApiEnvelope<TData> = {
   success: boolean;
@@ -74,3 +76,27 @@ export const ApiRoutes = {
   createPr: '/create-pr',
   downloadZip: '/download-zip',
 } as const;
+
+type TypedResponse<T> = Response & {
+  json: () => Promise<T>;
+};
+
+type ApiClientResponse<T> = Promise<TypedResponse<T>>;
+
+export type ClientContract = {
+  health: {
+    $get: () => ApiClientResponse<HealthResponse>;
+  };
+  tree: {
+    $get: () => ApiClientResponse<TreeResponse>;
+  };
+  'download-zip': {
+    $post: (options: { json: DownloadZipRequest }) => ApiClientResponse<DownloadZipResponse>;
+  };
+};
+
+// hc<T> の制約を満たすための型（バックエンドの typeof app 代替）
+// 実体は不要。型解決のみで使用するため .d.ts ではなくここに宣言。
+
+declare const app: Hono;
+export type AppType = typeof app;
