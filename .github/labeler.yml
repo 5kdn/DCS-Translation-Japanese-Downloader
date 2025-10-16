@@ -9,19 +9,14 @@
 #   - パターンは必要に応じて編集してください
 # ------------------------------------------------------------
 
-"Vews / ViewModels":
+"Components":
   - changed-files:
-    - any-glob-to-any-file: "src/Vews/*.stories.ts"
-    - any-glob-to-any-file: "src/Vews/*.vue"
+    - any-glob-to-any-file: "src/**/*.stories.ts"
+    - any-glob-to-any-file: "src/**/*.vue"
 
-"Services":
+"Utils":
   - changed-files:
-    - any-glob-to-any-file: "src/Services/*.ts"
-
-"Models":
-  - changed-files:
-    - any-glob-to-any-file: "src/Models/*.ts"
-
+    - any-glob-to-any-file: "src/utils/*.ts"
 
 "Build":
   - changed-files:

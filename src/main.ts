@@ -1,6 +1,7 @@
+import '@mdi/font/css/materialdesignicons.css';
 import { createApp } from 'vue';
+import App from '@/App.vue';
 import { registerPlugins } from '@/plugins';
-import App from '@/Views/App.vue';
 
 const app = createApp(App);
 registerPlugins(app);
