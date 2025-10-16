@@ -25,6 +25,6 @@
   },
   "include": [
     "vite.config.ts",
-    "types/**/*.d.ts"
+    "src"
   ]
 }

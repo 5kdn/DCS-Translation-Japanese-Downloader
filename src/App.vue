@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue';
-import { ApiClient } from '@/Services/apiClient';
+import { ApiClient } from '@/services/apiClient';
 import type { Category, TreeItem } from '@/types/type';
 
 // biome-ignore lint/correctness/noUnusedVariables: Templateで使用している
