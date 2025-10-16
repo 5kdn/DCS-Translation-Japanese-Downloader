@@ -45,7 +45,7 @@ echo "INFO: Running test..."
 if ! pnpm vitest --run; then
     echo "ERROR: vitest によるテストに失敗しました。" >&2
     echo "以下を実行して詳細を確認してください:" >&2
-    echo "    pnpm vitest run" >&2
+    echo "    pnpm vitest --run" >&2
     exit 1
 fi
 
