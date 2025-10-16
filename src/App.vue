@@ -4,7 +4,7 @@ import { ApiClient } from '@/Services/apiClient';
 import type { Category, TreeItem } from '@/type';
 
 // biome-ignore lint/correctness/noUnusedVariables: Templateで使用している
-const DownloadItem = defineAsyncComponent(() => import('../components/common/DownloadItem.vue'));
+const DownloadItem = defineAsyncComponent(() => import('./components/common/DownloadItem.vue'));
 
 const fetchingTreeFlg = ref(false);
 const treeItems = ref([] as TreeItem[]);
