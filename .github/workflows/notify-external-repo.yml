@@ -18,6 +18,11 @@ on:
   release:
     types: [published]
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Git tag'
+        required: false
+        type: string
 
 jobs:
   dispatch:
@@ -25,9 +30,9 @@ jobs:
     steps:
       - name: Send repository_dispatch to external repository
         env:
-          TARGET_OWNER: ${{ vars.TARGET_OWNER || github.repository_owner }}
+          TARGET_OWNER: ${{ vars.TARGET_OWNER }}
           TARGET_REPO: ${{ vars.TARGET_REPO }}
-          EVENT_TYPE: ${{ vars.TARGET_EVENT_TYPE || 'external_trigger' }}
+          EVENT_TYPE: 'pages_release'
           TOKEN: ${{ secrets.EXTERNAL_REPO_TOKEN }}
         run: |
           if [ -z "$TARGET_REPO" ]; then
@@ -37,7 +42,7 @@ jobs:
 
           PAYLOAD=$(jq -n \
             --arg source_repo "${{ github.repository }}" \
-            --arg tag "${{ github.event.release.tag_name || github.ref_name }}" \
+            --arg tag "${{ inputs.tag || github.event.release.tag_name || github.ref_name }}" \
             --arg sha "${{ github.sha }}" \
             '{source_repo:$source_repo, tag:$tag, sha:$sha}')
 
