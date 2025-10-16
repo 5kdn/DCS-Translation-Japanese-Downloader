@@ -75,4 +75,5 @@ jobs:
           external_repository: ${{ env.TARGET_OWNER }}/${{ env.TARGET_REPO }}
           publish_branch: master
           publish_dir: dist
+          destination_dir: docs
           commit_message: Deploy release ${{ env.RELEASE_TAG }}
