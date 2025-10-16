@@ -1,7 +1,7 @@
 import axios from 'axios';
-import type { TreeItem, TreeResponse } from '@/type';
+import type { TreeItem, TreeResponse } from '@/types/type';
 
-// import type { DownloadZipFailureResponse, DownloadZipRequest, TreeItem, TreeResponse } from '@/type';
+// import type { DownloadZipFailureResponse, DownloadZipRequest, TreeItem, TreeResponse } from '@/types/type';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_SERVER_URL,
