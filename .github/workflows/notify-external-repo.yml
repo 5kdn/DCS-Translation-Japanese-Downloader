@@ -28,6 +28,21 @@ jobs:
   dispatch:
     runs-on: ubuntu-latest
     steps:
+      - name: Show event context
+        run: |
+          echo "event_name=${{ github.event_name }}"
+          echo "dispatch.event_type=${{ github.event.action }}"
+          echo "payload.tag=${{ github.event.client_payload.tag }}"
+          echo "inputs.tag=${{ inputs.tag }}"
+
+      - name: Ensure token set
+        if: ${{ env.PAGE_BUILD_REPOSITORY != '' }}
+        run: |
+          if [ -z "${{ secrets.PAGES_SOURCE_TOKEN }}" ]; then
+            echo "PAGES_SOURCE_TOKEN is not set" >&2
+            exit 1
+          fi
+
       - name: Send repository_dispatch to external repository
         env:
           TARGET_OWNER: ${{ vars.TARGET_OWNER }}
