@@ -18,7 +18,6 @@ export default defineConfig(() => {
     build: {
       sourcemap: false,
       minify: 'terser',
-      outDir: resolve(currentDir, 'docs'),
       chunkSizeWarningLimit: 750,
       rollupOptions: {
         output: {
