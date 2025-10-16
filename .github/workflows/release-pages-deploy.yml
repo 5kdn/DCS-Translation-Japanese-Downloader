@@ -73,6 +73,6 @@ jobs:
         with:
           personal_token: ${{ secrets.EXTERNAL_REPO_TOKEN }}
           external_repository: ${{ env.TARGET_OWNER }}/${{ env.TARGET_REPO }}
-          publish_branch: gh-pages
+          publish_branch: master
           publish_dir: dist
           commit_message: Deploy release ${{ env.RELEASE_TAG }}
