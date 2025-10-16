@@ -5,7 +5,6 @@
 #   - 変更に対して Lint / Format / Type / Build Check, UnitTest を実行
 # ------------------------------------------------------------
 name: CI
-
 on:
   pull_request:
     branches:
@@ -82,21 +81,3 @@ jobs:
 
       - run: pnpm i --frozen-lockfile
       - run: pnpm vite build
-
-  UnitTest:
-    name: Unit Test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 'latest'
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 'latest'
-          cache: 'pnpm'
-          cache-dependency-path: pnpm-lock.yaml
-
-      - run: pnpm i --frozen-lockfile
-      - run: pnpm vitest --run

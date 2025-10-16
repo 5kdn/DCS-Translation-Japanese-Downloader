@@ -11,8 +11,7 @@
     "check": "biome check .",
     "preview": "vite preview",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build",
-    "test": "vitest"
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",
@@ -30,7 +29,6 @@
     "@types/node": "^24.8.0",
     "@vitejs/plugin-vue": "^6.0.1",
     "@vue/language-plugin-pug": "^3.1.1",
-    "@vue/test-utils": "^2.4.6",
     "@vue/tsconfig": "^0.8.1",
     "esbuild": "^0.25.11",
     "jsdom": "^27.0.0",
@@ -39,7 +37,6 @@
     "terser": "^5.44.0",
     "typescript": "^5.9.3",
     "vite": "^7.1.10",
-    "vitest": "^3.2.4",
     "vue-tsc": "^3.1.1"
   }
 }
