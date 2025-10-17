@@ -111,7 +111,7 @@ const dlcCampaigns = createCategoryList(treeItems, 'DCSWorld/Mods/campaigns/');
 
 <template lang="pug">
 v-container#app-wrapper.pt-10
-  h1.text-h1.text-center DCS Transition Japanese
+  h1.text-h1.text-center DCS Translation Japanese
   v-divider
 
   v-container#announce-area
