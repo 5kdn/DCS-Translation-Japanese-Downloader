@@ -2,7 +2,7 @@
 # Workflow Name : Release Pages Deploy
 # Trigger       : Release published
 # Purpose       :
-#   - リリース作成時にビルドし外部リポジトリの GitHub Pages へ公開
+#   - リリース作成時にビルドし GitHub Pages へ公開
 # ------------------------------------------------------------
 name: Release Pages Deploy
 
@@ -18,8 +18,6 @@ on:
         type: string
 
 env:
-  TARGET_OWNER: ${{ vars.TARGET_OWNER }}
-  TARGET_REPO: ${{ vars.TARGET_REPO }}
   NODE_VERSION: '24'
   PNPM_VERSION: '10'
   VITE_API_BASE_URL: ${{ vars.API_BASE_URL }}
@@ -29,10 +27,12 @@ concurrency:
 
 permissions:
   contents: read
+  pages: write
+  id-token: write
 
 jobs:
-  Deploy:
-    name: Build and publish
+  Build:
+    name: Build
     runs-on: ubuntu-latest
 
     steps:
@@ -65,15 +65,35 @@ jobs:
       - name: Build project
         run: pnpm build
 
-      - name: Copy file
-        run: cp dist/index.html dist/404.html || true
+      - name: add no Jekyll file
+        run: touch dist/.nojekyll
 
-      - name: Publish to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+      # GitHub Pages へ渡すアーティファクト（/dist）をアップロード
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
         with:
-          personal_token: ${{ secrets.EXTERNAL_REPO_TOKEN }}
-          external_repository: ${{ env.TARGET_OWNER }}/${{ env.TARGET_REPO }}
-          publish_branch: master
-          publish_dir: dist
-          destination_dir: docs
-          commit_message: Deploy release ${{ env.RELEASE_TAG }}
+          path: dist
+
+  Deploy:
+    name: Deploy to GitHub Pages
+    needs: Build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deploy
+        uses: actions/deploy-pages@v4
+
+      - name: Summarize URL
+        if: always()
+        run: |
+          {
+            echo "### GitHub Pages URL"
+            echo ""
+            echo "${{ steps.deploy.outputs.page_url }}"
+          } >> "$GITHUB_STEP_SUMMARY"
