@@ -1,6 +1,6 @@
 # DCS Translation Japanese Downloader
 
-[DCS-Translation-Japanese リポジトリ](https://github.com/5kdn/DCS-Translation-Japanese)のファイルをダウンロードする [GitHub Pages](https://github.com/5kdn/DCS-Translation-Japanese-Downloader) を提供する
+[DCS-Translation-Japanese リポジトリ](https://github.com/5kdn/DCS-Translation-Japanese)のファイルをダウンロードする [GitHub Pages](https://5kdn.github.io/DCS-Translation-Japanese-Downloader/) を提供する
 
 ## 貢献
 
@@ -12,7 +12,10 @@
 
 ## 免責事項
 
-本プロジェクトで提供する日本語翻訳データ（以下「本翻訳データ」）は、DCS:Worldをより理解しやすくすることを目的として、無償で提供されています。
+本プロジェクトで提供される圧縮データは、 DCS Translation Japanese リポジトリの公開データを基に自動生成されたものです。
+
+本プロジェクトは、提供する日本語翻訳データの内容についていかなる責任も負いません。
+また、当該翻訳データを使用したこと、または使用できなかったことにより発生した損害・不利益についても、開発者および貢献者は一切の責任を負いません。
 
 本翻訳データを使用したこと、または使用できなかったことによって発生したいかなる損害・不利益についても、開発者および貢献者は一切の責任を負いません。
 
