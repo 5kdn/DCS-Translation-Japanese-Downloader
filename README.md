@@ -1,3 +1,3 @@
 # DCS Translation Japanese Downloader
 
-DCS-Translation-Japanese リポジトリの GitHubPages を提供する
+DCS-Translation-Japanese リポジトリのファイルをダウンロードする GitHubPages を提供する

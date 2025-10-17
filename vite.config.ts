@@ -9,7 +9,7 @@ export default defineConfig(() => {
 
   return {
     plugins: [vue()],
-    base: './',
+    base: '/DCS-Translation-Japanese',
     resolve: {
       alias: {
         '@': resolve(currentDir, 'src'),
