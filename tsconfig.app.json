@@ -26,7 +26,6 @@
     "src/**/*.vue"
   ],
   "exclude": [
-    "node_modules",
-    "docs"
+    "node_modules"
   ]
 }
