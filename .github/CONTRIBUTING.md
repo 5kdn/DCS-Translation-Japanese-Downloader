@@ -44,8 +44,11 @@ pnpm storybook
 # デバッグプレビュー
 pnpm vite
 
+# format, lint check
+pnpm check
+
 # ビルド
-pnpx vite build
+pnpm build
 
 # ビルド成果物を確認
 pnpm preview
