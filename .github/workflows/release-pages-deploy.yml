@@ -27,8 +27,6 @@ concurrency:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 jobs:
   Build:
@@ -72,7 +70,7 @@ jobs:
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
         with:
-          artifact_name: pages-dist
+          name: github-pages
           path: dist
 
   Deploy:
@@ -90,7 +88,7 @@ jobs:
         id: deploy
         uses: actions/deploy-pages@v4
         with:
-          artifact_name: pages-dist
+          artifact_name: github-pages
 
       - name: Summarize URL
         if: always()
