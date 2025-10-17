@@ -72,6 +72,7 @@ jobs:
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
         with:
+          artifact_name: pages-dist
           path: dist
 
   Deploy:
@@ -88,6 +89,8 @@ jobs:
       - name: Deploy
         id: deploy
         uses: actions/deploy-pages@v4
+        with:
+          artifact_name: pages-dist
 
       - name: Summarize URL
         if: always()
