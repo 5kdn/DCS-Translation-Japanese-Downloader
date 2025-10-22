@@ -15,8 +15,8 @@ importers:
         specifier: ^1.12.2
         version: 1.12.2
       hono:
-        specifier: ^4.9.12
-        version: 4.9.12
+        specifier: ^4.10.2
+        version: 4.10.2
       jszip:
         specifier: ^3.10.1
         version: 3.10.1
@@ -1056,8 +1056,8 @@ packages:
     resolution: {integrity: sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==}
     hasBin: true
 
-  hono@4.9.12:
-    resolution: {integrity: sha512-SrTC0YxqPwnN7yKa8gg/giLyQ2pILCKoideIHbYbFQlWZjYt68D2A4Ae1hehO/aDQ6RmTcpqOV/O2yBtMzx/VQ==}
+  hono@4.10.2:
+    resolution: {integrity: sha512-p6fyzl+mQo6uhESLxbF5WlBOAJMDh36PljwlKtP5V1v09NxlqGru3ShK+4wKhSuhuYf8qxMmrivHOa/M7q0sMg==}
     engines: {node: '>=16.9.0'}
 
   html-encoding-sniffer@4.0.0:
@@ -2506,7 +2506,7 @@ snapshots:
 
   he@1.2.0: {}
 
-  hono@4.9.12: {}
+  hono@4.10.2: {}
 
   html-encoding-sniffer@4.0.0:
     dependencies:
