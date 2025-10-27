@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { ApiError } from '@microsoft/kiota-abstractions';
 import { defineAsyncComponent, ref } from 'vue';
-import { apiClient } from '@/lib/http/client';
+import { downloadFilesAsArrayBuffer } from '@/lib/http/client';
 
 defineOptions({
   components: {
@@ -11,7 +11,7 @@ defineOptions({
 
 const props = defineProps<{
   title: string;
-  path: string;
+  paths: string[];
 }>();
 
 const emit = defineEmits<(e: 'error', message: string) => void>();
@@ -34,23 +34,16 @@ const resolveErrorMessage = (error: unknown, fallback: string): string => {
   return error instanceof Error && error.message ? error.message : fallback;
 };
 
-const fetchDownloadZip = async (path: string): Promise<Blob> => {
-  const result = await apiClient.downloadZip.post({ path });
-
-  if (!result?.success || !result.data?.base64) {
-    const message = result?.message ?? 'ファイルを取得できませんでした。';
-    throw new Error(message);
-  }
-
-  const binary = Uint8Array.from(atob(result.data.base64), (c) => c.charCodeAt(0));
-  return new Blob([binary], { type: 'application/zip' });
+const fetchDownloadFiles = async (paths: string[]): Promise<Blob> => {
+  const arrayBuffer = await downloadFilesAsArrayBuffer(paths);
+  return new Blob([arrayBuffer], { type: 'application/zip' });
 };
 
 // biome-ignore lint/correctness/noUnusedVariables: Templateで使用している
 const ButtonClickCommand = async () => {
   isEnable.value = false;
   try {
-    const blob = await fetchDownloadZip(props.path);
+    const blob = await fetchDownloadFiles(props.paths);
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;

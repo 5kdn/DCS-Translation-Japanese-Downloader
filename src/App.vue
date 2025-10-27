@@ -15,6 +15,31 @@ const treeItems = ref<TreeEntry[]>([]);
 const isLoading = ref(true);
 const errorMessage = ref<string | null>(null);
 
+const createCategoryList = (treeItems: Ref<TreeEntry[]>, prefix: string) =>
+  computed<Category[]>(() => {
+    const categories: Record<string, string[]> = {};
+    treeItems.value.forEach((item) => {
+      if (!item.path.startsWith(prefix)) return;
+      if (item.type !== 'blob') return;
+      const name = item.path.slice(prefix.length).split('/')[0];
+      if (name === undefined) return;
+      if (!categories[name]) categories[name] = [] as string[];
+      categories[name].push(item.path);
+    });
+
+    return Object.keys(categories).map((key) => {
+      return {
+        name: key,
+        paths: categories[key],
+      } as Category;
+    });
+  });
+
+// biome-ignore lint/correctness/noUnusedVariables: Templateで使用している
+const aircrafts = createCategoryList(treeItems, 'DCSWorld/Mods/aircraft/');
+// biome-ignore lint/correctness/noUnusedVariables: Templateで使用している
+const dlcCampaigns = createCategoryList(treeItems, 'DCSWorld/Mods/campaigns/');
+
 const toErrorMessage = (error: unknown, fallback: string): string => {
   if (error && typeof error === 'object' && 'responseStatusCode' in error) {
     const { responseStatusCode } = error as ApiError;
@@ -82,26 +107,6 @@ const handleAlertClose = (): void => {
   errorMessage.value = null;
 };
 
-const createCategoryList = (treeItems: Ref<TreeEntry[]>, prefix: string) =>
-  computed<Category[]>(() => {
-    const names = new Set<string>();
-
-    for (const { path } of treeItems.value) {
-      if (!path.startsWith(prefix)) continue;
-      const rest = path.slice(prefix.length);
-      const end = rest.indexOf('/');
-      const name = end === -1 ? rest : rest.slice(0, end);
-      if (name) names.add(name);
-    }
-
-    return [...names]
-      .sort((a, b) => a.localeCompare(b))
-      .map((name) => ({
-        name,
-        path: `${prefix}${name}`,
-      }));
-  });
-
 onMounted(async () => {
   console.log('onMounted() called');
   isLoading.value = true;
@@ -110,11 +115,6 @@ onMounted(async () => {
   else isLoading.value = false;
   console.log('onMounted() finished');
 });
-
-// biome-ignore lint/correctness/noUnusedVariables: Templateで使用している
-const aircrafts = createCategoryList(treeItems, 'DCSWorld/Mods/aircraft/');
-// biome-ignore lint/correctness/noUnusedVariables: Templateで使用している
-const dlcCampaigns = createCategoryList(treeItems, 'DCSWorld/Mods/campaigns/');
 </script>
 
 
@@ -131,13 +131,13 @@ v-container#app-wrapper.pt-10
     h2.text-h2.mt-10.mb-5 Aircrafts
     v-list
       v-list-item(v-for="item in aircrafts" :key="item.name")
-        DownloadItem(:path="item.path" :title="item.name" @error="handleDownloadError")
+        DownloadItem(:paths="item.paths" :title="item.name" @error="handleDownloadError")
 
   v-container(v-if="dlcCampaigns.length > 0")
     h2.text-h2.mt-10.mb-5 DLC Campaigns
     v-list
       v-list-item(v-for="item in dlcCampaigns" :key="item.name")
-        DownloadItem(:path="item.path" :title="item.name" @error="handleDownloadError")
+        DownloadItem(:paths="item.paths" :title="item.name" @error="handleDownloadError")
 </template>
 
 
