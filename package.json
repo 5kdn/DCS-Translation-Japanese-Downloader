@@ -15,6 +15,11 @@
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",
+    "@microsoft/kiota-abstractions": "1.0.0-preview.99",
+    "@microsoft/kiota-http-fetchlibrary": "1.0.0-preview.99",
+    "@microsoft/kiota-serialization-form": "1.0.0-preview.99",
+    "@microsoft/kiota-serialization-json": "1.0.0-preview.99",
+    "@microsoft/kiota-serialization-text": "1.0.0-preview.99",
     "axios": "^1.12.2",
     "hono": "^4.9.12",
     "jszip": "^3.10.1",

@@ -41,7 +41,8 @@
       "**",
       "!.release*",
       "!node_modules",
-      "!dist"
+      "!dist",
+      "!src/lib/http"
     ]
   }
 }
