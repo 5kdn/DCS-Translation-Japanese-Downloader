@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.2.6/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.3.1/schema.json",
   "formatter": {
     "indentStyle": "space",
     "indentWidth": 2,
@@ -42,7 +42,7 @@
       "!.release*",
       "!node_modules",
       "!dist",
-      "!src/lib/http"
+      "!src/lib/http/apiClient"
     ]
   }
 }

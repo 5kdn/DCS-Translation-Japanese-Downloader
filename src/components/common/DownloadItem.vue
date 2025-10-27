@@ -1,7 +1,7 @@
 <script lang="ts" setup>
+import type { ApiError } from '@microsoft/kiota-abstractions';
 import { defineAsyncComponent, ref } from 'vue';
-import { apiClient } from '@/lib/api/client';
-import type { DownloadZipResponse } from '@/types/server';
+import { apiClient } from '@/lib/http/client';
 
 defineOptions({
   components: {
@@ -18,27 +18,31 @@ const emit = defineEmits<(e: 'error', message: string) => void>();
 
 const isEnable = ref(true);
 
-const fetchDownloadZip = async (path: string): Promise<Blob> => {
-  const res = await apiClient['download-zip'].$post({
-    json: { path },
-  });
-
-  if (!res.ok || res.status >= 400) {
-    const statusText = res.statusText || '不明な理由';
-    throw new Error(
-      `ダウンロードに失敗しました。しばらく待ってからもう一度お試しください。（HTTP ${res.status}: ${statusText}）`,
-    );
+const resolveErrorMessage = (error: unknown, fallback: string): string => {
+  if (error && typeof error === 'object') {
+    const fromServer =
+      typeof (error as { messageEscaped?: string | null }).messageEscaped === 'string'
+        ? (error as { messageEscaped: string }).messageEscaped
+        : undefined;
+    const statusCode =
+      'responseStatusCode' in error && typeof (error as ApiError).responseStatusCode === 'number'
+        ? (error as ApiError).responseStatusCode
+        : undefined;
+    const detail = fromServer ?? (error instanceof Error && error.message ? error.message : fallback);
+    return statusCode ? `${detail}（HTTP ${statusCode}）` : detail;
   }
+  return error instanceof Error && error.message ? error.message : fallback;
+};
 
-  const body: DownloadZipResponse = await res.json();
-  // success と data の両方を満たすまで関数を継続しない
-  const data = body.data;
-  if (!(body.success && data)) {
-    const message = body.message ?? 'ファイルを取得できませんでした。';
+const fetchDownloadZip = async (path: string): Promise<Blob> => {
+  const result = await apiClient.downloadZip.post({ path });
+
+  if (!result?.success || !result.data?.base64) {
+    const message = result?.message ?? 'ファイルを取得できませんでした。';
     throw new Error(message);
   }
-  const binary = Uint8Array.from(atob(data.base64), (c) => c.charCodeAt(0));
 
+  const binary = Uint8Array.from(atob(result.data.base64), (c) => c.charCodeAt(0));
   return new Blob([binary], { type: 'application/zip' });
 };
 
@@ -57,7 +61,7 @@ const ButtonClickCommand = async () => {
     URL.revokeObjectURL(url);
   } catch (err: unknown) {
     console.error(err);
-    const message = err instanceof Error ? err.message : '不明なエラーが発生しました';
+    const message = resolveErrorMessage(err, '不明なエラーが発生しました');
     emit('error', message);
   } finally {
     isEnable.value = true;

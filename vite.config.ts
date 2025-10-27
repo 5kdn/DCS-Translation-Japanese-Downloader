@@ -25,8 +25,6 @@ export default defineConfig(() => {
             if (!id.includes('node_modules')) return undefined;
             if (id.includes('vuetify')) return 'chunk-vuetify';
             if (id.includes('vue')) return 'chunk-vue';
-            if (id.includes('axios')) return 'chunk-axios';
-
             return 'chunk-vendor';
           },
         },
