@@ -3,6 +3,7 @@
   "version": "0.7.4",
   "private": true,
   "type": "module",
+  "license": "MIT",
   "pnpm": {
     "patchedDependencies": {
       "@microsoft/kiota-abstractions@1.0.0-preview.99": "patches/@microsoft__kiota-abstractions@1.0.0-preview.99.patch"
@@ -10,13 +11,15 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc -b && vite build",
+    "build": "pnpm run license && vue-tsc -b && vite build",
     "lint": "biome lint .",
     "fmt": "biome format . --write",
     "check": "biome check .",
     "preview": "vite preview",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "generate-apiClient": "kiota generate --openapi https://dcs-translation-japanese-cloudflare-worker.dcs-translation-japanese.workers.dev/openapi.json --language TypeScript --clean-output -o src/lib/http/apiClient",
+    "license": "license-checker-rseidelsohn --json --production --excludePrivatePackages --out src/assets/LICENSES/licenses.json --files public/LICENSES/"
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",
@@ -26,7 +29,6 @@
     "@microsoft/kiota-serialization-json": "1.0.0-preview.99",
     "@microsoft/kiota-serialization-multipart": "1.0.0-preview.99",
     "@microsoft/kiota-serialization-text": "1.0.0-preview.99",
-    "jszip": "^3.10.1",
     "vue": "^3.5.22",
     "vuetify": "^3.10.7"
   },
@@ -40,6 +42,7 @@
     "@vue/tsconfig": "^0.8.1",
     "esbuild": "^0.25.11",
     "jsdom": "^27.0.1",
+    "license-checker-rseidelsohn": "^4.4.2",
     "sass": "^1.93.2",
     "storybook": "9.1.5",
     "terser": "^5.44.0",

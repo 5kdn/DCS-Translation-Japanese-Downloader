@@ -41,11 +41,13 @@ export type HealthGetResponse_status = (typeof HealthGetResponse_statusObject)[k
  */
 export interface HealthRequestBuilder extends BaseRequestBuilder<HealthRequestBuilder> {
     /**
+     * アプリケーションが稼働中であることを確認するためのエンドポイント。システム監視や Kubernetes の Liveness Probe などに利用できる。成功時には HTTP 200 とともに現在時刻を ISO 8601 形式で返す。
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns {Promise<HealthGetResponse>}
      */
      get(requestConfiguration?: RequestConfiguration<object> | undefined) : Promise<HealthGetResponse | undefined>;
     /**
+     * アプリケーションが稼働中であることを確認するためのエンドポイント。システム監視や Kubernetes の Liveness Probe などに利用できる。成功時には HTTP 200 とともに現在時刻を ISO 8601 形式で返す。
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns {RequestInformation}
      */

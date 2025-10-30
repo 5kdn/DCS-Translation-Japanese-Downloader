@@ -240,6 +240,7 @@ export interface CreatePrPostResponse_data extends AdditionalDataHolder, Parsabl
  */
 export interface CreatePrRequestBuilder extends BaseRequestBuilder<CreatePrRequestBuilder> {
     /**
+     * 指定のブランチにファイル変更をコミットし、Pull Request を作成します。リクエスト:- prTitle: PR のタイトル（必須）- prBody: PR の本文（任意）- branchName: 作成または更新するブランチ名（必須）- commitMessage: コミットメッセージ（任意、未指定時はデフォルト）- files: 変更対象の配列。{ path, content, operation }。operation は upsert|delete。検証/安全性:- path は ensureUserPathSafe によってパス走査などを防止します。応答:- 成功時は prNumber, prUrl, branchName, commitSha, note を含む配列を返します。エラー:- 400: リクエスト不正- 403: 権限不足- 422: 処理不能（内容不整合など）- 500: サーバエラー
      * @param body The request body
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns {Promise<CreatePrPostResponse>}
@@ -250,6 +251,7 @@ export interface CreatePrRequestBuilder extends BaseRequestBuilder<CreatePrReque
      */
      post(body: CreatePrPostRequestBody, requestConfiguration?: RequestConfiguration<object> | undefined) : Promise<CreatePrPostResponse | undefined>;
     /**
+     * 指定のブランチにファイル変更をコミットし、Pull Request を作成します。リクエスト:- prTitle: PR のタイトル（必須）- prBody: PR の本文（任意）- branchName: 作成または更新するブランチ名（必須）- commitMessage: コミットメッセージ（任意、未指定時はデフォルト）- files: 変更対象の配列。{ path, content, operation }。operation は upsert|delete。検証/安全性:- path は ensureUserPathSafe によってパス走査などを防止します。応答:- 成功時は prNumber, prUrl, branchName, commitSha, note を含む配列を返します。エラー:- 400: リクエスト不正- 403: 権限不足- 422: 処理不能（内容不整合など）- 500: サーバエラー
      * @param body The request body
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns {RequestInformation}

@@ -53,20 +53,20 @@ export function createApiClient(requestAdapter: RequestAdapter) {
     const serializationWriterFactory = requestAdapter.getSerializationWriterFactory() as SerializationWriterFactoryRegistry;
     const parseNodeFactoryRegistry = requestAdapter.getParseNodeFactory() as ParseNodeFactoryRegistry;
     const backingStoreFactory = requestAdapter.getBackingStoreFactory();
-
+    
     if (parseNodeFactoryRegistry.registerDefaultDeserializer) {
         parseNodeFactoryRegistry.registerDefaultDeserializer(JsonParseNodeFactory, backingStoreFactory);
         parseNodeFactoryRegistry.registerDefaultDeserializer(TextParseNodeFactory, backingStoreFactory);
         parseNodeFactoryRegistry.registerDefaultDeserializer(FormParseNodeFactory, backingStoreFactory);
     }
-
+    
     if (serializationWriterFactory.registerDefaultSerializer) {
         serializationWriterFactory.registerDefaultSerializer(JsonSerializationWriterFactory);
         serializationWriterFactory.registerDefaultSerializer(TextSerializationWriterFactory);
         serializationWriterFactory.registerDefaultSerializer(FormSerializationWriterFactory);
         serializationWriterFactory.registerDefaultSerializer(MultipartSerializationWriterFactory);
     }
-
+    
     if (requestAdapter.baseUrl === undefined || requestAdapter.baseUrl === null || requestAdapter.baseUrl === "") {
         requestAdapter.baseUrl = "https://dcs-translation-japanese-cloudflare-worker.dcs-translation-japanese.workers.dev";
     }

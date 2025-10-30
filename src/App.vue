@@ -8,6 +8,8 @@ import type { Category } from '@/types/type';
 
 // biome-ignore lint/correctness/noUnusedVariables: Templateで使用している
 const DownloadItem = defineAsyncComponent(() => import('./components/common/DownloadItem.vue'));
+// biome-ignore lint/correctness/noUnusedVariables: Templateで使用している
+const Footer = defineAsyncComponent(() => import('./components/common/Footer.vue'));
 
 type TreeEntry = TreeGetResponse_data & { path: string };
 
@@ -138,6 +140,8 @@ v-container#app-wrapper.pt-10
     v-list
       v-list-item(v-for="item in dlcCampaigns" :key="item.name")
         DownloadItem(:paths="item.paths" :title="item.name" @error="handleDownloadError")
+v-container
+  Footer
 </template>
 
 
