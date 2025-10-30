@@ -8,7 +8,7 @@ const meta = {
   argTypes: {},
   args: {
     title: 'Uh-1H',
-    path: 'DCSWorld/Mods/aircraft/Uh-1H',
+    paths: ['DCSWorld/Mods/aircraft/Uh-1H/Missions/QuickStart/PG Air Ambulance Easy.miz/l10n/JP/dictionary'],
   },
 } satisfies Meta<typeof DownloadItem>;
 
@@ -18,13 +18,13 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     title: 'Uh-1H',
-    path: 'DCSWorld/Mods/aircraft/Uh-1H',
+    paths: ['DCSWorld/Mods/aircraft/Uh-1H/Missions/QuickStart/PG Air Ambulance Easy.miz/l10n/JP/dictionary'],
   },
 };
 
 export const ExtraLong: Story = {
   args: {
     title: 'A'.repeat(120),
-    path: `${Array(200).fill('a').join('')}/asdf`,
+    paths: [`${Array(200).fill('a').join('')}/Missions/QuickStart/PG Air Ambulance Easy.miz/l10n/JP/dictionary'`],
   },
 };

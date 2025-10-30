@@ -33,5 +33,5 @@ export type DownloadZipFailureResponse = ApiResponseBase<undefined>;
 
 export interface Category {
   name: string;
-  path: string;
+  paths: string[];
 }
