@@ -11,7 +11,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "pnpm run license && vue-tsc -b && vite build",
+    "build": "pnpm run generate-licenses && vue-tsc -b && vite build",
     "lint": "biome lint .",
     "fmt": "biome format . --write",
     "check": "biome check .",
