@@ -1,7 +1,3 @@
-# CI 時に動的生成する
-src/assets/LICENSES/
-public/LICENSES/
-
 # Logs
 logs
 *.log

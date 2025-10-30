@@ -42,7 +42,8 @@
       "!.release*",
       "!node_modules",
       "!dist",
-      "!src/lib/http/apiClient"
+      "!src/lib/http/apiClient",
+      "!src/assets/LICENSES"
     ]
   }
 }

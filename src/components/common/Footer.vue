@@ -1,78 +1,24 @@
 <script lang="ts" setup>
-import { computed, ref } from 'vue';
-import raw_licenses from '@/assets/LICENSES/licenses.json';
+import { ref } from 'vue';
+import raw_licenses from '@/assets/LICENSES/licenses.json' with { type: 'json' };
 
 const _dialog = ref(false);
 const _year = new Date().getFullYear();
 
 interface RawLicenseEntry {
   licenses: string;
-  repository?: string;
-  publisher?: string;
-  email?: string;
-  path: string;
-  licenseFile: string;
-  private?: boolean;
+  repository: string;
+  publisher: string;
+  licenseText: string;
+  name: string;
+  version: string;
 }
 
 interface RawLicenseMap {
   [packageNameWithVersion: string]: RawLicenseEntry;
 }
 
-const resolveLicenseHref = (licenseFilePath: string): string => {
-  const match = licenseFilePath.match(/public[\\/](.+)$/i);
-  const base = import.meta.env.BASE_URL ?? '/';
-  const normalizedBase = base.endsWith('/') ? base.slice(0, -1) : base;
-
-  const captured = match?.[1];
-
-  if (!captured) {
-    return '';
-  }
-
-  return `${normalizedBase}/${captured.replace(/\\/g, '/')}`;
-};
-
-interface License {
-  packageName: string;
-  license: string;
-  repository?: string;
-  publisher?: string;
-  email?: string;
-  path: string;
-  licenseFile: string;
-  licenseHref: string;
-  private?: boolean;
-}
-
-const _licenses = computed<License[]>(() => {
-  const map = raw_licenses as unknown as RawLicenseMap;
-
-  const licenses = Object.entries(map).reduce<License[]>((acc, [pkgWithVer, entry]) => {
-    if (!entry) {
-      return acc;
-    }
-
-    const licenseFile = entry.licenseFile ?? '';
-    const licenseHref = licenseFile ? resolveLicenseHref(licenseFile) : '';
-
-    acc.push({
-      packageName: pkgWithVer,
-      license: entry.licenses,
-      repository: entry.repository,
-      publisher: entry.publisher,
-      email: entry.email,
-      path: entry.path,
-      licenseFile,
-      private: entry.private,
-      licenseHref,
-    });
-
-    return acc;
-  }, []);
-
-  return licenses.sort((a, b) => a.packageName.localeCompare(b.packageName));
-});
+const _licenses = raw_licenses as RawLicenseMap;
 </script>
 
 
@@ -91,17 +37,16 @@ v-footer.text-center.d-flex.flex-column.ga-2.py-4.footer-text(color="primary")
             button#footer-license-link.linklike( v-bind="props") third-party licenses
         v-sheet
           h2.text-center third-party licenses
-          v-card(v-for="item in _licenses" :key="item.packageName")
+          v-card(v-for="item in Object.values(_licenses)" :key="item.name + '@' + item.version")
             v-card-title
-              strong {{ item.packageName }}
+              strong {{ item.name }}@{{ item.version }}
               template(v-if="item.publisher") &nbsp;-&nbsp;{{ item.publisher }}
-            v-card-subtitle
-              template(v-if="item.licenseHref"): a(:href="item.licenseHref" target="_blank" rel="noopener") {{ item.license }}
-              template(v-else) {{ item.license }}
+            v-card-subtitle(v-if="item.repository")
+              template(v-if="item.repository"): a(:href="item.repository" target="_blank" rel="noopener") {{ item.repository }}
             v-card-text
-              p(v-if="item.repository")
-                template(v-if="item.repository"): a(:href="item.repository" target="_blank" rel="noopener") {{ item.repository }}
-                template(v-else) {{ item.repository }}
+              v-expansion-panels
+                v-expansion-panel.license-text(:title="item.licenses" :text="item.licenseText")
+
           v-btn(color="primary" block @click="_dialog = false") close
 
 
@@ -118,5 +63,9 @@ v-footer.text-center.d-flex.flex-column.ga-2.py-4.footer-text(color="primary")
 #footer-license-link {
   cursor: pointer;
   text-decoration: underline;
+}
+
+.license-text {
+  white-space: pre-wrap;
 }
 </style>
