@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.5](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/compare/v0.7.4...v0.7.5) (2025-10-30)
+
+
+### Features
+
+* switch kiota and add Footer ([#43](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/issues/43)) ([d1176db](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/commit/d1176db101bf4450a78e0b13f3415e595e2456a3))
+
 ## [0.7.4](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/compare/v0.7.3...v0.7.4) (2025-10-17)
 
 
