@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.7](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/compare/v0.7.6...v0.7.7) (2025-11-03)
+
+
+### Features
+
+* support usermission ([#47](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/issues/47)) ([cf358b3](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/commit/cf358b33d40de15954fd63740eef4ebd11735d83))
+
 ## [0.7.6](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/compare/v0.7.5...v0.7.6) (2025-11-03)
 
 
