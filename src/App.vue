@@ -17,12 +17,13 @@ const treeItems = ref<TreeEntry[]>([]);
 const isLoading = ref(true);
 const errorMessage = ref<string | null>(null);
 
-const createCategoryList = (treeItems: Ref<TreeEntry[]>, prefix: string) =>
+const createCategoryList = (treeItems: Ref<TreeEntry[]>, prefix: string, ignorePatterns: string[] = []) =>
   computed<Category[]>(() => {
     const categories: Record<string, string[]> = {};
     treeItems.value.forEach((item) => {
       if (!item.path.startsWith(prefix)) return;
       if (item.type !== 'blob') return;
+      if (ignorePatterns.some((pattern) => item.path.startsWith(pattern))) return;
       const name = item.path.slice(prefix.length).split('/')[0];
       if (name === undefined) return;
       if (!categories[name]) categories[name] = [] as string[];
@@ -41,6 +42,11 @@ const createCategoryList = (treeItems: Ref<TreeEntry[]>, prefix: string) =>
 const aircrafts = createCategoryList(treeItems, 'DCSWorld/Mods/aircraft/');
 // biome-ignore lint/correctness/noUnusedVariables: Templateで使用している
 const dlcCampaigns = createCategoryList(treeItems, 'DCSWorld/Mods/campaigns/');
+
+// biome-ignore lint/correctness/noUnusedVariables: Templateで使用している
+const userCampaigns = createCategoryList(treeItems, 'UserMissions/Campaigns/');
+// biome-ignore lint/correctness/noUnusedVariables: Templateで使用している
+const userMissions = createCategoryList(treeItems, 'UserMissions/', ['UserMissions/Campaigns/']);
 
 const toErrorMessage = (error: unknown, fallback: string): string => {
   if (error && typeof error === 'object' && 'responseStatusCode' in error) {
@@ -140,6 +146,19 @@ v-container#app-wrapper.pt-10
     v-list
       v-list-item(v-for="item in dlcCampaigns" :key="item.name")
         DownloadItem(:paths="item.paths" :title="item.name" @error="handleDownloadError")
+
+  v-container(v-if="userCampaigns.length > 0")
+    h2.text-h2.mt-10.mb-5 User Campaigns
+    v-list
+      v-list-item(v-for="item in userCampaigns" :key="item.name")
+        DownloadItem(:paths="item.paths" :title="item.name" @error="handleDownloadError")
+
+  v-container(v-if="userMissions.length > 0")
+    h2.text-h2.mt-10.mb-5 User Missions
+    v-list
+      v-list-item(v-for="item in userMissions" :key="item.name")
+        DownloadItem(:paths="item.paths" :title="item.name" @error="handleDownloadError")
+
 v-container
   Footer
 </template>
