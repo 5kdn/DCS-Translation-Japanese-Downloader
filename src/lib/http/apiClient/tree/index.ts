@@ -304,7 +304,7 @@ export type TreeGetResponse_data_type = (typeof TreeGetResponse_data_typeObject)
  */
 export interface TreeRequestBuilder extends BaseRequestBuilder<TreeRequestBuilder> {
     /**
-     * 指定された GitHub リポジトリのデフォルトブランチから、DCSWorld 配下のファイル一覧（TreeItem配列）を取得して返す。
+     * 指定された GitHub リポジトリのデフォルトブランチから、DCSWorld, UserMissions 配下のファイル一覧（TreeItem配列）を取得して返す。
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns {Promise<TreeGetResponse>}
      * @throws {Tree400Error} error when the service returns a 400 status code
@@ -314,7 +314,7 @@ export interface TreeRequestBuilder extends BaseRequestBuilder<TreeRequestBuilde
      */
      get(requestConfiguration?: RequestConfiguration<object> | undefined) : Promise<TreeGetResponse | undefined>;
     /**
-     * 指定された GitHub リポジトリのデフォルトブランチから、DCSWorld 配下のファイル一覧（TreeItem配列）を取得して返す。
+     * 指定された GitHub リポジトリのデフォルトブランチから、DCSWorld, UserMissions 配下のファイル一覧（TreeItem配列）を取得して返す。
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns {RequestInformation}
      */
