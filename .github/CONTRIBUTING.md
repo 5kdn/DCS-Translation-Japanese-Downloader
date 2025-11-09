@@ -32,7 +32,7 @@
 
 ### PR 説明テンプレート
 
-PULL_REQUEST_TEMPLATE.md を参照してください。
+[PULL_REQUEST_TEMPLATE.md](./PULL_REQUEST_TEMPLATE.md) を参照してください。
 
 ### レビュー
 
@@ -63,7 +63,7 @@ ISSUE_TEMPLATE を参照してください。
 
 ## 行動規範
 
-CODE_OF_CONDUCT.md を参照してください。
+[CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md) を参照してください。
 
 ---
 
