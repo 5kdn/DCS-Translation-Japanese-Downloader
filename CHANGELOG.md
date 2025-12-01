@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.0](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/compare/v1.0.0...v1.1.0) (2025-12-01)
+
+
+### Features
+
+* add timeout for api connection ([#14](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/issues/14)) ([af41258](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/commit/af41258c59526e83d255c47910cc0705d108d705))
+* **deps-dev:** bump the tooling-and-tests group with 10 updates ([#10](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/issues/10)) ([21e9aa1](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/commit/21e9aa15006b0c7a7e2240e0a502f763c81d9a91))
+
 ## [1.0.0](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/compare/v0.0.1...v1.0.0) (2025-11-18)
 
 
