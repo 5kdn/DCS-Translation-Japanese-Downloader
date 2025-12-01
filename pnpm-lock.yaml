@@ -42,20 +42,20 @@ importers:
         version: 3.10.0(typescript@5.9.2)(vue@3.5.21(typescript@5.9.2))
     devDependencies:
       '@biomejs/biome':
-        specifier: ^2.2.3
-        version: 2.2.3
+        specifier: ^2.3.8
+        version: 2.3.8
       '@storybook/vue3':
         specifier: ^9.1.8
-        version: 9.1.8(storybook@9.1.4(@testing-library/dom@10.4.1)(vite@7.1.11(@types/node@24.5.2)(sass@1.92.0)(terser@5.44.0)))(vue@3.5.21(typescript@5.9.2))
+        version: 9.1.8(storybook@9.1.4(@testing-library/dom@10.4.1)(vite@7.1.11(@types/node@24.10.1)(sass@1.92.0)(terser@5.44.0)))(vue@3.5.21(typescript@5.9.2))
       '@storybook/vue3-vite':
         specifier: ^9.1.4
-        version: 9.1.4(storybook@9.1.4(@testing-library/dom@10.4.1)(vite@7.1.11(@types/node@24.5.2)(sass@1.92.0)(terser@5.44.0)))(vite@7.1.11(@types/node@24.5.2)(sass@1.92.0)(terser@5.44.0))(vue@3.5.21(typescript@5.9.2))
+        version: 9.1.4(storybook@9.1.4(@testing-library/dom@10.4.1)(vite@7.1.11(@types/node@24.10.1)(sass@1.92.0)(terser@5.44.0)))(vite@7.1.11(@types/node@24.10.1)(sass@1.92.0)(terser@5.44.0))(vue@3.5.21(typescript@5.9.2))
       '@types/node':
-        specifier: ^24.5.2
-        version: 24.5.2
+        specifier: ^24.10.1
+        version: 24.10.1
       '@vitejs/plugin-vue':
         specifier: ^6.0.1
-        version: 6.0.1(vite@7.1.11(@types/node@24.5.2)(sass@1.92.0)(terser@5.44.0))(vue@3.5.21(typescript@5.9.2))
+        version: 6.0.1(vite@7.1.11(@types/node@24.10.1)(sass@1.92.0)(terser@5.44.0))(vue@3.5.21(typescript@5.9.2))
       '@vue/language-plugin-pug':
         specifier: ^3.0.7
         version: 3.0.7
@@ -76,7 +76,7 @@ importers:
         version: 1.92.0
       storybook:
         specifier: ^9.1.4
-        version: 9.1.4(@testing-library/dom@10.4.1)(vite@7.1.11(@types/node@24.5.2)(sass@1.92.0)(terser@5.44.0))
+        version: 9.1.4(@testing-library/dom@10.4.1)(vite@7.1.11(@types/node@24.10.1)(sass@1.92.0)(terser@5.44.0))
       terser:
         specifier: ^5.44.0
         version: 5.44.0
@@ -85,7 +85,7 @@ importers:
         version: 5.9.2
       vite:
         specifier: ^7.1.11
-        version: 7.1.11(@types/node@24.5.2)(sass@1.92.0)(terser@5.44.0)
+        version: 7.1.11(@types/node@24.10.1)(sass@1.92.0)(terser@5.44.0)
       vue-tsc:
         specifier: ^3.0.7
         version: 3.0.7(typescript@5.9.2)
@@ -129,55 +129,55 @@ packages:
     resolution: {integrity: sha512-qQ5m48eI/MFLQ5PxQj4PFaprjyCTLI37ElWMmNs0K8Lk3dVeOdNpB3ks8jc7yM5CDmVC73eMVk/trk3fgmrUpA==}
     engines: {node: '>=6.9.0'}
 
-  '@biomejs/biome@2.2.3':
-    resolution: {integrity: sha512-9w0uMTvPrIdvUrxazZ42Ib7t8Y2yoGLKLdNne93RLICmaHw7mcLv4PPb5LvZLJF3141gQHiCColOh/v6VWlWmg==}
+  '@biomejs/biome@2.3.8':
+    resolution: {integrity: sha512-Qjsgoe6FEBxWAUzwFGFrB+1+M8y/y5kwmg5CHac+GSVOdmOIqsAiXM5QMVGZJ1eCUCLlPZtq4aFAQ0eawEUuUA==}
     engines: {node: '>=14.21.3'}
     hasBin: true
 
-  '@biomejs/cli-darwin-arm64@2.2.3':
-    resolution: {integrity: sha512-OrqQVBpadB5eqzinXN4+Q6honBz+tTlKVCsbEuEpljK8ASSItzIRZUA02mTikl3H/1nO2BMPFiJ0nkEZNy3B1w==}
+  '@biomejs/cli-darwin-arm64@2.3.8':
+    resolution: {integrity: sha512-HM4Zg9CGQ3txTPflxD19n8MFPrmUAjaC7PQdLkugeeC0cQ+PiVrd7i09gaBS/11QKsTDBJhVg85CEIK9f50Qww==}
     engines: {node: '>=14.21.3'}
     cpu: [arm64]
     os: [darwin]
 
-  '@biomejs/cli-darwin-x64@2.2.3':
-    resolution: {integrity: sha512-OCdBpb1TmyfsTgBAM1kPMXyYKTohQ48WpiN9tkt9xvU6gKVKHY4oVwteBebiOqyfyzCNaSiuKIPjmHjUZ2ZNMg==}
+  '@biomejs/cli-darwin-x64@2.3.8':
+    resolution: {integrity: sha512-lUDQ03D7y/qEao7RgdjWVGCu+BLYadhKTm40HkpJIi6kn8LSv5PAwRlew/DmwP4YZ9ke9XXoTIQDO1vAnbRZlA==}
     engines: {node: '>=14.21.3'}
     cpu: [x64]
     os: [darwin]
 
-  '@biomejs/cli-linux-arm64-musl@2.2.3':
-    resolution: {integrity: sha512-q3w9jJ6JFPZPeqyvwwPeaiS/6NEszZ+pXKF+IczNo8Xj6fsii45a4gEEicKyKIytalV+s829ACZujQlXAiVLBQ==}
+  '@biomejs/cli-linux-arm64-musl@2.3.8':
+    resolution: {integrity: sha512-PShR4mM0sjksUMyxbyPNMxoKFPVF48fU8Qe8Sfx6w6F42verbwRLbz+QiKNiDPRJwUoMG1nPM50OBL3aOnTevA==}
     engines: {node: '>=14.21.3'}
     cpu: [arm64]
     os: [linux]
 
-  '@biomejs/cli-linux-arm64@2.2.3':
-    resolution: {integrity: sha512-g/Uta2DqYpECxG+vUmTAmUKlVhnGEcY7DXWgKP8ruLRa8Si1QHsWknPY3B/wCo0KgYiFIOAZ9hjsHfNb9L85+g==}
+  '@biomejs/cli-linux-arm64@2.3.8':
+    resolution: {integrity: sha512-Uo1OJnIkJgSgF+USx970fsM/drtPcQ39I+JO+Fjsaa9ZdCN1oysQmy6oAGbyESlouz+rzEckLTF6DS7cWse95g==}
     engines: {node: '>=14.21.3'}
     cpu: [arm64]
     os: [linux]
 
-  '@biomejs/cli-linux-x64-musl@2.2.3':
-    resolution: {integrity: sha512-y76Dn4vkP1sMRGPFlNc+OTETBhGPJ90jY3il6jAfur8XWrYBQV3swZ1Jo0R2g+JpOeeoA0cOwM7mJG6svDz79w==}
+  '@biomejs/cli-linux-x64-musl@2.3.8':
+    resolution: {integrity: sha512-YGLkqU91r1276uwSjiUD/xaVikdxgV1QpsicT0bIA1TaieM6E5ibMZeSyjQ/izBn4tKQthUSsVZacmoJfa3pDA==}
     engines: {node: '>=14.21.3'}
     cpu: [x64]
     os: [linux]
 
-  '@biomejs/cli-linux-x64@2.2.3':
-    resolution: {integrity: sha512-LEtyYL1fJsvw35CxrbQ0gZoxOG3oZsAjzfRdvRBRHxOpQ91Q5doRVjvWW/wepgSdgk5hlaNzfeqpyGmfSD0Eyw==}
+  '@biomejs/cli-linux-x64@2.3.8':
+    resolution: {integrity: sha512-QDPMD5bQz6qOVb3kiBui0zKZXASLo0NIQ9JVJio5RveBEFgDgsvJFUvZIbMbUZT3T00M/1wdzwWXk4GIh0KaAw==}
     engines: {node: '>=14.21.3'}
     cpu: [x64]
     os: [linux]
 
-  '@biomejs/cli-win32-arm64@2.2.3':
-    resolution: {integrity: sha512-Ms9zFYzjcJK7LV+AOMYnjN3pV3xL8Prxf9aWdDVL74onLn5kcvZ1ZMQswE5XHtnd/r/0bnUd928Rpbs14BzVmA==}
+  '@biomejs/cli-win32-arm64@2.3.8':
+    resolution: {integrity: sha512-H4IoCHvL1fXKDrTALeTKMiE7GGWFAraDwBYFquE/L/5r1927Te0mYIGseXi4F+lrrwhSWbSGt5qPFswNoBaCxg==}
     engines: {node: '>=14.21.3'}
     cpu: [arm64]
     os: [win32]
 
-  '@biomejs/cli-win32-x64@2.2.3':
-    resolution: {integrity: sha512-gvCpewE7mBwBIpqk1YrUqNR4mCiyJm6UI3YWQQXkedSSEwzRdodRpaKhbdbHw1/hmTWOVXQ+Eih5Qctf4TCVOQ==}
+  '@biomejs/cli-win32-x64@2.3.8':
+    resolution: {integrity: sha512-RguzimPoZWtBapfKhKjcWXBVI91tiSprqdBYu7tWhgN8pKRZhw24rFeNZTNf6UiBfjCYCi9eFQs/JzJZIhuK4w==}
     engines: {node: '>=14.21.3'}
     cpu: [x64]
     os: [win32]
@@ -682,8 +682,8 @@ packages:
   '@types/estree@1.0.8':
     resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
 
-  '@types/node@24.5.2':
-    resolution: {integrity: sha512-FYxk1I7wPv3K2XBaoyH2cTnocQEu8AOZ60hPbsyukMPLv5/5qr7V1i8PLHdl6Zf87I+xZXFvPCXYjiTFq+YSDQ==}
+  '@types/node@24.10.1':
+    resolution: {integrity: sha512-GNWcUTRBgIRJD5zj+Tq0fKOJ5XZajIiBroOF0yvj2bSU1WvNdYS/dn9UxwsujGW4JX06dnHyjV2y9rRaybH0iQ==}
 
   '@vitejs/plugin-vue@6.0.1':
     resolution: {integrity: sha512-+MaE752hU0wfPFJEUAIxqw18+20euHHdxVtMvbFcOEpjEyfqXH/5DCoTHiVJ0J29EhTJdoTkjEv5YBKU9dnoTw==}
@@ -1631,8 +1631,8 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
-  undici-types@7.12.0:
-    resolution: {integrity: sha512-goOacqME2GYyOZZfb5Lgtu+1IDmAlAEu5xnD3+xTzS10hT0vzpf0SPjkXwAw9Jm+4n/mQGDP3LO8CPbYROeBfQ==}
+  undici-types@7.16.0:
+    resolution: {integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==}
 
   unplugin@1.16.1:
     resolution: {integrity: sha512-4/u/j4FrCKdi17jaxuJA0jClGxB1AvU2hw/IuayPc4ay1XGaJs/rbb4v5WKwAjNifjmXK9PIFyuPiaK8azyR9w==}
@@ -1871,39 +1871,39 @@ snapshots:
       '@babel/helper-string-parser': 7.27.1
       '@babel/helper-validator-identifier': 7.28.5
 
-  '@biomejs/biome@2.2.3':
+  '@biomejs/biome@2.3.8':
     optionalDependencies:
-      '@biomejs/cli-darwin-arm64': 2.2.3
-      '@biomejs/cli-darwin-x64': 2.2.3
-      '@biomejs/cli-linux-arm64': 2.2.3
-      '@biomejs/cli-linux-arm64-musl': 2.2.3
-      '@biomejs/cli-linux-x64': 2.2.3
-      '@biomejs/cli-linux-x64-musl': 2.2.3
-      '@biomejs/cli-win32-arm64': 2.2.3
-      '@biomejs/cli-win32-x64': 2.2.3
+      '@biomejs/cli-darwin-arm64': 2.3.8
+      '@biomejs/cli-darwin-x64': 2.3.8
+      '@biomejs/cli-linux-arm64': 2.3.8
+      '@biomejs/cli-linux-arm64-musl': 2.3.8
+      '@biomejs/cli-linux-x64': 2.3.8
+      '@biomejs/cli-linux-x64-musl': 2.3.8
+      '@biomejs/cli-win32-arm64': 2.3.8
+      '@biomejs/cli-win32-x64': 2.3.8
 
-  '@biomejs/cli-darwin-arm64@2.2.3':
+  '@biomejs/cli-darwin-arm64@2.3.8':
     optional: true
 
-  '@biomejs/cli-darwin-x64@2.2.3':
+  '@biomejs/cli-darwin-x64@2.3.8':
     optional: true
 
-  '@biomejs/cli-linux-arm64-musl@2.2.3':
+  '@biomejs/cli-linux-arm64-musl@2.3.8':
     optional: true
 
-  '@biomejs/cli-linux-arm64@2.2.3':
+  '@biomejs/cli-linux-arm64@2.3.8':
     optional: true
 
-  '@biomejs/cli-linux-x64-musl@2.2.3':
+  '@biomejs/cli-linux-x64-musl@2.3.8':
     optional: true
 
-  '@biomejs/cli-linux-x64@2.2.3':
+  '@biomejs/cli-linux-x64@2.3.8':
     optional: true
 
-  '@biomejs/cli-win32-arm64@2.2.3':
+  '@biomejs/cli-win32-arm64@2.3.8':
     optional: true
 
-  '@biomejs/cli-win32-x64@2.2.3':
+  '@biomejs/cli-win32-x64@2.3.8':
     optional: true
 
   '@csstools/color-helpers@5.1.0': {}
@@ -2209,46 +2209,46 @@ snapshots:
 
   '@std-uritemplate/std-uritemplate@2.0.8': {}
 
-  '@storybook/builder-vite@9.1.4(storybook@9.1.4(@testing-library/dom@10.4.1)(vite@7.1.11(@types/node@24.5.2)(sass@1.92.0)(terser@5.44.0)))(vite@7.1.11(@types/node@24.5.2)(sass@1.92.0)(terser@5.44.0))':
+  '@storybook/builder-vite@9.1.4(storybook@9.1.4(@testing-library/dom@10.4.1)(vite@7.1.11(@types/node@24.10.1)(sass@1.92.0)(terser@5.44.0)))(vite@7.1.11(@types/node@24.10.1)(sass@1.92.0)(terser@5.44.0))':
     dependencies:
-      '@storybook/csf-plugin': 9.1.4(storybook@9.1.4(@testing-library/dom@10.4.1)(vite@7.1.11(@types/node@24.5.2)(sass@1.92.0)(terser@5.44.0)))
-      storybook: 9.1.4(@testing-library/dom@10.4.1)(vite@7.1.11(@types/node@24.5.2)(sass@1.92.0)(terser@5.44.0))
+      '@storybook/csf-plugin': 9.1.4(storybook@9.1.4(@testing-library/dom@10.4.1)(vite@7.1.11(@types/node@24.10.1)(sass@1.92.0)(terser@5.44.0)))
+      storybook: 9.1.4(@testing-library/dom@10.4.1)(vite@7.1.11(@types/node@24.10.1)(sass@1.92.0)(terser@5.44.0))
       ts-dedent: 2.2.0
-      vite: 7.1.11(@types/node@24.5.2)(sass@1.92.0)(terser@5.44.0)
+      vite: 7.1.11(@types/node@24.10.1)(sass@1.92.0)(terser@5.44.0)
 
-  '@storybook/csf-plugin@9.1.4(storybook@9.1.4(@testing-library/dom@10.4.1)(vite@7.1.11(@types/node@24.5.2)(sass@1.92.0)(terser@5.44.0)))':
+  '@storybook/csf-plugin@9.1.4(storybook@9.1.4(@testing-library/dom@10.4.1)(vite@7.1.11(@types/node@24.10.1)(sass@1.92.0)(terser@5.44.0)))':
     dependencies:
-      storybook: 9.1.4(@testing-library/dom@10.4.1)(vite@7.1.11(@types/node@24.5.2)(sass@1.92.0)(terser@5.44.0))
+      storybook: 9.1.4(@testing-library/dom@10.4.1)(vite@7.1.11(@types/node@24.10.1)(sass@1.92.0)(terser@5.44.0))
       unplugin: 1.16.1
 
   '@storybook/global@5.0.0': {}
 
-  '@storybook/vue3-vite@9.1.4(storybook@9.1.4(@testing-library/dom@10.4.1)(vite@7.1.11(@types/node@24.5.2)(sass@1.92.0)(terser@5.44.0)))(vite@7.1.11(@types/node@24.5.2)(sass@1.92.0)(terser@5.44.0))(vue@3.5.21(typescript@5.9.2))':
+  '@storybook/vue3-vite@9.1.4(storybook@9.1.4(@testing-library/dom@10.4.1)(vite@7.1.11(@types/node@24.10.1)(sass@1.92.0)(terser@5.44.0)))(vite@7.1.11(@types/node@24.10.1)(sass@1.92.0)(terser@5.44.0))(vue@3.5.21(typescript@5.9.2))':
     dependencies:
-      '@storybook/builder-vite': 9.1.4(storybook@9.1.4(@testing-library/dom@10.4.1)(vite@7.1.11(@types/node@24.5.2)(sass@1.92.0)(terser@5.44.0)))(vite@7.1.11(@types/node@24.5.2)(sass@1.92.0)(terser@5.44.0))
-      '@storybook/vue3': 9.1.4(storybook@9.1.4(@testing-library/dom@10.4.1)(vite@7.1.11(@types/node@24.5.2)(sass@1.92.0)(terser@5.44.0)))(vue@3.5.21(typescript@5.9.2))
+      '@storybook/builder-vite': 9.1.4(storybook@9.1.4(@testing-library/dom@10.4.1)(vite@7.1.11(@types/node@24.10.1)(sass@1.92.0)(terser@5.44.0)))(vite@7.1.11(@types/node@24.10.1)(sass@1.92.0)(terser@5.44.0))
+      '@storybook/vue3': 9.1.4(storybook@9.1.4(@testing-library/dom@10.4.1)(vite@7.1.11(@types/node@24.10.1)(sass@1.92.0)(terser@5.44.0)))(vue@3.5.21(typescript@5.9.2))
       find-package-json: 1.2.0
       magic-string: 0.30.21
-      storybook: 9.1.4(@testing-library/dom@10.4.1)(vite@7.1.11(@types/node@24.5.2)(sass@1.92.0)(terser@5.44.0))
+      storybook: 9.1.4(@testing-library/dom@10.4.1)(vite@7.1.11(@types/node@24.10.1)(sass@1.92.0)(terser@5.44.0))
       typescript: 5.9.2
-      vite: 7.1.11(@types/node@24.5.2)(sass@1.92.0)(terser@5.44.0)
+      vite: 7.1.11(@types/node@24.10.1)(sass@1.92.0)(terser@5.44.0)
       vue-component-meta: 2.2.12(typescript@5.9.2)
       vue-docgen-api: 4.79.2(vue@3.5.21(typescript@5.9.2))
     transitivePeerDependencies:
       - vue
 
-  '@storybook/vue3@9.1.4(storybook@9.1.4(@testing-library/dom@10.4.1)(vite@7.1.11(@types/node@24.5.2)(sass@1.92.0)(terser@5.44.0)))(vue@3.5.21(typescript@5.9.2))':
+  '@storybook/vue3@9.1.4(storybook@9.1.4(@testing-library/dom@10.4.1)(vite@7.1.11(@types/node@24.10.1)(sass@1.92.0)(terser@5.44.0)))(vue@3.5.21(typescript@5.9.2))':
     dependencies:
       '@storybook/global': 5.0.0
-      storybook: 9.1.4(@testing-library/dom@10.4.1)(vite@7.1.11(@types/node@24.5.2)(sass@1.92.0)(terser@5.44.0))
+      storybook: 9.1.4(@testing-library/dom@10.4.1)(vite@7.1.11(@types/node@24.10.1)(sass@1.92.0)(terser@5.44.0))
       type-fest: 2.19.0
       vue: 3.5.21(typescript@5.9.2)
       vue-component-type-helpers: 3.1.5
 
-  '@storybook/vue3@9.1.8(storybook@9.1.4(@testing-library/dom@10.4.1)(vite@7.1.11(@types/node@24.5.2)(sass@1.92.0)(terser@5.44.0)))(vue@3.5.21(typescript@5.9.2))':
+  '@storybook/vue3@9.1.8(storybook@9.1.4(@testing-library/dom@10.4.1)(vite@7.1.11(@types/node@24.10.1)(sass@1.92.0)(terser@5.44.0)))(vue@3.5.21(typescript@5.9.2))':
     dependencies:
       '@storybook/global': 5.0.0
-      storybook: 9.1.4(@testing-library/dom@10.4.1)(vite@7.1.11(@types/node@24.5.2)(sass@1.92.0)(terser@5.44.0))
+      storybook: 9.1.4(@testing-library/dom@10.4.1)(vite@7.1.11(@types/node@24.10.1)(sass@1.92.0)(terser@5.44.0))
       type-fest: 2.19.0
       vue: 3.5.21(typescript@5.9.2)
       vue-component-type-helpers: 3.1.5
@@ -2288,14 +2288,14 @@ snapshots:
 
   '@types/estree@1.0.8': {}
 
-  '@types/node@24.5.2':
+  '@types/node@24.10.1':
     dependencies:
-      undici-types: 7.12.0
+      undici-types: 7.16.0
 
-  '@vitejs/plugin-vue@6.0.1(vite@7.1.11(@types/node@24.5.2)(sass@1.92.0)(terser@5.44.0))(vue@3.5.21(typescript@5.9.2))':
+  '@vitejs/plugin-vue@6.0.1(vite@7.1.11(@types/node@24.10.1)(sass@1.92.0)(terser@5.44.0))(vue@3.5.21(typescript@5.9.2))':
     dependencies:
       '@rolldown/pluginutils': 1.0.0-beta.29
-      vite: 7.1.11(@types/node@24.5.2)(sass@1.92.0)(terser@5.44.0)
+      vite: 7.1.11(@types/node@24.10.1)(sass@1.92.0)(terser@5.44.0)
       vue: 3.5.21(typescript@5.9.2)
 
   '@vitest/expect@3.2.4':
@@ -2306,13 +2306,13 @@ snapshots:
       chai: 5.3.3
       tinyrainbow: 2.0.0
 
-  '@vitest/mocker@3.2.4(vite@7.1.11(@types/node@24.5.2)(sass@1.92.0)(terser@5.44.0))':
+  '@vitest/mocker@3.2.4(vite@7.1.11(@types/node@24.10.1)(sass@1.92.0)(terser@5.44.0))':
     dependencies:
       '@vitest/spy': 3.2.4
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
-      vite: 7.1.11(@types/node@24.5.2)(sass@1.92.0)(terser@5.44.0)
+      vite: 7.1.11(@types/node@24.10.1)(sass@1.92.0)(terser@5.44.0)
 
   '@vitest/pretty-format@3.2.4':
     dependencies:
@@ -3236,13 +3236,13 @@ snapshots:
       spdx-expression-parse: 3.0.1
       spdx-ranges: 2.1.1
 
-  storybook@9.1.4(@testing-library/dom@10.4.1)(vite@7.1.11(@types/node@24.5.2)(sass@1.92.0)(terser@5.44.0)):
+  storybook@9.1.4(@testing-library/dom@10.4.1)(vite@7.1.11(@types/node@24.10.1)(sass@1.92.0)(terser@5.44.0)):
     dependencies:
       '@storybook/global': 5.0.0
       '@testing-library/jest-dom': 6.9.1
       '@testing-library/user-event': 14.6.1(@testing-library/dom@10.4.1)
       '@vitest/expect': 3.2.4
-      '@vitest/mocker': 3.2.4(vite@7.1.11(@types/node@24.5.2)(sass@1.92.0)(terser@5.44.0))
+      '@vitest/mocker': 3.2.4(vite@7.1.11(@types/node@24.10.1)(sass@1.92.0)(terser@5.44.0))
       '@vitest/spy': 3.2.4
       better-opn: 3.0.2
       esbuild: 0.25.10
@@ -3343,7 +3343,7 @@ snapshots:
 
   typescript@5.9.2: {}
 
-  undici-types@7.12.0: {}
+  undici-types@7.16.0: {}
 
   unplugin@1.16.1:
     dependencies:
@@ -3355,7 +3355,7 @@ snapshots:
       spdx-correct: 3.2.0
       spdx-expression-parse: 3.0.1
 
-  vite@7.1.11(@types/node@24.5.2)(sass@1.92.0)(terser@5.44.0):
+  vite@7.1.11(@types/node@24.10.1)(sass@1.92.0)(terser@5.44.0):
     dependencies:
       esbuild: 0.25.10
       fdir: 6.5.0(picomatch@4.0.3)
@@ -3364,7 +3364,7 @@ snapshots:
       rollup: 4.53.2
       tinyglobby: 0.2.15
     optionalDependencies:
-      '@types/node': 24.5.2
+      '@types/node': 24.10.1
       fsevents: 2.3.3
       sass: 1.92.0
       terser: 5.44.0
