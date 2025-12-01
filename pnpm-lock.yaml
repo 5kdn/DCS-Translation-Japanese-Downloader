@@ -1726,8 +1726,8 @@ packages:
   vue-component-type-helpers@2.2.12:
     resolution: {integrity: sha512-YbGqHZ5/eW4SnkPNR44mKVc6ZKQoRs/Rux1sxC6rdwXb4qpbOSYfDr9DsTHolOTGmIKgM9j141mZbBeg05R1pw==}
 
-  vue-component-type-helpers@3.1.4:
-    resolution: {integrity: sha512-Uws7Ew1OzTTqHW8ZVl/qLl/HB+jf08M0NdFONbVWAx0N4gMLK8yfZDgeB77hDnBmaigWWEn5qP8T9BG59jIeyQ==}
+  vue-component-type-helpers@3.1.5:
+    resolution: {integrity: sha512-7V3yJuNWW7/1jxCcI1CswnpDsvs02Qcx/N43LkV+ZqhLj2PKj50slUflHAroNkN4UWiYfzMUUUXiNuv9khmSpQ==}
 
   vue-docgen-api@4.79.2:
     resolution: {integrity: sha512-n9ENAcs+40awPZMsas7STqjkZiVlIjxIKgiJr5rSohDP0/JCrD9VtlzNojafsA1MChm/hz2h3PDtUedx3lbgfA==}
@@ -2243,7 +2243,7 @@ snapshots:
       storybook: 9.1.4(@testing-library/dom@10.4.1)(vite@7.1.11(@types/node@24.5.2)(sass@1.92.0)(terser@5.44.0))
       type-fest: 2.19.0
       vue: 3.5.21(typescript@5.9.2)
-      vue-component-type-helpers: 3.1.4
+      vue-component-type-helpers: 3.1.5
 
   '@storybook/vue3@9.1.8(storybook@9.1.4(@testing-library/dom@10.4.1)(vite@7.1.11(@types/node@24.5.2)(sass@1.92.0)(terser@5.44.0)))(vue@3.5.21(typescript@5.9.2))':
     dependencies:
@@ -2251,7 +2251,7 @@ snapshots:
       storybook: 9.1.4(@testing-library/dom@10.4.1)(vite@7.1.11(@types/node@24.5.2)(sass@1.92.0)(terser@5.44.0))
       type-fest: 2.19.0
       vue: 3.5.21(typescript@5.9.2)
-      vue-component-type-helpers: 3.1.4
+      vue-component-type-helpers: 3.1.5
 
   '@testing-library/dom@10.4.1':
     dependencies:
@@ -3420,7 +3420,7 @@ snapshots:
 
   vue-component-type-helpers@2.2.12: {}
 
-  vue-component-type-helpers@3.1.4: {}
+  vue-component-type-helpers@3.1.5: {}
 
   vue-docgen-api@4.79.2(vue@3.5.21(typescript@5.9.2)):
     dependencies:
