@@ -32,12 +32,12 @@ jobs:
     name: Lint and format
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: pnpm/action-setup@v4
         with:
           version: 'latest'
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v6
         with:
           node-version: 'latest'
           cache: 'pnpm'
@@ -50,12 +50,12 @@ jobs:
     name: TypeCheck
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: pnpm/action-setup@v4
         with:
           version: 'latest'
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v6
         with:
           node-version: 'latest'
           cache: 'pnpm'
@@ -68,12 +68,12 @@ jobs:
     name: Build Check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: pnpm/action-setup@v4
         with:
           version: 'latest'
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v6
         with:
           node-version: 'latest'
           cache: 'pnpm'
