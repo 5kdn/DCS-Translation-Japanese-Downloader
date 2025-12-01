@@ -4,6 +4,8 @@
 // @ts-ignore
 import { CreatePrRequestBuilderRequestsMetadata, type CreatePrRequestBuilder } from './createPr/index.js';
 // @ts-ignore
+import { DownloadFilePathsRequestBuilderRequestsMetadata, type DownloadFilePathsRequestBuilder } from './downloadFilePaths/index.js';
+// @ts-ignore
 import { DownloadFilesRequestBuilderRequestsMetadata, type DownloadFilesRequestBuilder } from './downloadFiles/index.js';
 // @ts-ignore
 import { HealthRequestBuilderRequestsMetadata, type HealthRequestBuilder } from './health/index.js';
@@ -29,6 +31,10 @@ export interface ApiClient extends BaseRequestBuilder<ApiClient> {
      */
     get createPr(): CreatePrRequestBuilder;
     /**
+     * The downloadFilePaths property
+     */
+    get downloadFilePaths(): DownloadFilePathsRequestBuilder;
+    /**
      * The downloadFiles property
      */
     get downloadFiles(): DownloadFilesRequestBuilder;
@@ -53,20 +59,20 @@ export function createApiClient(requestAdapter: RequestAdapter) {
     const serializationWriterFactory = requestAdapter.getSerializationWriterFactory() as SerializationWriterFactoryRegistry;
     const parseNodeFactoryRegistry = requestAdapter.getParseNodeFactory() as ParseNodeFactoryRegistry;
     const backingStoreFactory = requestAdapter.getBackingStoreFactory();
-
+    
     if (parseNodeFactoryRegistry.registerDefaultDeserializer) {
         parseNodeFactoryRegistry.registerDefaultDeserializer(JsonParseNodeFactory, backingStoreFactory);
         parseNodeFactoryRegistry.registerDefaultDeserializer(TextParseNodeFactory, backingStoreFactory);
         parseNodeFactoryRegistry.registerDefaultDeserializer(FormParseNodeFactory, backingStoreFactory);
     }
-
+    
     if (serializationWriterFactory.registerDefaultSerializer) {
         serializationWriterFactory.registerDefaultSerializer(JsonSerializationWriterFactory);
         serializationWriterFactory.registerDefaultSerializer(TextSerializationWriterFactory);
         serializationWriterFactory.registerDefaultSerializer(FormSerializationWriterFactory);
         serializationWriterFactory.registerDefaultSerializer(MultipartSerializationWriterFactory);
     }
-
+    
     if (requestAdapter.baseUrl === undefined || requestAdapter.baseUrl === null || requestAdapter.baseUrl === "") {
         requestAdapter.baseUrl = "https://dcs-translation-japanese-cloudflare-worker.dcs-translation-japanese.workers.dev";
     }
@@ -85,6 +91,9 @@ export const ApiClientUriTemplate = "{+baseurl}";
 export const ApiClientNavigationMetadata: Record<Exclude<keyof ApiClient, KeysToExcludeForNavigationMetadata>, NavigationMetadata> = {
     createPr: {
         requestsMetadata: CreatePrRequestBuilderRequestsMetadata,
+    },
+    downloadFilePaths: {
+        requestsMetadata: DownloadFilePathsRequestBuilderRequestsMetadata,
     },
     downloadFiles: {
         requestsMetadata: DownloadFilesRequestBuilderRequestsMetadata,

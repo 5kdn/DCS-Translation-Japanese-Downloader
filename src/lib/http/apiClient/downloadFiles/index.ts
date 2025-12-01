@@ -323,7 +323,7 @@ export interface DownloadFilesPostRequestBody extends AdditionalDataHolder, Pars
  */
 export interface DownloadFilesRequestBuilder extends BaseRequestBuilder<DownloadFilesRequestBuilder> {
     /**
-     * 指定したリポジトリから複数のファイルを取得し、ZIP ストリームで返却するエンドポイントです。用途: UI からの一括ダウンロードや外部連携。リクエスト:- JSON Body { paths: string[] } を必須とし、空文字・重複・不正パスを検証します。制限:- 件数上限: 500。- 単一ファイル上限: 104857600 bytes。合計上限: 1073741824 bytes。レート制限:- Token Bucket を使用します。X-RateLimit-* ヘッダを返却し、超過時は 429 を返します。キャッシュ:- If-None-Match を評価し、ETag が一致する場合は 304 を返します。エラー応答:- application/problem+json を返します。type は validation / unprocessable / rate-limit / internal を使用します。
+     * 指定したリポジトリから複数のファイルを取得し、ZIP ストリームで返却するエンドポイントです。用途: UI からの一括ダウンロードや外部連携。リクエスト:- JSON Body { paths: string[] } を必須とし、空文字・重複・不正パスを検証します。制限:- 件数上限: 50。- 単一ファイル上限: 104857600 bytes。合計上限: 1073741824 bytes。レート制限:- Token Bucket を使用します。X-RateLimit-* ヘッダを返却し、超過時は 429 を返します。キャッシュ:- If-None-Match を評価し、ETag が一致する場合は 304 を返します。エラー応答:- application/problem+json を返します。type は validation / unprocessable / rate-limit / internal を使用します。
      * @param body The request body
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @throws {DownloadFiles400Error} error when the service returns a 400 status code
@@ -333,7 +333,7 @@ export interface DownloadFilesRequestBuilder extends BaseRequestBuilder<Download
      */
      post(body: DownloadFilesPostRequestBody, requestConfiguration?: RequestConfiguration<object> | undefined) : Promise<void>;
     /**
-     * 指定したリポジトリから複数のファイルを取得し、ZIP ストリームで返却するエンドポイントです。用途: UI からの一括ダウンロードや外部連携。リクエスト:- JSON Body { paths: string[] } を必須とし、空文字・重複・不正パスを検証します。制限:- 件数上限: 500。- 単一ファイル上限: 104857600 bytes。合計上限: 1073741824 bytes。レート制限:- Token Bucket を使用します。X-RateLimit-* ヘッダを返却し、超過時は 429 を返します。キャッシュ:- If-None-Match を評価し、ETag が一致する場合は 304 を返します。エラー応答:- application/problem+json を返します。type は validation / unprocessable / rate-limit / internal を使用します。
+     * 指定したリポジトリから複数のファイルを取得し、ZIP ストリームで返却するエンドポイントです。用途: UI からの一括ダウンロードや外部連携。リクエスト:- JSON Body { paths: string[] } を必須とし、空文字・重複・不正パスを検証します。制限:- 件数上限: 50。- 単一ファイル上限: 104857600 bytes。合計上限: 1073741824 bytes。レート制限:- Token Bucket を使用します。X-RateLimit-* ヘッダを返却し、超過時は 429 を返します。キャッシュ:- If-None-Match を評価し、ETag が一致する場合は 304 を返します。エラー応答:- application/problem+json を返します。type は validation / unprocessable / rate-limit / internal を使用します。
      * @param body The request body
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns {RequestInformation}
