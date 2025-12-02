@@ -1,7 +1,11 @@
 import type { AuthenticationProvider } from '@microsoft/kiota-abstractions';
 import { FetchRequestAdapter, HttpClient } from '@microsoft/kiota-http-fetchlibrary';
 import { createApiClient } from './http/apiClient/apiClient';
-import { DownloadFilesRequestBuilderRequestsMetadata } from './http/apiClient/downloadFiles/index.js';
+import {
+  createDownloadFilePathsPostResponseFromDiscriminatorValue,
+  type DownloadFilePathsPostResponse_files,
+  DownloadFilePathsRequestBuilderRequestsMetadata,
+} from './http/apiClient/downloadFilePaths/index.js';
 
 const API_TIMEOUT_MS = 300_000;
 
@@ -66,19 +70,35 @@ const baseUrl = import.meta.env.VITE_API_BASE_URL;
 if (baseUrl) adapter.baseUrl = baseUrl;
 export const apiClient = createApiClient(adapter);
 
-/** download-files エンドポイントからZIPバイナリを取得する。 */
-export const downloadFilesAsArrayBuffer = async (paths: string[]): Promise<ArrayBuffer> => {
+export type DownloadFileTarget = { path: string; url: string };
+
+/** download-file-paths エンドポイントからRAW URL一覧を取得する。 */
+export const fetchDownloadFileUrls = async (paths: string[]): Promise<DownloadFileTarget[]> => {
   if (paths.length === 0) {
     throw new Error('取得対象が指定されていません。');
   }
-  const requestInfo = apiClient.downloadFiles.toPostRequestInformation({ paths });
-  const metadata = DownloadFilesRequestBuilderRequestsMetadata.post;
+  const requestInfo = apiClient.downloadFilePaths.toPostRequestInformation({ paths });
+  const metadata = DownloadFilePathsRequestBuilderRequestsMetadata.post;
   if (!metadata) {
-    throw new Error('download-files メタデータを取得できませんでした。');
+    throw new Error('download-file-paths メタデータを取得できませんでした。');
   }
-  const buffer = await adapter.sendPrimitive<ArrayBuffer>(requestInfo, 'ArrayBuffer', metadata.errorMappings);
-  if (!buffer) {
-    throw new Error('レスポンスが空でした。');
+  const response = await adapter.send(
+    requestInfo,
+    createDownloadFilePathsPostResponseFromDiscriminatorValue,
+    metadata.errorMappings,
+  );
+  const files = response?.files?.filter((file): file is DownloadFilePathsPostResponse_files => !!file?.path && !!file?.url);
+  if (!files?.length) {
+    throw new Error('ダウンロード対象URLを取得できませんでした。');
   }
-  return buffer;
+  return files.map((file) => ({ path: file.path as string, url: file.url as string }));
+};
+
+/** RAW URLからバイナリを取得する。 */
+export const fetchArrayBufferWithTimeout = async (url: string): Promise<ArrayBuffer> => {
+  const response = await fetchWithTimeout(url);
+  if (!response.ok) {
+    throw new Error(`ファイル取得に失敗しました（HTTP ${response.status}）`);
+  }
+  return response.arrayBuffer();
 };
