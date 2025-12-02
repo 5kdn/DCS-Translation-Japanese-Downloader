@@ -19,7 +19,7 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "generate-apiClient": "kiota generate --openapi https://dcs-translation-japanese-cloudflare-worker.dcs-translation-japanese.workers.dev/openapi.json --language TypeScript --clean-output -o src/lib/http/apiClient",
-    "generate-licenses": "license-checker-rseidelsohn --json --production --excludePrivatePackages --out src/assets/LICENSES/licenses.json --customPath license-checker-rseidelsohn-customFormat.json"
+    "generate-licenses": "license-checker-rseidelsohn --json --production --excludePrivatePackages --out src/assets/LICENSES/licenses.json --customPath license-checker-rseidelsohn-customFormat.json --clarificationsFile license-checker-rseidelsohn-license-clarifications.json"
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",
