@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import type { ApiError } from '@microsoft/kiota-abstractions';
+import JSZip from 'jszip';
 import { defineAsyncComponent, ref } from 'vue';
-import { downloadFilesAsArrayBuffer } from '@/lib/client';
+import { type DownloadFileTarget, fetchArrayBufferWithTimeout, fetchDownloadFileUrls } from '@/lib/client';
 
 defineOptions({
   components: {
@@ -34,16 +35,23 @@ const resolveErrorMessage = (error: unknown, fallback: string): string => {
   return error instanceof Error && error.message ? error.message : fallback;
 };
 
-const fetchDownloadFiles = async (paths: string[]): Promise<Blob> => {
-  const arrayBuffer = await downloadFilesAsArrayBuffer(paths);
-  return new Blob([arrayBuffer], { type: 'application/zip' });
+const createZipFromTargets = async (targets: DownloadFileTarget[]): Promise<Blob> => {
+  const zip = new JSZip();
+  await Promise.all(
+    targets.map(async (target) => {
+      const buffer = await fetchArrayBufferWithTimeout(target.url);
+      zip.file(target.path, buffer);
+    }),
+  );
+  return zip.generateAsync({ type: 'blob' });
 };
 
 // biome-ignore lint/correctness/noUnusedVariables: Templateで使用している
 const ButtonClickCommand = async () => {
   isEnable.value = false;
   try {
-    const blob = await fetchDownloadFiles(props.paths);
+    const targets = await fetchDownloadFileUrls(props.paths);
+    const blob = await createZipFromTargets(targets);
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;

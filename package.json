@@ -29,6 +29,7 @@
     "@microsoft/kiota-serialization-json": "1.0.0-preview.99",
     "@microsoft/kiota-serialization-multipart": "1.0.0-preview.99",
     "@microsoft/kiota-serialization-text": "1.0.0-preview.99",
+    "jszip": "^3.10.1",
     "vue": "^3.5.25",
     "vuetify": "^3.11.0"
   },
