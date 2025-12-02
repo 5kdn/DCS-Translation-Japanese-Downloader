@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.2.0](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/compare/v1.1.0...v1.2.0) (2025-12-02)
+
+
+### Features
+
+* client side file download from urls ([#17](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/issues/17)) ([5ff58d0](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/commit/5ff58d0eaf8dc01778a19eb197d08ec7c268b6cd))
+* client side file download from urls ([#18](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/issues/18)) ([6dd045d](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/commit/6dd045d0fae0b59c6c0b79903ce6742d1e7e0ad7))
+* update apiClient ([#15](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/issues/15)) ([8eb84e4](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/commit/8eb84e447bbfc4c7baabfe26e02a1c6d5cb6089b))
+
 ## [1.1.0](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/compare/v1.0.0...v1.1.0) (2025-12-01)
 
 
