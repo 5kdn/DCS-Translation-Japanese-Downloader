@@ -3,6 +3,7 @@ import { FetchRequestAdapter, HttpClient } from '@microsoft/kiota-http-fetchlibr
 import { createApiClient } from './http/apiClient/apiClient';
 import {
   createDownloadFilePathsPostResponseFromDiscriminatorValue,
+  type DownloadFilePathsPostResponse,
   type DownloadFilePathsPostResponse_files,
   DownloadFilePathsRequestBuilderRequestsMetadata,
 } from './http/apiClient/downloadFilePaths/index.js';
@@ -82,12 +83,15 @@ export const fetchDownloadFileUrls = async (paths: string[]): Promise<DownloadFi
   if (!metadata) {
     throw new Error('download-file-paths メタデータを取得できませんでした。');
   }
-  const response = await adapter.send(
+  const response = await adapter.send<DownloadFilePathsPostResponse>(
     requestInfo,
     createDownloadFilePathsPostResponseFromDiscriminatorValue,
     metadata.errorMappings,
   );
-  const files = response?.files?.filter((file): file is DownloadFilePathsPostResponse_files => !!file?.path && !!file?.url);
+  const files = response?.files?.filter(
+    (file: DownloadFilePathsPostResponse_files | undefined | null): file is DownloadFilePathsPostResponse_files =>
+      !!file?.path && !!file?.url,
+  );
   if (!files?.length) {
     throw new Error('ダウンロード対象URLを取得できませんでした。');
   }
