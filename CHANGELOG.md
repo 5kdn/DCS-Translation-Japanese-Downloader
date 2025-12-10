@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/compare/v1.2.0...v1.3.0) (2025-12-10)
+
+
+### Features
+
+* DownloadItem コンポーネントにファイルリストを追加 ([#24](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/issues/24)) ([7935109](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/commit/7935109540e73a5a46a2c59c17801d47ed857de3)), closes [#22](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/issues/22)
+
 ## [1.2.0](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/compare/v1.1.0...v1.2.0) (2025-12-02)
 
 
