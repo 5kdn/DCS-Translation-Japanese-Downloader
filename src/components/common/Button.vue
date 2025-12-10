@@ -5,20 +5,25 @@ const props = withDefaults(
   defineProps<{
     label: string;
     primary?: boolean;
+    color?: 'primary' | 'secondary' | 'error';
     size?: 'small' | 'medium' | 'large';
     disabled?: boolean;
     loading?: boolean;
   }>(),
   {
     primary: true,
+    color: undefined,
     disabled: false,
     loading: false,
   },
 );
 
-const emit = defineEmits<(e: 'click') => void>();
+const emit = defineEmits<(e: 'click', event: MouseEvent) => void>();
 
-const color = computed(() => (props.primary === false ? 'secondary' : 'primary'));
+const color = computed(() => {
+  if (props.color) return props.color;
+  return props.primary === false ? 'secondary' : 'primary';
+});
 const size = computed(() => {
   switch (props.size) {
     case 'small':
@@ -42,9 +47,9 @@ const spinnerSize = computed(() => {
   }
 });
 
-const onClick = () => {
+const onClick = (event: MouseEvent) => {
   if (props.loading) return;
-  emit('click');
+  emit('click', event);
 };
 
 defineExpose({ color, size, onClick, isDisabled, spinnerSize });
