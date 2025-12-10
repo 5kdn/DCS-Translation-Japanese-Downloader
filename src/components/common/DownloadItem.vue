@@ -47,7 +47,7 @@ const createZipFromTargets = async (targets: DownloadFileTarget[]): Promise<Blob
 };
 
 // biome-ignore lint/correctness/noUnusedVariables: Templateで使用している
-const ButtonClickCommand = async () => {
+const DownloadButtonClickCommand = async () => {
   isEnable.value = false;
   try {
     const targets = await fetchDownloadFileUrls(props.paths);
@@ -71,12 +71,18 @@ const ButtonClickCommand = async () => {
 </script>
 
 <template lang="pug">
-v-container#wrapper.d-flex.align-center.rounded
-  div.text-area(style="min-width:0")
-    p.d-print-block {{ props.title }}
-  v-spacer
-  div#button-wrapper.ml-1
-    Button(label='DL' size='small' :disabled="!isEnable" :loading="!isEnable" @click='ButtonClickCommand')
+v-container.rounded
+  v-expansion-panels: v-expansion-panel
+    v-expansion-panel-title#wrapper.d-flex.align-center
+      div.text-area
+        p.d-print-block {{ props.title }}
+      div#button-wrapper.ml-1
+        Button.dl(label='DL' size='small' :disabled="!isEnable" :loading="!isEnable" @click.stop='DownloadButtonClickCommand')
+    v-expansion-panel-text.px-5
+      v-list.pa-0
+        v-list-item.mb-2(v-for='path in props.paths' :key='path' density='compact')
+          v-list-item-title.path-text
+            p.path-text__label {{ path }}
 </template>
 
 <style lang="scss" scoped>
@@ -88,8 +94,40 @@ v-container#wrapper.d-flex.align-center.rounded
 
 #wrapper {
   transition: background 0.1s;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
   &:hover {
     background: rgb(var(--v-theme-secondary));
+  }
+}
+
+.text-area {
+  flex: 1 1 auto;
+  min-width: 0;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+}
+
+#button-wrapper {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 0.25rem;
+}
+
+.path-text {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  &__label {
+    flex: 1 1 auto;
+    min-width: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    line-height: 1.2;
   }
 }
 </style>

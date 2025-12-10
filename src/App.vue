@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { ApiError } from '@microsoft/kiota-abstractions';
-import type { Ref } from 'vue';
+import type { ComputedRef, Ref } from 'vue';
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue';
 import { apiClient } from '@/lib/client';
 import type { TreeGetResponse_data } from '@/lib/http/apiClient/tree/index';
@@ -17,7 +17,18 @@ const treeItems = ref<TreeEntry[]>([]);
 const isLoading = ref(true);
 const errorMessage = ref<string | null>(null);
 
-const createCategoryList = (treeItems: Ref<TreeEntry[]>, prefix: string, ignorePatterns: string[] = []) =>
+/**
+ * @summary ツリー項目からカテゴリごとのパスリストを生成する。
+ * @param treeItems ツリー項目一覧を保持する参照を受け取る。
+ * @param prefix カテゴリ抽出対象とするパスのプレフィックスを指定する。
+ * @param ignorePatterns カテゴリ抽出時に除外するパスのプレフィックス一覧を指定する。
+ * @returns プレフィックスに合致したカテゴリ名とパス配列の組をリアクティブに返す。
+ */
+const createCategoryList = (
+  treeItems: Ref<TreeEntry[]>,
+  prefix: string,
+  ignorePatterns: string[] = [],
+): ComputedRef<{ name: string; paths: string[] }[]> =>
   computed<Category[]>(() => {
     const categories: Record<string, string[]> = {};
     treeItems.value.forEach((item) => {
@@ -38,16 +49,17 @@ const createCategoryList = (treeItems: Ref<TreeEntry[]>, prefix: string, ignoreP
     });
   });
 
-// biome-ignore lint/correctness/noUnusedVariables: Templateで使用している
-const aircrafts = createCategoryList(treeItems, 'DCSWorld/Mods/aircraft/');
-// biome-ignore lint/correctness/noUnusedVariables: Templateで使用している
-const dlcCampaigns = createCategoryList(treeItems, 'DCSWorld/Mods/campaigns/');
+const _aircrafts = createCategoryList(treeItems, 'DCSWorld/Mods/aircraft/');
+const _dlcCampaigns = createCategoryList(treeItems, 'DCSWorld/Mods/campaigns/');
+const _userCampaigns = createCategoryList(treeItems, 'UserMissions/Campaigns/');
+const _userMissions = createCategoryList(treeItems, 'UserMissions/', ['UserMissions/Campaigns/']);
 
-// biome-ignore lint/correctness/noUnusedVariables: Templateで使用している
-const userCampaigns = createCategoryList(treeItems, 'UserMissions/Campaigns/');
-// biome-ignore lint/correctness/noUnusedVariables: Templateで使用している
-const userMissions = createCategoryList(treeItems, 'UserMissions/', ['UserMissions/Campaigns/']);
-
+/**
+ * @summary APIエラーを表示用メッセージに変換する。
+ * @param error APIクライアントから受け取るエラーオブジェクトを受け取る。
+ * @param fallback messageが取得できなかった場合に用いるフォールバック文言を指定する。
+ * @returns 画面表示向けのエラーメッセージ文字列を返す。
+ */
 const toErrorMessage = (error: unknown, fallback: string): string => {
   if (error && typeof error === 'object' && 'responseStatusCode' in error) {
     const { responseStatusCode } = error as ApiError;
@@ -61,17 +73,26 @@ const toErrorMessage = (error: unknown, fallback: string): string => {
   return error instanceof Error && error.message ? error.message : fallback;
 };
 
+/**
+ * @summary TreeGetResponseの要素がTreeEntryとして扱えるかを判定する。
+ * @param item APIから受け取るツリー要素またはnull/undefinedを受け取る。
+ * @returns path文字列を持つ場合にtrueを返し、ガードとしてTreeEntry型を確定させる。
+ */
 const isTreeEntry = (item: TreeGetResponse_data | null | undefined): item is TreeEntry =>
   typeof item?.path === 'string' && item.path.length > 0;
 
-/** エラー表示位置までスクロールする。 */
+/**
+ * @summary エラー表示位置までスクロールする。
+ */
 const scrollToAnnounce = (): void => {
   if (typeof window === 'undefined') return;
   const target = document.getElementById('announce-area');
   target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 };
 
-/** APIの死活監視を行う。正常時にtrueを返す。 */
+/**
+ * @summary APIの死活監視を行う。正常時にtrueを返す。
+ */
 const checkApiHealth = async (): Promise<boolean> => {
   try {
     const result = await apiClient.health.get();
@@ -86,7 +107,9 @@ const checkApiHealth = async (): Promise<boolean> => {
   }
 };
 
-/** treeを取得する。 */
+/**
+ * @summary treeを取得する。
+ */
 const fetchTree = async (): Promise<void> => {
   try {
     const result = await apiClient.tree.get();
@@ -103,15 +126,18 @@ const fetchTree = async (): Promise<void> => {
   }
 };
 
-/** ダウンロード失敗時のエラーメッセージを設定する。 */
-// biome-ignore lint/correctness/noUnusedVariables: Templateで使用している
-const handleDownloadError = (message: string): void => {
+/**
+ * @summary ダウンロード失敗時のエラーメッセージを設定する。
+ */
+const _handleDownloadError = (message: string): void => {
   errorMessage.value = message;
   scrollToAnnounce();
 };
 
-// biome-ignore lint/correctness/noUnusedVariables: Templateで使用している
-const handleAlertClose = (): void => {
+/**
+ * @summary エラーメッセージを閉じる。
+ */
+const _handleAlertClose = (): void => {
   errorMessage.value = null;
 };
 
@@ -133,31 +159,31 @@ v-container#app-wrapper.pt-10
 
   v-container#announce-area
     v-alert(type="info" variant="tonal" v-if="isLoading") 読み込み中です...
-    v-alert(type="error" variant="tonal" :text="errorMessage" v-if="errorMessage" class="my-4" closable @click:close="handleAlertClose")
+    v-alert(type="error" variant="tonal" :text="errorMessage" v-if="errorMessage" class="my-4" closable @click:close="_handleAlertClose")
 
-  v-container(v-if="aircrafts.length > 0")
+  v-container(v-if="_aircrafts.length > 0")
     h2.text-h2.mt-10.mb-5 Aircrafts
     v-list
-      v-list-item(v-for="item in aircrafts" :key="item.name")
-        DownloadItem(:paths="item.paths" :title="item.name" @error="handleDownloadError")
+      v-list-item(v-for="item in _aircrafts" :key="item.name")
+        DownloadItem(:paths="item.paths" :title="item.name" @error="_handleDownloadError")
 
-  v-container(v-if="dlcCampaigns.length > 0")
+  v-container(v-if="_dlcCampaigns.length > 0")
     h2.text-h2.mt-10.mb-5 DLC Campaigns
     v-list
-      v-list-item(v-for="item in dlcCampaigns" :key="item.name")
-        DownloadItem(:paths="item.paths" :title="item.name" @error="handleDownloadError")
+      v-list-item(v-for="item in _dlcCampaigns" :key="item.name")
+        DownloadItem(:paths="item.paths" :title="item.name" @error="_handleDownloadError")
 
-  v-container(v-if="userCampaigns.length > 0")
+  v-container(v-if="_userCampaigns.length > 0")
     h2.text-h2.mt-10.mb-5 User Campaigns
     v-list
-      v-list-item(v-for="item in userCampaigns" :key="item.name")
-        DownloadItem(:paths="item.paths" :title="item.name" @error="handleDownloadError")
+      v-list-item(v-for="item in _userCampaigns" :key="item.name")
+        DownloadItem(:paths="item.paths" :title="item.name" @error="_handleDownloadError")
 
-  v-container(v-if="userMissions.length > 0")
+  v-container(v-if="_userMissions.length > 0")
     h2.text-h2.mt-10.mb-5 User Missions
     v-list
-      v-list-item(v-for="item in userMissions" :key="item.name")
-        DownloadItem(:paths="item.paths" :title="item.name" @error="handleDownloadError")
+      v-list-item(v-for="item in _userMissions" :key="item.name")
+        DownloadItem(:paths="item.paths" :title="item.name" @error="_handleDownloadError")
 
 v-container
   Footer

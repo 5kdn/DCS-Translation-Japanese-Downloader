@@ -9,11 +9,19 @@ import 'vuetify/styles';
 
 // Composables
 import { createVuetify } from 'vuetify';
+import { aliases, mdi } from 'vuetify/iconsets/mdi';
 
 const vuetify = createVuetify({
   components,
   directives,
   ssr: true, // SSRを使用する場合
+  icons: {
+    defaultSet: 'mdi',
+    aliases,
+    sets: {
+      mdi,
+    },
+  },
   theme: {
     themes: {
       light: {
