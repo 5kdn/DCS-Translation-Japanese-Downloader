@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.0](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/compare/v1.3.0...v1.4.0) (2025-12-11)
+
+
+### Features
+
+* DownloadItem に報告ボタンを追加する ([#31](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/issues/31)) ([16f7e7a](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/commit/16f7e7a63c842afae53811f345767434b96b6d92))
+* update apiClient ([#29](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/issues/29)) ([aed0400](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/commit/aed040044c882b29a532234758d76c19710e8edd)), closes [#28](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/issues/28)
+
 ## [1.3.0](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/compare/v1.2.0...v1.3.0) (2025-12-10)
 
 
