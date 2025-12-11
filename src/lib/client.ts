@@ -2,6 +2,12 @@ import type { AuthenticationProvider } from '@microsoft/kiota-abstractions';
 import { FetchRequestAdapter, HttpClient } from '@microsoft/kiota-http-fetchlibrary';
 import { createApiClient } from './http/apiClient/apiClient';
 import {
+  type CreateIssuePostResponse,
+  type CreateIssuePostResponse_data,
+  CreateIssueRequestBuilderRequestsMetadata,
+  createCreateIssuePostResponseFromDiscriminatorValue,
+} from './http/apiClient/createIssue/index.js';
+import {
   createDownloadFilePathsPostResponseFromDiscriminatorValue,
   type DownloadFilePathsPostResponse,
   type DownloadFilePathsPostResponse_files,
@@ -72,6 +78,43 @@ if (baseUrl) adapter.baseUrl = baseUrl;
 export const apiClient = createApiClient(adapter);
 
 export type DownloadFileTarget = { path: string; url: string };
+export type CreateIssuePayload = {
+  title: string;
+  body?: string | null;
+  labels?: string[] | null;
+  assignees?: string[] | null;
+};
+export type CreatedIssue = { issueNumber: number; issueUrl: string };
+
+/** create-issue エンドポイントで Issue を作成する。 */
+export const createIssue = async (payload: CreateIssuePayload): Promise<CreatedIssue> => {
+  if (!payload.title) {
+    throw new Error('Issue タイトルが指定されていません。');
+  }
+  const metadata = CreateIssueRequestBuilderRequestsMetadata.post;
+  if (!metadata) {
+    throw new Error('create-issue メタデータを取得できませんでした。');
+  }
+  const requestInfo = apiClient.createIssue.toPostRequestInformation({
+    title: payload.title,
+    body: payload.body,
+    labels: payload.labels,
+    assignees: payload.assignees,
+  });
+  const response = await adapter.send<CreateIssuePostResponse>(
+    requestInfo,
+    createCreateIssuePostResponseFromDiscriminatorValue,
+    metadata.errorMappings,
+  );
+  const issue = response?.data?.find(
+    (item): item is CreateIssuePostResponse_data & { issueNumber: number; issueUrl: string } =>
+      typeof item?.issueNumber === 'number' && typeof item.issueUrl === 'string',
+  );
+  if (!issue) {
+    throw new Error('Issue 作成結果を取得できませんでした。');
+  }
+  return { issueNumber: issue.issueNumber, issueUrl: issue.issueUrl };
+};
 
 /** download-file-paths エンドポイントからRAW URL一覧を取得する。 */
 export const fetchDownloadFileUrls = async (paths: string[]): Promise<DownloadFileTarget[]> => {

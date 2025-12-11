@@ -7,6 +7,7 @@ import { type DownloadFileTarget, fetchArrayBufferWithTimeout, fetchDownloadFile
 defineOptions({
   components: {
     Button: defineAsyncComponent(() => import('./Button.vue')),
+    IssueDialog: defineAsyncComponent(() => import('./IssueDialog.vue')),
   },
 });
 
@@ -18,6 +19,15 @@ const props = defineProps<{
 const emit = defineEmits<(e: 'error', message: string) => void>();
 
 const isEnable = ref(true);
+const issueDialogModel = ref(false);
+const issueDialogPath = ref('');
+
+const resolveIssueDialogPath = (): string => {
+  const basePath = props.paths[0] ?? '';
+  if (!props.title || basePath.length === 0) return props.title || basePath;
+  const idx = basePath.indexOf(props.title);
+  return idx >= 0 ? basePath.slice(0, idx + props.title.length) : basePath;
+};
 
 const resolveErrorMessage = (error: unknown, fallback: string): string => {
   if (error && typeof error === 'object') {
@@ -46,8 +56,24 @@ const createZipFromTargets = async (targets: DownloadFileTarget[]): Promise<Blob
   return zip.generateAsync({ type: 'blob' });
 };
 
-// biome-ignore lint/correctness/noUnusedVariables: Templateで使用している
-const DownloadButtonClickCommand = async () => {
+/**
+ * @summary 報告ボタン押下時の処理。
+ */
+const _IssueDialogButtonClickCommand = async () => {
+  isEnable.value = false;
+  try {
+    issueDialogPath.value = resolveIssueDialogPath();
+    issueDialogModel.value = true;
+  } catch (err: unknown) {
+    console.error(err);
+    const message = resolveErrorMessage(err, '不明なエラーが発生しました');
+    emit('error', message);
+  } finally {
+    isEnable.value = true;
+  }
+};
+
+const _DownloadButtonClickCommand = async () => {
   isEnable.value = false;
   try {
     const targets = await fetchDownloadFileUrls(props.paths);
@@ -68,16 +94,22 @@ const DownloadButtonClickCommand = async () => {
     isEnable.value = true;
   }
 };
+
+const _OnIssueDialogError = (message: string): void => {
+  emit('error', message);
+};
 </script>
 
 <template lang="pug">
 v-container.rounded
+  IssueDialog(v-model='issueDialogModel' :path='issueDialogPath' @error='_OnIssueDialogError')
   v-expansion-panels: v-expansion-panel
     v-expansion-panel-title#wrapper.d-flex.align-center
       div.text-area
         p.d-print-block {{ props.title }}
       div#button-wrapper.ml-1
-        Button.dl(label='DL' size='small' :disabled="!isEnable" :loading="!isEnable" @click.stop='DownloadButtonClickCommand')
+        Button(label='報告' color='error' size='small' :disabled="!isEnable" @click.stop='_IssueDialogButtonClickCommand')
+        Button(label='DL' size='small' :disabled="!isEnable" :loading="!isEnable" @click.stop='_DownloadButtonClickCommand')
     v-expansion-panel-text.px-5
       v-list.pa-0
         v-list-item.mb-2(v-for='path in props.paths' :key='path' density='compact')
