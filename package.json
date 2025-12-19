@@ -30,8 +30,8 @@
     "@microsoft/kiota-serialization-multipart": "1.0.0-preview.99",
     "@microsoft/kiota-serialization-text": "1.0.0-preview.99",
     "jszip": "^3.10.1",
-    "vue": "^3.5.25",
-    "vuetify": "^3.11.3"
+    "vue": "^3.5.26",
+    "vuetify": "^3.11.4"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.10",
