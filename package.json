@@ -31,24 +31,24 @@
     "@microsoft/kiota-serialization-text": "1.0.0-preview.99",
     "jszip": "^3.10.1",
     "vue": "^3.5.25",
-    "vuetify": "^3.11.2"
+    "vuetify": "^3.11.3"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.8",
     "@storybook/vue3": "^10.1.2",
     "@storybook/vue3-vite": "^10.1.4",
-    "@types/node": "^24.10.1",
-    "@vitejs/plugin-vue": "^6.0.2",
-    "@vue/language-plugin-pug": "^3.1.7",
+    "@types/node": "^25.0.2",
+    "@vitejs/plugin-vue": "^6.0.3",
+    "@vue/language-plugin-pug": "^3.1.8",
     "@vue/tsconfig": "^0.8.1",
     "esbuild": "^0.27.1",
-    "jsdom": "^27.2.0",
+    "jsdom": "^27.3.0",
     "license-checker-rseidelsohn": "^4.4.2",
-    "sass": "^1.94.2",
-    "storybook": "^10.1.4",
+    "sass": "^1.96.0",
+    "storybook": "^10.1.8",
     "terser": "^5.44.1",
     "typescript": "^5.9.3",
-    "vite": "^7.2.6",
-    "vue-tsc": "^3.1.7"
+    "vite": "^7.2.7",
+    "vue-tsc": "^3.1.8"
   }
 }
