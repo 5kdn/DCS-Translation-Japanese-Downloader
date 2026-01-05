@@ -20,11 +20,11 @@ const props = withDefaults(
 
 const emit = defineEmits<(e: 'click', event: MouseEvent) => void>();
 
-const color = computed(() => {
+const color = computed((): 'primary' | 'secondary' | 'error' => {
   if (props.color) return props.color;
   return props.primary === false ? 'secondary' : 'primary';
 });
-const size = computed(() => {
+const size = computed((): 'small' | 'large' | undefined => {
   switch (props.size) {
     case 'small':
       return 'small';
@@ -35,8 +35,8 @@ const size = computed(() => {
   }
 });
 
-const isDisabled = computed(() => props.disabled || props.loading);
-const spinnerSize = computed(() => {
+const isDisabled = computed((): boolean => props.disabled || props.loading);
+const spinnerSize = computed((): number => {
   switch (props.size) {
     case 'small':
       return 16;
@@ -47,7 +47,12 @@ const spinnerSize = computed(() => {
   }
 });
 
-const onClick = (event: MouseEvent) => {
+/**
+ * @summary クリックイベントを処理して親へ通知する。
+ * @description ローディング中はクリックを無視する。
+ * @param event マウスイベントを指定する。
+ */
+const onClick = (event: MouseEvent): void => {
   if (props.loading) return;
   emit('click', event);
 };
