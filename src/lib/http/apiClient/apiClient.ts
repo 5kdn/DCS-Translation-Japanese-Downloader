@@ -86,7 +86,7 @@ export function createApiClient(requestAdapter: RequestAdapter) {
     }
     
     if (requestAdapter.baseUrl === undefined || requestAdapter.baseUrl === null || requestAdapter.baseUrl === "") {
-        requestAdapter.baseUrl = "http://127.0.0.1:8787";
+        requestAdapter.baseUrl = "https://dcs-translation-japanese-cloudflare-worker.dcs-translation-japanese.workers.dev";
     }
     const pathParameters: Record<string, unknown> = {
         "baseurl": requestAdapter.baseUrl,
