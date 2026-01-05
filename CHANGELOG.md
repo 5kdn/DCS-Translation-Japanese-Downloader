@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/compare/v1.4.0...v1.5.0) (2026-01-05)
+
+
+### Features
+
+* issue関連のUIとAPIクライアントを刷新 ([#48](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/issues/48)) ([832efc3](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/commit/832efc323cceaf7536e45c95de4b501317976d72))
+
 ## [1.4.0](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/compare/v1.3.0...v1.4.0) (2025-12-11)
 
 
