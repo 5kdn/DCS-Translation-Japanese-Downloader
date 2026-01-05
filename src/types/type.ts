@@ -1,16 +1,33 @@
-export interface TreeItem {
-  path: string;
-  sha: string;
-  size?: number;
-  url?: string;
-}
+/**
+ * @summary GitHub上に存在するファイル情報を示す。
+ */
+export type TreeItem = {
+  path: string | undefined;
+  type: 'blob' | undefined;
+  mode: string | undefined;
+  url: string | undefined;
+  sha: string | undefined;
+  size: number | undefined;
+  updatedAt: Date | undefined;
+};
 
 /**
- * /download-zip エントリのリクエストペイロードを表現する。
+ * @summary GitHub上に存在するIssueを示す。
  */
-export type DownloadZipRequest = {
-  path: string; // ダウンロード対象のパス
+export type IssueItem = {
+  title: string | undefined;
+  body: string | undefined;
+  issueNumber: number | undefined;
+  state: 'open' | 'closed' | undefined;
+  issueUrl: string | undefined;
+  labels: string[] | undefined;
+  createdAt: Date | undefined;
+  updatedAt: Date | undefined;
+  closedAt?: Date | null;
+  assignees: string[] | undefined;
 };
+
+// ----------------------------------------------
 
 /**
  * エントリ返却の共通構造を定義する。
@@ -21,17 +38,7 @@ export interface ApiResponseBase<T> {
   message?: string; // 任意のメッセージ
 }
 
-/**
- * /tree エントリの返却型を表現する。
- */
-export type TreeResponse = ApiResponseBase<TreeItem[]>;
-
-/**
- * /download-zip エントリの失敗レスポンスを表現する。
- */
-export type DownloadZipFailureResponse = ApiResponseBase<undefined>;
-
-export interface Category {
+export interface DownloadItemRequirement {
   name: string;
-  paths: string[];
+  items: TreeItem[];
 }

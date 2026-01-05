@@ -1,151 +1,296 @@
-import type { AuthenticationProvider } from '@microsoft/kiota-abstractions';
-import { FetchRequestAdapter, HttpClient } from '@microsoft/kiota-http-fetchlibrary';
-import { createApiClient } from './http/apiClient/apiClient';
+import { AnonymousAuthenticationProvider } from '@microsoft/kiota-abstractions';
+import { FetchRequestAdapter } from '@microsoft/kiota-http-fetchlibrary';
 import {
-  type CreateIssuePostResponse,
-  type CreateIssuePostResponse_data,
-  CreateIssueRequestBuilderRequestsMetadata,
-  createCreateIssuePostResponseFromDiscriminatorValue,
-} from './http/apiClient/createIssue/index.js';
-import {
-  createDownloadFilePathsPostResponseFromDiscriminatorValue,
-  type DownloadFilePathsPostResponse,
-  type DownloadFilePathsPostResponse_files,
-  DownloadFilePathsRequestBuilderRequestsMetadata,
-} from './http/apiClient/downloadFilePaths/index.js';
-
-const API_TIMEOUT_MS = 300_000;
-
-const combineSignals = (signals: AbortSignal[]): { signal: AbortSignal; cleanup: () => void } => {
-  const controller = new AbortController();
-  const onAbort = (event: Event) => {
-    const reason = (event.target as AbortSignal).reason;
-    if (!controller.signal.aborted) controller.abort(reason);
-  };
-  for (const signal of signals) {
-    if (signal.aborted && !controller.signal.aborted) {
-      controller.abort(signal.reason);
-      continue;
-    }
-    signal.addEventListener('abort', onAbort);
-  }
-  const cleanup = () => {
-    signals.forEach((signal) => {
-      signal.removeEventListener('abort', onAbort);
-    });
-  };
-  return { signal: controller.signal, cleanup };
-};
-
-const createRequestInitWithTimeout = (init: RequestInit = {}): { initWithSignal: RequestInit; cleanup: () => void } => {
-  const timeoutController = new AbortController();
-  const timeoutId = setTimeout(() => timeoutController.abort(new Error('リクエストがタイムアウトしました。')), API_TIMEOUT_MS);
-  const cleanupTimeout = () => clearTimeout(timeoutId);
-  if (!init.signal) {
-    return { initWithSignal: { ...init, signal: timeoutController.signal }, cleanup: cleanupTimeout };
-  }
-  const { signal, cleanup: cleanupSignals } = combineSignals([init.signal, timeoutController.signal]);
-  const cleanup = () => {
-    cleanupTimeout();
-    cleanupSignals();
-  };
-  return { initWithSignal: { ...init, signal }, cleanup };
-};
-
-/** fetch にタイムアウトを付与する。 */
-const fetchWithTimeout: typeof fetch = async (input, init) => {
-  const { initWithSignal, cleanup } = createRequestInitWithTimeout(init);
-  try {
-    return await fetch(input, initWithSignal);
-  } finally {
-    cleanup();
-  }
-};
-
-/** プロバイダを作成する。 */
-const createAnonymousProvider = (): AuthenticationProvider => ({
-  authenticateRequest: async () => {},
-});
+  ClientError,
+  ClientErrorCategoryObject,
+  ClientResponseError,
+  logClientError,
+  requestWithContext,
+  toClientError,
+} from '@/errors/clientErrors';
+import { parseDate, parseNullableDate } from '@/helpers/parser';
+import { createApiClient } from '@/lib/http/apiClient/apiClient';
+import { HealthGetResponse_statusObject } from '@/lib/http/apiClient/health';
+import type { CreatePostRequestBody } from '@/lib/http/apiClient/issue/create';
+import { PostStateQueryParameterTypeObject } from '@/lib/http/apiClient/issue/list';
+import type { IssueItem, TreeItem } from '@/types/type';
 
 /**
- * Kiota用のAPIクライアントを初期化する。
+ * @summary APIクライアントを生成する。
+ * @returns APIクライアントを返却する。
  */
-const provider = createAnonymousProvider();
-const httpClient = new HttpClient(fetchWithTimeout);
-const adapter = new FetchRequestAdapter(provider, undefined, undefined, httpClient);
-const baseUrl = import.meta.env.VITE_API_BASE_URL;
-if (baseUrl) adapter.baseUrl = baseUrl;
-export const apiClient = createApiClient(adapter);
+const resolveBaseUrl = (): string => {
+  const raw = import.meta.env.VITE_API_BASE_URL;
+  if (typeof raw !== 'string') {
+    throw new Error('VITE_API_BASE_URL が未設定です。');
+  }
+  const trimmed = raw.trim();
+  const unquoted = trimmed.replace(/^['"]|['"]$/g, '');
+  if (unquoted.length === 0) {
+    throw new Error('VITE_API_BASE_URL が空です。');
+  }
+  return unquoted;
+};
 
-export type DownloadFileTarget = { path: string; url: string };
-export type CreateIssuePayload = {
+const createClient = (): ReturnType<typeof createApiClient> => {
+  const requestAdapter = new FetchRequestAdapter(new AnonymousAuthenticationProvider());
+  requestAdapter.baseUrl = resolveBaseUrl();
+  return createApiClient(requestAdapter);
+};
+
+// **********************************************
+// Tree 関連
+// **********************************************
+
+/**
+ * @summary GitHub からファイル一覧を取得する。
+ * @returns ファイル一覧を返却する。
+ * @throws 通信失敗、または応答形式不正の場合に例外を送出する。
+ */
+export const fetchTree = async (): Promise<TreeItem[]> => {
+  const context = 'fetchTree';
+  const operation = 'tree.get';
+  try {
+    const apiClient = createClient();
+
+    const response = await requestWithContext(
+      context,
+      operation,
+      (): ReturnType<typeof apiClient.tree.get> => apiClient.tree.get(),
+    );
+    if (response === undefined)
+      throw new ClientResponseError({ context, operation, reason: 'undefined_response', problem: '応答が undefined である。' });
+    if (response.success === false)
+      throw new ClientResponseError({
+        context,
+        operation,
+        reason: 'success_false',
+        problem: `success=false message=${response.message ?? 'なし'}`,
+      });
+
+    const data = response.data;
+    if (data == null)
+      throw new ClientResponseError({
+        context,
+        operation,
+        reason: 'missing_field',
+        problem: 'response.data が null/undefined である。',
+        cause: response,
+      });
+
+    return data.map((d: (typeof data)[number]): TreeItem => {
+      return {
+        path: d.path ?? undefined,
+        type: d.type ?? undefined,
+        mode: d.mode ?? undefined,
+        url: d.url ?? undefined,
+        sha: d.sha ?? undefined,
+        size: d.size ?? undefined,
+        updatedAt: d.updatedAt ?? undefined,
+      } as TreeItem;
+    });
+  } catch (error: unknown) {
+    const clientError = toClientError(context, error);
+    logClientError(clientError, { function: context, operation });
+    throw clientError;
+  }
+};
+
+// **********************************************
+// Issues 関連
+// **********************************************
+
+export type ListIssueRequest = {
+  state: 'open' | 'closed' | 'all';
+};
+
+/**
+ * @summary Issue 一覧を取得して返却する。
+ * @param request 絞り込み条件を指定する。
+ * @returns Issue 一覧を返却する。
+ * @throws 通信失敗、または応答が失敗（success=false）の場合に例外を送出する。
+ */
+export const fetchIssues = async (request: ListIssueRequest): Promise<IssueItem[]> => {
+  const context = 'fetchIssues';
+  const operation = 'issue.list.post';
+  try {
+    const apiClient = createClient();
+
+    const queryParameters = {
+      state:
+        request.state === 'all'
+          ? PostStateQueryParameterTypeObject.All
+          : request.state === 'closed'
+            ? PostStateQueryParameterTypeObject.Closed
+            : PostStateQueryParameterTypeObject.Open,
+    };
+
+    const response = await requestWithContext(
+      context,
+      operation,
+      (): ReturnType<typeof apiClient.issue.list.post> => apiClient.issue.list.post({ queryParameters }),
+    );
+    if (response === undefined)
+      throw new ClientResponseError({
+        context,
+        operation,
+        reason: 'undefined_response',
+        problem: `応答が undefined である。state=${request.state}`,
+      });
+    if (response.success === false)
+      throw new ClientResponseError({
+        context,
+        operation,
+        reason: 'success_false',
+        problem: `success=false state=${request.state} message=${response.message ?? 'なし'}`,
+        cause: response,
+      });
+
+    const data = response.data;
+    if (data == null)
+      throw new ClientResponseError({
+        context,
+        operation,
+        reason: 'missing_field',
+        problem: `response.data が null/undefined である。state=${request.state}`,
+        cause: response,
+      });
+
+    return data.map((d: (typeof data)[number]): IssueItem => {
+      return {
+        title: d.title ?? undefined,
+        body: d.body ?? undefined,
+        issueNumber: d.issueNumber ?? undefined,
+        state: d.state ?? undefined,
+        issueUrl: d.issueUrl ?? undefined,
+        labels: d.labels ?? undefined,
+        createdAt: parseDate(d.createdAt),
+        updatedAt: parseDate(d.updatedAt),
+        closedAt: parseNullableDate(d.closedAt),
+        assignees: d.assignees ?? undefined,
+      };
+    });
+  } catch (error: unknown) {
+    const clientError = toClientError(context, error);
+    logClientError(clientError, { function: context, operation, request });
+    throw clientError;
+  }
+};
+
+export type CreateIssueRequest = {
   title: string;
-  body?: string | null;
+  body: string;
   labels?: string[] | null;
   assignees?: string[] | null;
 };
-export type CreatedIssue = { issueNumber: number; issueUrl: string };
 
-/** create-issue エンドポイントで Issue を作成する。 */
-export const createIssue = async (payload: CreateIssuePayload): Promise<CreatedIssue> => {
-  if (!payload.title) {
-    throw new Error('Issue タイトルが指定されていません。');
-  }
-  const metadata = CreateIssueRequestBuilderRequestsMetadata.post;
-  if (!metadata) {
-    throw new Error('create-issue メタデータを取得できませんでした。');
-  }
-  const requestInfo = apiClient.createIssue.toPostRequestInformation({
-    title: payload.title,
-    body: payload.body,
-    labels: payload.labels,
-    assignees: payload.assignees,
-  });
-  const response = await adapter.send<CreateIssuePostResponse>(
-    requestInfo,
-    createCreateIssuePostResponseFromDiscriminatorValue,
-    metadata.errorMappings,
-  );
-  const issue = response?.data?.find(
-    (item): item is CreateIssuePostResponse_data & { issueNumber: number; issueUrl: string } =>
-      typeof item?.issueNumber === 'number' && typeof item.issueUrl === 'string',
-  );
-  if (!issue) {
-    throw new Error('Issue 作成結果を取得できませんでした。');
-  }
-  return { issueNumber: issue.issueNumber, issueUrl: issue.issueUrl };
+export type CreateIssueItem = {
+  issueUrl?: string | null;
+  issueNumber?: number | null;
 };
 
-/** download-file-paths エンドポイントからRAW URL一覧を取得する。 */
-export const fetchDownloadFileUrls = async (paths: string[]): Promise<DownloadFileTarget[]> => {
-  if (paths.length === 0) {
-    throw new Error('取得対象が指定されていません。');
+export type CreateIssueResponse = CreateIssueItem[];
+
+/**
+ * @summary Issue を作成して返却する。
+ * @param request 作成内容を指定する。
+ * @returns 作成結果の一覧を返却する。通常は 1 件であるが、API の仕様により複数件となる場合がある。
+ * @throws 通信失敗、または応答が失敗（success=false）の場合に例外を送出する。
+ */
+export const fetchCreateIssue = async (request: CreateIssueRequest): Promise<CreateIssueResponse> => {
+  const context = 'fetchCreateIssue';
+  const operation = 'issue.create.post';
+  try {
+    if (request.title.trim() === '') {
+      throw new ClientError({
+        category: ClientErrorCategoryObject.InvalidRequest,
+        context,
+        operation,
+        message: `${context}: ${operation} のリクエストが不正である。title が空である。`,
+        cause: request,
+      });
+    }
+
+    const apiClient = createClient();
+
+    const body: CreatePostRequestBody = {
+      title: request.title,
+      body: request.body,
+      labels: request.labels,
+      assignees: request.assignees,
+    };
+
+    const response = await requestWithContext(
+      context,
+      operation,
+      (): ReturnType<typeof apiClient.issue.create.post> => apiClient.issue.create.post(body),
+    );
+    if (response === undefined)
+      throw new ClientResponseError({ context, operation, reason: 'undefined_response', problem: '応答が undefined である。' });
+    if (response.success === false)
+      throw new ClientResponseError({
+        context,
+        operation,
+        reason: 'success_false',
+        problem: `success=false message=${response.message ?? 'なし'}`,
+        cause: response,
+      });
+
+    const data = response.data;
+    if (data == null)
+      throw new ClientResponseError({
+        context,
+        operation,
+        reason: 'missing_field',
+        problem: 'response.data が null/undefined である。',
+        cause: response,
+      });
+
+    return data.map((d: (typeof data)[number]): CreateIssueItem => {
+      return {
+        issueNumber: d.issueNumber,
+        issueUrl: d.issueUrl,
+      } as CreateIssueItem;
+    });
+  } catch (error: unknown) {
+    const clientError = toClientError(context, error);
+    logClientError(clientError, {
+      function: context,
+      operation,
+      request: {
+        titleLength: request.title.length,
+        bodyLength: request.body.length,
+        labelsCount: request.labels?.length ?? 0,
+        assigneesCount: request.assignees?.length ?? 0,
+      },
+    });
+    throw clientError;
   }
-  const requestInfo = apiClient.downloadFilePaths.toPostRequestInformation({ paths });
-  const metadata = DownloadFilePathsRequestBuilderRequestsMetadata.post;
-  if (!metadata) {
-    throw new Error('download-file-paths メタデータを取得できませんでした。');
-  }
-  const response = await adapter.send<DownloadFilePathsPostResponse>(
-    requestInfo,
-    createDownloadFilePathsPostResponseFromDiscriminatorValue,
-    metadata.errorMappings,
-  );
-  const files = response?.files?.filter(
-    (file: DownloadFilePathsPostResponse_files | undefined | null): file is DownloadFilePathsPostResponse_files =>
-      !!file?.path && !!file?.url,
-  );
-  if (!files?.length) {
-    throw new Error('ダウンロード対象URLを取得できませんでした。');
-  }
-  return files.map((file) => ({ path: file.path as string, url: file.url as string }));
 };
 
-/** RAW URLからバイナリを取得する。 */
-export const fetchArrayBufferWithTimeout = async (url: string): Promise<ArrayBuffer> => {
-  const response = await fetchWithTimeout(url);
-  if (!response.ok) {
-    throw new Error(`ファイル取得に失敗しました（HTTP ${response.status}）`);
+// **********************************************
+// Health 関連
+// **********************************************
+
+/**
+ * @summary APIサーバーの死活監視を行う。
+ * @returns APIサーバーの死活状態。
+ * @throws API 呼び出しに失敗した場合は例外を送出する。
+ */
+export const healthCheck = async (): Promise<boolean> => {
+  const context = 'healthCheck';
+  const operation = 'health.get';
+  try {
+    const apiClient = createClient();
+    const response = await requestWithContext(
+      context,
+      operation,
+      (): ReturnType<typeof apiClient.health.get> => apiClient.health.get(),
+    );
+    return response?.status === HealthGetResponse_statusObject.Ok;
+  } catch (error: unknown) {
+    const clientError = toClientError(context, error);
+    logClientError(clientError, { function: context, operation });
+    throw clientError;
   }
-  return response.arrayBuffer();
 };

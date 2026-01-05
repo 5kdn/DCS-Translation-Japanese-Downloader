@@ -21,6 +21,9 @@ env:
   NODE_VERSION: '24'
   PNPM_VERSION: '10'
   VITE_API_BASE_URL: ${{ vars.API_BASE_URL }}
+  VITE_TARGET_OWNER: ${{ vars.VITE_TARGET_OWNER }}
+  VITE_TARGET_REPO: ${{ vars.VITE_TARGET_REPO }}
+  VITE_TARGET_REF: ${{ vars.VITE_TARGET_REF }}
 concurrency:
   group: pages
   cancel-in-progress: true
