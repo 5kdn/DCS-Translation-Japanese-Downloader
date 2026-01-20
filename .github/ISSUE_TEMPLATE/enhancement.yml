@@ -34,11 +34,11 @@ body:
       required: false
 
   - type: textarea
-    id: improvement
+    id: acceptance
     attributes:
-      label: 改善案
-      description: 期待する改善後の状態やアプローチを記載してください
-      placeholder: "例: 保存処理を非同期化し、進捗インジケータを表示する"
+      label: 完了条件 / メトリクス
+      description: 改善が完了したと判断できる条件や SLA を記載してください
+      placeholder: "例: `/tree` が 1s 未満で応答 / wrangler dev で GC が発生しない"
     validations:
       required: false
 
