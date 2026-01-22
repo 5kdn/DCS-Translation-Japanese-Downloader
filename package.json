@@ -50,7 +50,7 @@
     "@types/markdown-it": "^14.1.2",
     "@types/node": "^25.0.6",
     "@vitejs/plugin-vue": "^6.0.3",
-    "@vitest/browser": "4.0.16",
+    "@vitest/browser": "4.0.17",
     "@vitest/browser-playwright": "4.0.16",
     "@vue/language-plugin-pug": "^3.2.2",
     "@vue/tsconfig": "^0.8.1",
