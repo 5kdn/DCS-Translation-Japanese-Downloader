@@ -51,7 +51,7 @@
     "@types/node": "^25.0.6",
     "@vitejs/plugin-vue": "^6.0.3",
     "@vitest/browser": "4.0.16",
-    "@vitest/browser-playwright": "4.0.16",
+    "@vitest/browser-playwright": "4.0.17",
     "@vue/language-plugin-pug": "^3.2.2",
     "@vue/tsconfig": "^0.8.1",
     "esbuild": "^0.27.2",

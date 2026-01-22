@@ -67,7 +67,7 @@ importers:
         version: 10.1.11(@types/react@19.2.7)(esbuild@0.27.2)(rollup@4.55.2)(storybook@10.1.11(@testing-library/dom@10.4.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(vite@7.3.1(@types/node@25.0.6)(sass@1.97.2)(terser@5.46.0))
       '@storybook/addon-vitest':
         specifier: ^10.1.11
-        version: 10.1.11(@vitest/browser-playwright@4.0.16)(@vitest/browser@4.0.16(vite@7.3.1(@types/node@25.0.6)(sass@1.97.2)(terser@5.46.0))(vitest@4.0.17))(@vitest/runner@4.0.17)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(storybook@10.1.11(@testing-library/dom@10.4.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(vitest@4.0.17)
+        version: 10.1.11(@vitest/browser-playwright@4.0.17)(@vitest/browser@4.0.16(vite@7.3.1(@types/node@25.0.6)(sass@1.97.2)(terser@5.46.0))(vitest@4.0.17))(@vitest/runner@4.0.17)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(storybook@10.1.11(@testing-library/dom@10.4.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(vitest@4.0.17)
       '@storybook/vue3':
         specifier: ^10.1.11
         version: 10.1.11(storybook@10.1.11(@testing-library/dom@10.4.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(vue@3.5.26(typescript@5.9.3))
@@ -87,8 +87,8 @@ importers:
         specifier: 4.0.16
         version: 4.0.16(vite@7.3.1(@types/node@25.0.6)(sass@1.97.2)(terser@5.46.0))(vitest@4.0.17)
       '@vitest/browser-playwright':
-        specifier: 4.0.16
-        version: 4.0.16(playwright@1.57.0)(vite@7.3.1(@types/node@25.0.6)(sass@1.97.2)(terser@5.46.0))(vitest@4.0.17)
+        specifier: 4.0.17
+        version: 4.0.17(playwright@1.57.0)(vite@7.3.1(@types/node@25.0.6)(sass@1.97.2)(terser@5.46.0))(vitest@4.0.17)
       '@vue/language-plugin-pug':
         specifier: ^3.2.2
         version: 3.2.2
@@ -124,7 +124,7 @@ importers:
         version: 7.3.1(@types/node@25.0.6)(sass@1.97.2)(terser@5.46.0)
       vitest:
         specifier: ^4.0.17
-        version: 4.0.17(@opentelemetry/api@1.9.0)(@types/node@25.0.6)(@vitest/browser-playwright@4.0.16)(jsdom@27.4.0)(sass@1.97.2)(terser@5.46.0)
+        version: 4.0.17(@opentelemetry/api@1.9.0)(@types/node@25.0.6)(@vitest/browser-playwright@4.0.17)(jsdom@27.4.0)(sass@1.97.2)(terser@5.46.0)
       vue-tsc:
         specifier: ^3.2.2
         version: 3.2.2(typescript@5.9.3)
@@ -850,16 +850,21 @@ packages:
       vite: ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0
       vue: ^3.2.25
 
-  '@vitest/browser-playwright@4.0.16':
-    resolution: {integrity: sha512-I2Fy/ANdphi1yI46d15o0M1M4M0UJrUiVKkH5oKeRZZCdPg0fw/cfTKZzv9Ge9eobtJYp4BGblMzXdXH0vcl5g==}
+  '@vitest/browser-playwright@4.0.17':
+    resolution: {integrity: sha512-CE9nlzslHX6Qz//MVrjpulTC9IgtXTbJ+q7Rx1HD+IeSOWv4NHIRNHPA6dB4x01d9paEqt+TvoqZfmgq40DxEQ==}
     peerDependencies:
       playwright: '*'
-      vitest: 4.0.16
+      vitest: 4.0.17
 
   '@vitest/browser@4.0.16':
     resolution: {integrity: sha512-t4toy8X/YTnjYEPoY0pbDBg3EvDPg1elCDrfc+VupPHwoN/5/FNQ8Z+xBYIaEnOE2vVEyKwqYBzZ9h9rJtZVcg==}
     peerDependencies:
       vitest: 4.0.16
+
+  '@vitest/browser@4.0.17':
+    resolution: {integrity: sha512-cgf2JZk2fv5or3efmOrRJe1V9Md89BPgz4ntzbf84yAb+z2hW6niaGFinl9aFzPZ1q3TGfWZQWZ9gXTFThs2Qw==}
+    peerDependencies:
+      vitest: 4.0.17
 
   '@vitest/expect@3.2.4':
     resolution: {integrity: sha512-Io0yyORnB6sikFlt8QW5K7slY4OjqNX9jmJQ02QDda8lyM6B5oNgVWoSoKPac8/kgnCUzuHQKrSLtu/uOqqrig==}
@@ -2197,6 +2202,18 @@ packages:
       utf-8-validate:
         optional: true
 
+  ws@8.19.0:
+    resolution: {integrity: sha512-blAT2mjOEIi0ZzruJfIhb3nps74PRWTCz1IjglWEEpQl5XS/UNama6u2/rjFkDDouqr4L67ry+1aGIALViWjDg==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: '>=5.0.2'
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
+
   wsl-utils@0.1.0:
     resolution: {integrity: sha512-h3Fbisa2nKGPxCpm89Hk33lBLsnaGBvctQopaBSOW/uIs6FTe1ATyAnKFJrzVs9vpGdsTe73WF3V4lIsk4Gacw==}
     engines: {node: '>=18'}
@@ -2658,16 +2675,16 @@ snapshots:
       - vite
       - webpack
 
-  '@storybook/addon-vitest@10.1.11(@vitest/browser-playwright@4.0.16)(@vitest/browser@4.0.16(vite@7.3.1(@types/node@25.0.6)(sass@1.97.2)(terser@5.46.0))(vitest@4.0.17))(@vitest/runner@4.0.17)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(storybook@10.1.11(@testing-library/dom@10.4.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(vitest@4.0.17)':
+  '@storybook/addon-vitest@10.1.11(@vitest/browser-playwright@4.0.17)(@vitest/browser@4.0.16(vite@7.3.1(@types/node@25.0.6)(sass@1.97.2)(terser@5.46.0))(vitest@4.0.17))(@vitest/runner@4.0.17)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(storybook@10.1.11(@testing-library/dom@10.4.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(vitest@4.0.17)':
     dependencies:
       '@storybook/global': 5.0.0
       '@storybook/icons': 2.0.1(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       storybook: 10.1.11(@testing-library/dom@10.4.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
     optionalDependencies:
       '@vitest/browser': 4.0.16(vite@7.3.1(@types/node@25.0.6)(sass@1.97.2)(terser@5.46.0))(vitest@4.0.17)
-      '@vitest/browser-playwright': 4.0.16(playwright@1.57.0)(vite@7.3.1(@types/node@25.0.6)(sass@1.97.2)(terser@5.46.0))(vitest@4.0.17)
+      '@vitest/browser-playwright': 4.0.17(playwright@1.57.0)(vite@7.3.1(@types/node@25.0.6)(sass@1.97.2)(terser@5.46.0))(vitest@4.0.17)
       '@vitest/runner': 4.0.17
-      vitest: 4.0.17(@opentelemetry/api@1.9.0)(@types/node@25.0.6)(@vitest/browser-playwright@4.0.16)(jsdom@27.4.0)(sass@1.97.2)(terser@5.46.0)
+      vitest: 4.0.17(@opentelemetry/api@1.9.0)(@types/node@25.0.6)(@vitest/browser-playwright@4.0.17)(jsdom@27.4.0)(sass@1.97.2)(terser@5.46.0)
     transitivePeerDependencies:
       - react
       - react-dom
@@ -2795,13 +2812,13 @@ snapshots:
       vite: 7.3.1(@types/node@25.0.6)(sass@1.97.2)(terser@5.46.0)
       vue: 3.5.26(typescript@5.9.3)
 
-  '@vitest/browser-playwright@4.0.16(playwright@1.57.0)(vite@7.3.1(@types/node@25.0.6)(sass@1.97.2)(terser@5.46.0))(vitest@4.0.17)':
+  '@vitest/browser-playwright@4.0.17(playwright@1.57.0)(vite@7.3.1(@types/node@25.0.6)(sass@1.97.2)(terser@5.46.0))(vitest@4.0.17)':
     dependencies:
-      '@vitest/browser': 4.0.16(vite@7.3.1(@types/node@25.0.6)(sass@1.97.2)(terser@5.46.0))(vitest@4.0.17)
-      '@vitest/mocker': 4.0.16(vite@7.3.1(@types/node@25.0.6)(sass@1.97.2)(terser@5.46.0))
+      '@vitest/browser': 4.0.17(vite@7.3.1(@types/node@25.0.6)(sass@1.97.2)(terser@5.46.0))(vitest@4.0.17)
+      '@vitest/mocker': 4.0.17(vite@7.3.1(@types/node@25.0.6)(sass@1.97.2)(terser@5.46.0))
       playwright: 1.57.0
       tinyrainbow: 3.0.3
-      vitest: 4.0.17(@opentelemetry/api@1.9.0)(@types/node@25.0.6)(@vitest/browser-playwright@4.0.16)(jsdom@27.4.0)(sass@1.97.2)(terser@5.46.0)
+      vitest: 4.0.17(@opentelemetry/api@1.9.0)(@types/node@25.0.6)(@vitest/browser-playwright@4.0.17)(jsdom@27.4.0)(sass@1.97.2)(terser@5.46.0)
     transitivePeerDependencies:
       - bufferutil
       - msw
@@ -2817,8 +2834,25 @@ snapshots:
       pngjs: 7.0.0
       sirv: 3.0.2
       tinyrainbow: 3.0.3
-      vitest: 4.0.17(@opentelemetry/api@1.9.0)(@types/node@25.0.6)(@vitest/browser-playwright@4.0.16)(jsdom@27.4.0)(sass@1.97.2)(terser@5.46.0)
+      vitest: 4.0.17(@opentelemetry/api@1.9.0)(@types/node@25.0.6)(@vitest/browser-playwright@4.0.17)(jsdom@27.4.0)(sass@1.97.2)(terser@5.46.0)
       ws: 8.18.3
+    transitivePeerDependencies:
+      - bufferutil
+      - msw
+      - utf-8-validate
+      - vite
+
+  '@vitest/browser@4.0.17(vite@7.3.1(@types/node@25.0.6)(sass@1.97.2)(terser@5.46.0))(vitest@4.0.17)':
+    dependencies:
+      '@vitest/mocker': 4.0.17(vite@7.3.1(@types/node@25.0.6)(sass@1.97.2)(terser@5.46.0))
+      '@vitest/utils': 4.0.17
+      magic-string: 0.30.21
+      pixelmatch: 7.1.0
+      pngjs: 7.0.0
+      sirv: 3.0.2
+      tinyrainbow: 3.0.3
+      vitest: 4.0.17(@opentelemetry/api@1.9.0)(@types/node@25.0.6)(@vitest/browser-playwright@4.0.17)(jsdom@27.4.0)(sass@1.97.2)(terser@5.46.0)
+      ws: 8.19.0
     transitivePeerDependencies:
       - bufferutil
       - msw
@@ -4071,7 +4105,7 @@ snapshots:
       sass: 1.97.2
       terser: 5.46.0
 
-  vitest@4.0.17(@opentelemetry/api@1.9.0)(@types/node@25.0.6)(@vitest/browser-playwright@4.0.16)(jsdom@27.4.0)(sass@1.97.2)(terser@5.46.0):
+  vitest@4.0.17(@opentelemetry/api@1.9.0)(@types/node@25.0.6)(@vitest/browser-playwright@4.0.17)(jsdom@27.4.0)(sass@1.97.2)(terser@5.46.0):
     dependencies:
       '@vitest/expect': 4.0.17
       '@vitest/mocker': 4.0.17(vite@7.3.1(@types/node@25.0.6)(sass@1.97.2)(terser@5.46.0))
@@ -4096,7 +4130,7 @@ snapshots:
     optionalDependencies:
       '@opentelemetry/api': 1.9.0
       '@types/node': 25.0.6
-      '@vitest/browser-playwright': 4.0.16(playwright@1.57.0)(vite@7.3.1(@types/node@25.0.6)(sass@1.97.2)(terser@5.46.0))(vitest@4.0.17)
+      '@vitest/browser-playwright': 4.0.17(playwright@1.57.0)(vite@7.3.1(@types/node@25.0.6)(sass@1.97.2)(terser@5.46.0))(vitest@4.0.17)
       jsdom: 27.4.0
     transitivePeerDependencies:
       - jiti
@@ -4216,6 +4250,8 @@ snapshots:
       strip-ansi: 7.1.2
 
   ws@8.18.3: {}
+
+  ws@8.19.0: {}
 
   wsl-utils@0.1.0:
     dependencies:
