@@ -88,7 +88,7 @@ importers:
         version: 4.0.16(vite@7.3.1(@types/node@25.0.6)(sass@1.97.2)(terser@5.46.0))(vitest@4.0.17)
       '@vitest/browser-playwright':
         specifier: 4.0.16
-        version: 4.0.16(playwright@1.57.0)(vite@7.3.1(@types/node@25.0.6)(sass@1.97.2)(terser@5.46.0))(vitest@4.0.17)
+        version: 4.0.16(playwright@1.58.1)(vite@7.3.1(@types/node@25.0.6)(sass@1.97.2)(terser@5.46.0))(vitest@4.0.17)
       '@vue/language-plugin-pug':
         specifier: ^3.2.2
         version: 3.2.2
@@ -105,8 +105,8 @@ importers:
         specifier: ^4.4.2
         version: 4.4.2
       playwright:
-        specifier: ^1.57.0
-        version: 1.57.0
+        specifier: ^1.58.1
+        version: 1.58.1
       sass:
         specifier: ^1.97.2
         version: 1.97.2
@@ -146,8 +146,8 @@ packages:
   '@asamuzakjp/nwsapi@2.3.9':
     resolution: {integrity: sha512-n8GuYSrI9bF7FFZ/SjhwevlHc8xaVlb/7HmHelnc/PZXBD2ZR49NnN9sMMuDdEGPeeRQ5d0hqlSlEpgCX3Wl0Q==}
 
-  '@babel/code-frame@7.28.6':
-    resolution: {integrity: sha512-JYgintcMjRiCvS8mMECzaEn+m3PfoQiyqukOMCCVQtoJGYJw8j/8LBJEiqkHLkfwCcs74E3pbAUFNg7d9VNJ+Q==}
+  '@babel/code-frame@7.29.0':
+    resolution: {integrity: sha512-9NhCeYjq9+3uxgdtp20LSiJXJvN0FeCtNGpJxuMFZ1Kv3cWUNb6DOhJwUvcVCzKGR66cw4njwM6hrJLqgOwbcw==}
     engines: {node: '>=6.9.0'}
 
   '@babel/helper-string-parser@7.27.1':
@@ -1651,13 +1651,13 @@ packages:
     resolution: {integrity: sha512-1wrVzJ2STrpmONHKBy228LM1b84msXDUoAzVEl0R8Mz4Ce6EPr+IVtxm8+yvrqLYMHswREkjYFaMxnyGnaY3Ng==}
     hasBin: true
 
-  playwright-core@1.57.0:
-    resolution: {integrity: sha512-agTcKlMw/mjBWOnD6kFZttAAGHgi/Nw0CZ2o6JqWSbMlI219lAFLZZCyqByTsvVAJq5XA5H8cA6PrvBRpBWEuQ==}
+  playwright-core@1.58.1:
+    resolution: {integrity: sha512-bcWzOaTxcW+VOOGBCQgnaKToLJ65d6AqfLVKEWvexyS3AS6rbXl+xdpYRMGSRBClPvyj44njOWoxjNdL/H9UNg==}
     engines: {node: '>=18'}
     hasBin: true
 
-  playwright@1.57.0:
-    resolution: {integrity: sha512-ilYQj1s8sr2ppEJ2YVadYBN0Mb3mdo9J0wQ+UuDhzYqURwSoW4n1Xs5vs7ORwgDGmyEh33tRMeS8KhdkMoLXQw==}
+  playwright@1.58.1:
+    resolution: {integrity: sha512-+2uTZHxSCcxjvGc5C891LrS1/NlxglGxzrC4seZiVjcYVQfUa87wBL6rTDqzGjuoWNjnBzRqKmF6zRYGMvQUaQ==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -2102,8 +2102,8 @@ packages:
   vue-component-type-helpers@2.2.12:
     resolution: {integrity: sha512-YbGqHZ5/eW4SnkPNR44mKVc6ZKQoRs/Rux1sxC6rdwXb4qpbOSYfDr9DsTHolOTGmIKgM9j141mZbBeg05R1pw==}
 
-  vue-component-type-helpers@3.2.2:
-    resolution: {integrity: sha512-x8C2nx5XlUNM0WirgfTkHjJGO/ABBxlANZDtHw2HclHtQnn+RFPTnbjMJn8jHZW4TlUam0asHcA14lf1C6Jb+A==}
+  vue-component-type-helpers@3.2.4:
+    resolution: {integrity: sha512-05lR16HeZDcDpB23ku5b5f1fBOoHqFnMiKRr2CiEvbG5Ux4Yi0McmQBOET0dR0nxDXosxyVqv67q6CzS3AK8rw==}
 
   vue-docgen-api@4.79.2:
     resolution: {integrity: sha512-n9ENAcs+40awPZMsas7STqjkZiVlIjxIKgiJr5rSohDP0/JCrD9VtlzNojafsA1MChm/hz2h3PDtUedx3lbgfA==}
@@ -2232,7 +2232,7 @@ snapshots:
 
   '@asamuzakjp/nwsapi@2.3.9': {}
 
-  '@babel/code-frame@7.28.6':
+  '@babel/code-frame@7.29.0':
     dependencies:
       '@babel/helper-validator-identifier': 7.28.5
       js-tokens: 4.0.0
@@ -2665,7 +2665,7 @@ snapshots:
       storybook: 10.1.11(@testing-library/dom@10.4.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
     optionalDependencies:
       '@vitest/browser': 4.0.16(vite@7.3.1(@types/node@25.0.6)(sass@1.97.2)(terser@5.46.0))(vitest@4.0.17)
-      '@vitest/browser-playwright': 4.0.16(playwright@1.57.0)(vite@7.3.1(@types/node@25.0.6)(sass@1.97.2)(terser@5.46.0))(vitest@4.0.17)
+      '@vitest/browser-playwright': 4.0.16(playwright@1.58.1)(vite@7.3.1(@types/node@25.0.6)(sass@1.97.2)(terser@5.46.0))(vitest@4.0.17)
       '@vitest/runner': 4.0.17
       vitest: 4.0.17(@opentelemetry/api@1.9.0)(@types/node@25.0.6)(@vitest/browser-playwright@4.0.16)(jsdom@27.4.0)(sass@1.97.2)(terser@5.46.0)
     transitivePeerDependencies:
@@ -2730,11 +2730,11 @@ snapshots:
       storybook: 10.1.11(@testing-library/dom@10.4.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       type-fest: 2.19.0
       vue: 3.5.26(typescript@5.9.3)
-      vue-component-type-helpers: 3.2.2
+      vue-component-type-helpers: 3.2.4
 
   '@testing-library/dom@10.4.1':
     dependencies:
-      '@babel/code-frame': 7.28.6
+      '@babel/code-frame': 7.29.0
       '@babel/runtime': 7.28.6
       '@types/aria-query': 5.0.4
       aria-query: 5.3.0
@@ -2795,11 +2795,11 @@ snapshots:
       vite: 7.3.1(@types/node@25.0.6)(sass@1.97.2)(terser@5.46.0)
       vue: 3.5.26(typescript@5.9.3)
 
-  '@vitest/browser-playwright@4.0.16(playwright@1.57.0)(vite@7.3.1(@types/node@25.0.6)(sass@1.97.2)(terser@5.46.0))(vitest@4.0.17)':
+  '@vitest/browser-playwright@4.0.16(playwright@1.58.1)(vite@7.3.1(@types/node@25.0.6)(sass@1.97.2)(terser@5.46.0))(vitest@4.0.17)':
     dependencies:
       '@vitest/browser': 4.0.16(vite@7.3.1(@types/node@25.0.6)(sass@1.97.2)(terser@5.46.0))(vitest@4.0.17)
       '@vitest/mocker': 4.0.16(vite@7.3.1(@types/node@25.0.6)(sass@1.97.2)(terser@5.46.0))
-      playwright: 1.57.0
+      playwright: 1.58.1
       tinyrainbow: 3.0.3
       vitest: 4.0.17(@opentelemetry/api@1.9.0)(@types/node@25.0.6)(@vitest/browser-playwright@4.0.16)(jsdom@27.4.0)(sass@1.97.2)(terser@5.46.0)
     transitivePeerDependencies:
@@ -3648,11 +3648,11 @@ snapshots:
     dependencies:
       pngjs: 7.0.0
 
-  playwright-core@1.57.0: {}
+  playwright-core@1.58.1: {}
 
-  playwright@1.57.0:
+  playwright@1.58.1:
     dependencies:
-      playwright-core: 1.57.0
+      playwright-core: 1.58.1
     optionalDependencies:
       fsevents: 2.3.2
 
@@ -4096,7 +4096,7 @@ snapshots:
     optionalDependencies:
       '@opentelemetry/api': 1.9.0
       '@types/node': 25.0.6
-      '@vitest/browser-playwright': 4.0.16(playwright@1.57.0)(vite@7.3.1(@types/node@25.0.6)(sass@1.97.2)(terser@5.46.0))(vitest@4.0.17)
+      '@vitest/browser-playwright': 4.0.16(playwright@1.58.1)(vite@7.3.1(@types/node@25.0.6)(sass@1.97.2)(terser@5.46.0))(vitest@4.0.17)
       jsdom: 27.4.0
     transitivePeerDependencies:
       - jiti
@@ -4128,7 +4128,7 @@ snapshots:
 
   vue-component-type-helpers@2.2.12: {}
 
-  vue-component-type-helpers@3.2.2: {}
+  vue-component-type-helpers@3.2.4: {}
 
   vue-docgen-api@4.79.2(vue@3.5.26(typescript@5.9.3)):
     dependencies:
