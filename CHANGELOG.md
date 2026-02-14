@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.6.0](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/compare/v1.5.0...v1.6.0) (2026-02-14)
+
+
+### Features
+
+* **app:** トップ画面に案内・免責事項とデスクトップアプリ導線を追加 ([#79](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/issues/79)) ([bce3129](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/commit/bce312956a677135e1771f96bc92be4246f06671))
+
+
+### Bug Fixes
+
+* **deps:** bump the presentation group with 2 updates ([#62](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/issues/62)) ([fe9734e](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/commit/fe9734eadb84de4901b5a9b7fc60c4ca9b47d47b))
+
 ## [1.5.0](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/compare/v1.4.0...v1.5.0) (2026-01-05)
 
 
