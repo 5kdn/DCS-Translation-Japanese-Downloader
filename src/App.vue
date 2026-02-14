@@ -10,6 +10,7 @@ defineOptions({
     CategorySection: defineAsyncComponent(() => import('./components/CategorySection.vue')),
     Footer: defineAsyncComponent(() => import('./components/Footer.vue')),
     IssueViewer: defineAsyncComponent(() => import('./components/IssueViewer.vue')),
+    Button: defineAsyncComponent(() => import('./components/common/Button.vue')),
   },
 });
 
@@ -74,7 +75,7 @@ const toErrorMessage = (error: unknown): string => toErrorMessageForDisplay(erro
  */
 const scrollToAnnounce = (): void => {
   if (typeof window === 'undefined') return;
-  const target = document.getElementById('announce-area');
+  const target = document.getElementById('alert-area');
   target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 };
 
@@ -117,6 +118,14 @@ const _handleAlertClose = (): void => {
   errorMessage.value = null;
 };
 
+/**
+ * @summary デスクトップアプリのダウンロードページへ別タブで遷移する。
+ */
+const _browseToDesktopAppDownloadPage = (): void => {
+  const url = 'https://github.com/5kdn/DCS-Translation-Tool/releases/latest';
+  window.open(url, '_blank', 'noopener,noreferrer');
+};
+
 onMounted(async (): Promise<void> => {
   console.log('onMounted() called');
   try {
@@ -148,8 +157,24 @@ v-app
 
   v-main
     v-responsive.main-frame
-      v-container#announce-area
-        .alert-area
+      v-container#announce-area.mx-8.my-4
+        v-container#about-this-page.text-center
+          p 本ページは、Eagle Dynamics社の Digital Combat Simulator World のミッション・キャンペーンを日本語化する<strong>非公式</strong>プロジェクト <a href="https://github.com/5kdn/DCS-Translation-Japanese" target="_blank" rel="noopener noreferrer">5kdn/DCS-Translation-Japanese</a> の Web UI です。
+          p 翻訳データの利用条件については、<a href="https://github.com/5kdn/DCS-Translation-Japanese/blob/master/DISTRIBUTION_POLICY.md" target="_blank" rel="noopener noreferrer">流通制御ポリシー</a>をご確認ください。プロジェクトの詳細はリポジトリページをご覧ください。
+
+        v-container#annouce-desktop-app.text-center
+          p.text-center 翻訳データをmizファイルに追加までを自動化するWindowsデスクトップアプリがダウンロード可能です。
+          p.text-center デスクトップアプリ版ではファイルのアップロードも可能です。
+          Button(label="デスクトップアプリ" @click="_browseToDesktopAppDownloadPage").mt-2
+
+        v-container#disclaimer.text-center
+          h2 免責事項
+          p 提供する日本語翻訳データ（以下「本翻訳データ」）は、DCS:Worldをより理解しやすくすることを目的として、無償で提供されています。
+          p 本翻訳データを使用したこと、または使用できなかったことによって発生したいかなる損害・不利益についても、開発者および貢献者は一切の責任を負いません。
+          p 本翻訳データの品質、正確性、完全性、特定目的適合性について、いかなる保証も行いません。
+          p 本翻訳データの使用は、すべて利用者自身の責任において行ってください。
+
+        #alert-area.alert-area
           v-alert(type="info" variant="tonal" v-if="isLoadingTree") 読み込み中です...
           v-alert(type="error" variant="tonal" :text="errorMessage" v-if="errorMessage" class="my-4" closable @click:close="_handleAlertClose")
 
