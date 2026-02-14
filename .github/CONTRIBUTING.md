@@ -59,6 +59,8 @@
 ```bash
 pnpm i
 pnpm test
+pnpm run test:unit
+pnpm run test:storybook
 ```
 
 新機能またはバグ修正には 単体テスト を必ず追加。
