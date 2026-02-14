@@ -88,7 +88,7 @@ importers:
         version: 4.0.16(vite@7.3.1(@types/node@25.2.3)(sass@1.97.2)(terser@5.46.0))(vitest@4.0.17)
       '@vitest/browser-playwright':
         specifier: 4.0.16
-        version: 4.0.16(playwright@1.57.0)(vite@7.3.1(@types/node@25.2.3)(sass@1.97.2)(terser@5.46.0))(vitest@4.0.17)
+        version: 4.0.16(playwright@1.58.2)(vite@7.3.1(@types/node@25.2.3)(sass@1.97.2)(terser@5.46.0))(vitest@4.0.17)
       '@vue/language-plugin-pug':
         specifier: ^3.2.2
         version: 3.2.2
@@ -105,8 +105,8 @@ importers:
         specifier: ^4.4.2
         version: 4.4.2
       playwright:
-        specifier: ^1.57.0
-        version: 1.57.0
+        specifier: ^1.58.2
+        version: 1.58.2
       sass:
         specifier: ^1.97.2
         version: 1.97.2
@@ -1652,13 +1652,13 @@ packages:
     resolution: {integrity: sha512-1wrVzJ2STrpmONHKBy228LM1b84msXDUoAzVEl0R8Mz4Ce6EPr+IVtxm8+yvrqLYMHswREkjYFaMxnyGnaY3Ng==}
     hasBin: true
 
-  playwright-core@1.57.0:
-    resolution: {integrity: sha512-agTcKlMw/mjBWOnD6kFZttAAGHgi/Nw0CZ2o6JqWSbMlI219lAFLZZCyqByTsvVAJq5XA5H8cA6PrvBRpBWEuQ==}
+  playwright-core@1.58.2:
+    resolution: {integrity: sha512-yZkEtftgwS8CsfYo7nm0KE8jsvm6i/PTgVtB8DL726wNf6H2IMsDuxCpJj59KDaxCtSnrWan2AeDqM7JBaultg==}
     engines: {node: '>=18'}
     hasBin: true
 
-  playwright@1.57.0:
-    resolution: {integrity: sha512-ilYQj1s8sr2ppEJ2YVadYBN0Mb3mdo9J0wQ+UuDhzYqURwSoW4n1Xs5vs7ORwgDGmyEh33tRMeS8KhdkMoLXQw==}
+  playwright@1.58.2:
+    resolution: {integrity: sha512-vA30H8Nvkq/cPBnNw4Q8TWz1EJyqgpuinBcHET0YVJVFldr8JDNiU9LaWAE1KqSkRYazuaBhTpB5ZzShOezQ6A==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -2666,7 +2666,7 @@ snapshots:
       storybook: 10.1.11(@testing-library/dom@10.4.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
     optionalDependencies:
       '@vitest/browser': 4.0.16(vite@7.3.1(@types/node@25.2.3)(sass@1.97.2)(terser@5.46.0))(vitest@4.0.17)
-      '@vitest/browser-playwright': 4.0.16(playwright@1.57.0)(vite@7.3.1(@types/node@25.2.3)(sass@1.97.2)(terser@5.46.0))(vitest@4.0.17)
+      '@vitest/browser-playwright': 4.0.16(playwright@1.58.2)(vite@7.3.1(@types/node@25.2.3)(sass@1.97.2)(terser@5.46.0))(vitest@4.0.17)
       '@vitest/runner': 4.0.17
       vitest: 4.0.17(@opentelemetry/api@1.9.0)(@types/node@25.2.3)(@vitest/browser-playwright@4.0.16)(jsdom@27.4.0)(sass@1.97.2)(terser@5.46.0)
     transitivePeerDependencies:
@@ -2796,11 +2796,11 @@ snapshots:
       vite: 7.3.1(@types/node@25.2.3)(sass@1.97.2)(terser@5.46.0)
       vue: 3.5.26(typescript@5.9.3)
 
-  '@vitest/browser-playwright@4.0.16(playwright@1.57.0)(vite@7.3.1(@types/node@25.2.3)(sass@1.97.2)(terser@5.46.0))(vitest@4.0.17)':
+  '@vitest/browser-playwright@4.0.16(playwright@1.58.2)(vite@7.3.1(@types/node@25.2.3)(sass@1.97.2)(terser@5.46.0))(vitest@4.0.17)':
     dependencies:
       '@vitest/browser': 4.0.16(vite@7.3.1(@types/node@25.2.3)(sass@1.97.2)(terser@5.46.0))(vitest@4.0.17)
       '@vitest/mocker': 4.0.16(vite@7.3.1(@types/node@25.2.3)(sass@1.97.2)(terser@5.46.0))
-      playwright: 1.57.0
+      playwright: 1.58.2
       tinyrainbow: 3.0.3
       vitest: 4.0.17(@opentelemetry/api@1.9.0)(@types/node@25.2.3)(@vitest/browser-playwright@4.0.16)(jsdom@27.4.0)(sass@1.97.2)(terser@5.46.0)
     transitivePeerDependencies:
@@ -3649,11 +3649,11 @@ snapshots:
     dependencies:
       pngjs: 7.0.0
 
-  playwright-core@1.57.0: {}
+  playwright-core@1.58.2: {}
 
-  playwright@1.57.0:
+  playwright@1.58.2:
     dependencies:
-      playwright-core: 1.57.0
+      playwright-core: 1.58.2
     optionalDependencies:
       fsevents: 2.3.2
 
@@ -4097,7 +4097,7 @@ snapshots:
     optionalDependencies:
       '@opentelemetry/api': 1.9.0
       '@types/node': 25.2.3
-      '@vitest/browser-playwright': 4.0.16(playwright@1.57.0)(vite@7.3.1(@types/node@25.2.3)(sass@1.97.2)(terser@5.46.0))(vitest@4.0.17)
+      '@vitest/browser-playwright': 4.0.16(playwright@1.58.2)(vite@7.3.1(@types/node@25.2.3)(sass@1.97.2)(terser@5.46.0))(vitest@4.0.17)
       jsdom: 27.4.0
     transitivePeerDependencies:
       - jiti
