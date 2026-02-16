@@ -57,7 +57,7 @@
     "@vue/language-plugin-pug": "^3.2.4",
     "@vue/tsconfig": "^0.8.1",
     "esbuild": "^0.27.3",
-    "jsdom": "^28.0.0",
+    "jsdom": "^28.1.0",
     "license-checker-rseidelsohn": "^4.4.2",
     "playwright": "^1.58.2",
     "sass": "^1.97.3",
