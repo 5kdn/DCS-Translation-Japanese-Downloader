@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.0](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/compare/v1.6.0...v1.7.0) (2026-02-20)
+
+
+### Features
+
+* **app:** ミッション適用手順とmiz拡張子関連付け情報を追加 ([#84](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/issues/84)) ([b903a8d](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/commit/b903a8d6eae0106bfec41585348e68ecfd1872a6))
+
 ## [1.6.0](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/compare/v1.5.0...v1.6.0) (2026-02-14)
 
 
