@@ -1,0 +1,12 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\\.miz]
+@="CompressedFolder"
+"PerceivedType"="compressed"
+"Content Type"="application/zip"
+
+[HKEY_CLASSES_ROOT\\CompressedFolder\\CLSID]
+@="{E88DCCE0-B7B3-11d1-A9F0-00AA0060FA31}"
+
+[HKEY_CLASSES_ROOT\\CompressedFolder\\ShellEx\\StorageHandler]
+@="{E88DCCE0-B7B3-11d1-A9F0-00AA0060FA31}"
