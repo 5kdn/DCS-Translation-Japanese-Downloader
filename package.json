@@ -34,7 +34,7 @@
     "@microsoft/kiota-serialization-json": "1.0.0-preview.99",
     "@microsoft/kiota-serialization-multipart": "1.0.0-preview.99",
     "@microsoft/kiota-serialization-text": "1.0.0-preview.99",
-    "dompurify": "^3.3.1",
+    "dompurify": "^3.3.2",
     "jszip": "^3.10.1",
     "markdown-it": "^14.1.1",
     "markdown-it-task-lists": "^2.1.1",
