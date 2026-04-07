@@ -4,7 +4,9 @@ import { computed, defineAsyncComponent, onMounted, ref } from 'vue';
 // biome-ignore lint/correctness/noUnusedImports: used in Vue template
 import associate_miz_with_zip from '@/assets/associate_miz_with_zip.reg.txt?raw';
 import { toErrorMessageForDisplay } from '@/errors/errorMessage';
-import { fetchTree, healthCheck } from '@/lib/client';
+import type { UploadDialogSubmitPayload } from '@/features/upload/uploadDialogSubmit';
+import type { CreatePrResponse } from '@/lib/client';
+import { fetchCreatePr, fetchTree, healthCheck } from '@/lib/client';
 import type { DownloadItemRequirement, TreeItem } from '@/types/type';
 
 defineOptions({
@@ -13,6 +15,7 @@ defineOptions({
     Footer: defineAsyncComponent(() => import('./components/Footer.vue')),
     IssueViewer: defineAsyncComponent(() => import('./components/IssueViewer.vue')),
     Button: defineAsyncComponent(() => import('./components/common/Button.vue')),
+    UploadDialog: defineAsyncComponent(() => import('./components/UploadDialog.vue')),
   },
 });
 
@@ -121,6 +124,22 @@ const _handleAlertClose = (): void => {
 };
 
 /**
+ * @summary アップロード送信を処理する。
+ * @param payload アップロード対象情報を指定する。
+ * @returns PR作成結果を返す。
+ */
+const _handleUploadSubmit = async (payload: UploadDialogSubmitPayload): Promise<CreatePrResponse> => {
+  return fetchCreatePr({
+    title: payload.title,
+    description: payload.description,
+    targetType: payload.targetType,
+    targetName: payload.targetName,
+    selectedChangeTypes: payload.selectedChangeTypes,
+    selectedFiles: payload.selectedFiles,
+  });
+};
+
+/**
  * @summary デスクトップアプリのダウンロードページへ別タブで遷移する。
  */
 const _browseToDesktopAppDownloadPage = (): void => {
@@ -205,6 +224,9 @@ v-app
         v-container#alert-area.alert-area
           v-alert(type="info" variant="tonal" v-if="isLoadingTree") 読み込み中です...
           v-alert(type="error" variant="tonal" :text="errorMessage" v-if="errorMessage" class="my-4" closable @click:close="_handleAlertClose")
+
+      v-container#upload-area
+        UploadDialog(:on-submit="_handleUploadSubmit")
 
       v-container#filelist
         CategorySection(title="Aircrafts" :items="_aircrafts" @error="_handleDownloadError")
