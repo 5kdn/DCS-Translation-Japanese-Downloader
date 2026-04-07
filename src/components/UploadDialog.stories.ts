@@ -39,39 +39,6 @@ export const FolderSelected: Story = {
   },
 };
 
-export const FileDropped: Story = {
-  play: async ({ canvasElement }): Promise<void> => {
-    const dropzone = canvasElement.querySelector('.upload-dropzone') as HTMLElement | null;
-    if (dropzone === null) {
-      throw new Error('ドロップ領域の取得に失敗した。');
-    }
-
-    const dropEvent = new Event('drop', { bubbles: true, cancelable: true }) as DragEvent;
-    Object.defineProperty(dropEvent, 'dataTransfer', {
-      configurable: true,
-      value: {
-        items: [
-          {
-            kind: 'file',
-            webkitGetAsEntry: () => ({
-              isDirectory: false,
-              isFile: true,
-              name: 'briefing.txt',
-            }),
-          },
-        ],
-      },
-    });
-    dropzone.dispatchEvent(dropEvent);
-
-    const canvas = within(canvasElement);
-    await expect(await canvas.findByText(/ファイルを直接選択することはできません。/)).toBeInTheDocument();
-    await expect(canvas.getByText(/翻訳ファイルを含むフォルダーを選択してください。/)).toBeInTheDocument();
-    await expect(canvas.getByText(/以下のフォルダー構成を満たすように見直してから再度選択してください。/)).toBeInTheDocument();
-    await expect(canvas.getByText(/- 機体の場合: DCSWorld\/Mods\/aircraft\//)).toBeInTheDocument();
-  },
-};
-
 export const FileSelectedFromInput: Story = {
   play: async ({ canvasElement }): Promise<void> => {
     await uploadFolder(canvasElement, [new File(['briefing'], 'briefing.txt', { type: 'text/plain' })], {
@@ -287,14 +254,14 @@ export const ResultStepFailure: Story = {
   play: async ({ canvasElement }): Promise<void> => {
     await moveToConfirmStep(canvasElement);
 
-    const body = canvasElement.ownerDocument.body;
     const dialog = within(canvasElement.ownerDocument.body);
     const user = userEvent.setup({ pointerEventsCheck: 0 });
     await user.click(dialog.getByRole('button', { name: 'アップロード' }));
 
     await expect(await dialog.findByRole('button', { name: '閉じる' })).toBeInTheDocument();
-    await expect(body.textContent).toContain('エラーが発生しました。');
-    await expect(body.textContent).toContain('ステータス: 失敗');
+    const errorMessages = await dialog.findAllByText('エラーが発生しました。');
+    await expect(errorMessages.length).toBeGreaterThan(0);
+    await expect(await dialog.findByText('ステータス: 失敗')).toBeInTheDocument();
   },
 };
 

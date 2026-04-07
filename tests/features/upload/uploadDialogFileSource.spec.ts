@@ -13,6 +13,9 @@ describe('uploadDialogFileSource', () => {
       ],
     } as unknown as DataTransfer;
 
+    await expect(collectFilesFromDroppedFolder(dataTransfer)).rejects.toMatchObject({
+      kind: 'unsupported_drop',
+    });
     await expect(collectFilesFromDroppedFolder(dataTransfer)).rejects.toThrowError(UploadDialogError);
     await expect(collectFilesFromDroppedFolder(dataTransfer)).rejects.toThrow(/ドラッグ&ドロップに対応していません/);
   });
@@ -44,6 +47,9 @@ describe('uploadDialogFileSource', () => {
       ],
     } as unknown as DataTransfer;
 
+    await expect(collectFilesFromDroppedFolder(dataTransfer)).rejects.toMatchObject({
+      kind: 'invalid_entry_path',
+    });
     await expect(collectFilesFromDroppedFolder(dataTransfer)).rejects.toThrow(/"DCSWorld" または "UserMissions" のみです/);
   });
 
@@ -57,6 +63,9 @@ describe('uploadDialogFileSource', () => {
       ],
     } as unknown as DataTransfer;
 
+    await expect(collectFilesFromDroppedFolder(dataTransfer)).rejects.toMatchObject({
+      kind: 'file_selected',
+    });
     await expect(collectFilesFromDroppedFolder(dataTransfer)).rejects.toThrow(/ファイルを直接選択することはできません/);
   });
 });
