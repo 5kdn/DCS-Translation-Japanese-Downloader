@@ -1,5 +1,21 @@
 # Changelog
 
+## [2.0.0](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/compare/v1.7.0...v2.0.0) (2026-04-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* 翻訳ファイルのアップロードと PR 作成フローを追加 ([#117](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/issues/117))
+
+### Features
+
+* 翻訳ファイルのアップロードと PR 作成フローを追加 ([#117](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/issues/117)) ([e41ef70](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/commit/e41ef705657a377b3b5a93a272ff2112bcee7156))
+
+
+### Bug Fixes
+
+* **deps:** bump the presentation group across 1 directory with 3 updates ([#122](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/issues/122)) ([09570a7](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/commit/09570a778b57e695894ddfcfd6f09c7effaeb6ec))
+
 ## [1.7.0](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/compare/v1.6.0...v1.7.0) (2026-02-20)
 
 
