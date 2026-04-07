@@ -50,21 +50,30 @@ updates:
         - "@microsoft/kiota-*"
     presentation:
       patterns:
+        - "@mdi/font"
+        - "dompurify"
+        - "jszip"
+        - "markdown-it"
+        - "markdown-it-task-lists"
         - "vue"
         - "vuetify"
     tooling-and-tests:
       patterns:
+        - "@chromatic-com/*"
+        - "@storybook/*"
         - "@vitejs/*"
+        - "@vitest/*"
         - "@vue/*"
-        - "vitest"
         - "esbuild"
         - "jsdom"
         - "license-checker*"
+        - "playwright"
         - "sass"
         - "storybook"
         - "terser"
         - "typescript"
         - "vite"
+        - "vitest"
         - "vue-tsc"
     types-and-biome:
       patterns:
