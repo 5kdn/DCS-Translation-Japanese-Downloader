@@ -2,6 +2,7 @@
   "name": "dcs-translation-japanese-downloader",
   "version": "2.0.0",
   "private": true,
+  "packageManager": "pnpm@10.33.0",
   "type": "module",
   "license": "MIT",
   "pnpm": {
