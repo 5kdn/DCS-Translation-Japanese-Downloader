@@ -56,7 +56,7 @@
         "version": "1.0.0-preview.99"
     },
     "dompurify@3.3.3": {
-        "licenses": "(MPL-2.0 OR Apache-2.0)",
+        "licenses": "Apache-2.0",
         "repository": "https://github.com/cure53/DOMPurify",
         "publisher": "Dr.-Ing. Mario Heiderich, Cure53",
         "email": "mario@cure53.de",
