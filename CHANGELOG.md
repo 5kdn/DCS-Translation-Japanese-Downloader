@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.1](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/compare/v2.0.0...v2.0.1) (2026-04-16)
+
+
+### Bug Fixes
+
+* Vuetify4の対応漏れを修正 ([#130](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/issues/130)) ([a41568f](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/commit/a41568fb93fb3c528f5225df3dc71486c72b14a4))
+
 ## [2.0.0](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/compare/v1.7.0...v2.0.0) (2026-04-15)
 
 
