@@ -259,11 +259,12 @@ const _submitUpload = async (): Promise<void> => {
 <template lang="pug">
 v-container
   div
-    .d-flex.align-start.mt-10.mb-5
-      h2.text-h2 Upload
+    h2.d-inline-flex.align-start.text-display-large.mt-10.mb-5
+      span Upload
       v-tooltip(interactive :open-on-hover="false" open-on-click)
         template(#activator="{ props }")
-          v-icon(color="medium-emphasis" v-bind="props") mdi-help-circle-outline
+          span.d-inline-flex.align-self-start.ms-2.mt-1(v-bind="props")
+            v-icon(color="medium-emphasis" size="24") mdi-help-circle-outline
         div
           p フォルダーを選択し、サーバーにアップロードします。
           p

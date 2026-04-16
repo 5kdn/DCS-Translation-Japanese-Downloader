@@ -23,7 +23,7 @@ const _licenses = raw_licenses as RawLicenseMap;
 
 
 <template lang="pug">
-v-footer.text-center.d-flex.flex-column.ga-2.py-4.text-on-primary(color="primary")
+v-footer.text-center.d-flex.flex-column.ga-2.py-4(color="primary")
 
   v-container#footer-content.d-flex.flex-row
     v-container#footer-us.d-flex.flex-column.ga-2
@@ -33,7 +33,11 @@ v-footer.text-center.d-flex.flex-column.ga-2.py-4.text-on-primary(color="primary
     v-container#footer-other
       v-dialog(v-model="_dialog")
         template(#activator="{ props }")
-          button#footer-license-link.linklike.cursor-pointer.text-decoration-underline(v-bind="props") third-party licenses
+          v-btn.footer-link.text-decoration-underline.text-none.px-0.opacity-100(
+            id="footer-license-link"
+            variant="plain"
+            v-bind="props"
+          ) third-party licenses
         v-sheet
           h2.text-center third-party licenses
 

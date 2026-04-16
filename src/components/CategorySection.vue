@@ -24,6 +24,6 @@ const _handleDownloadError = (message: string): void => {
 
 <template lang="pug">
 v-container(v-if="_hasItems")
-  h2.text-h2.mt-10.mb-5 {{ title }}
+  h2.text-display-large.mt-10.mb-5 {{ title }}
   DownloadItem(:items="items" @error="_handleDownloadError")
 </template>
