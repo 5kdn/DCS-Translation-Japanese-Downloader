@@ -51,15 +51,15 @@ const _emitDrop = (event: DragEvent): void => {
 </script>
 
 <template lang="pug">
-div.upload-dropzone.rounded-lg.pa-8.text-center.border-primary(
-  :class="isDragOver ? 'upload-dropzone--active elevation-3' : 'bg-primary-lighten-5'"
+div.upload-dropzone.rounded-lg.pa-8.text-center(
+  :class="isDragOver ? 'upload-dropzone--active elevation-3' : ''"
   @dragover="_emitDragOver"
   @dragleave="_emitDragLeave"
   @drop="_emitDrop"
 )
   .d-flex.align-center.justify-center.ga-3
     v-icon(size="24" color="primary") mdi-folder-upload-outline
-    p.text-h6.text-primary.mb-0 フォルダーをドロップする
+    p.text-title-large.text-primary.mb-0 フォルダーをドロップする
   p.mt-2.text-primary または
   .d-flex.flex-column.flex-sm-row.justify-center.ga-3.mt-4
     Button(label="フォルダーを選択" :loading="isLoading" @click="_emitChooseFolder")

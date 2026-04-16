@@ -240,12 +240,12 @@ v-container.rounded.pa-0.pa-sm-auto
   CreateIssueDialog(v-model='createIssueDialogModel' :path='createIssueDialogPath' @error='_OnCreateIssueDialogError')
   v-expansion-panels
     v-expansion-panel(v-for='item in items' :key='item.name')
-      v-expansion-panel-title.wrapper.d-flex.align-center.ga-1.flex-column.flex-sm-row.align-start.align-sm-center
-        div.d-flex.align-center.flex-fill
-          p.d-print-block {{ item.name }}
-        div.updated-at
-          p 最終更新日: {{ _resolveLatestUpdatedAt(item) }}
-        div.button-wrapper.ml-1.d-flex.flex-0-0.ga-1
+      v-expansion-panel-title.wrapper.d-flex.align-center.ga-1.flex-column.flex-sm-row.align-start.align-sm-center.py-0
+        div.d-flex.align-center.flex-fill.py-0
+          p.my-0.text-wrap.text-break {{ item.name }}
+        div.updated-at.d-flex.align-center.py-0.text-body-2
+          p.my-0 最終更新日: {{ _resolveLatestUpdatedAt(item) }}
+        div.button-wrapper.mt-1.d-flex.flex-0-0.ga-1
           Button(label='報告' color='error' size='small' :disabled="_isBusy(item.name)" @click.stop='_CreateIssueDialogButtonClickCommand(item)')
           Button(label='フォルダを見る' size='small' :disabled="_isBusy(item.name)" :loading="_isBusy(item.name)" @click.stop='_NavToGitHubSourceDirCommand(item)')
           Button(label='DL' size='small' :disabled="_isBusy(item.name)" :loading="_isBusy(item.name)" @click.stop='_DownloadButtonClickCommand(item)')
@@ -253,19 +253,13 @@ v-container.rounded.pa-0.pa-sm-auto
         v-list.pa-0
           v-list-item.mb-2.pa-0.pa-sm-auto(v-for='treeItem in item.items' :key='treeItem.path' density='compact')
             v-list-item-title.d-flex.align-center.ga-2
-              div.w-100.d-flex.align-center.ga-2.flex-column.flex-sm-row.align-start.align-sm-center
-                p.flex-fill.text-break.text-pre-wrap {{ treeItem.path }}
-                p.updated-at 最終更新日: {{ formatUpdatedAt(treeItem.updatedAt) }}
+              div.w-100.d-flex.align-center.ga-2.flex-column.flex-sm-row.align-start.align-sm-center.pa-0.ma-0
+                p.my-0.flex-fill.text-break.text-pre-wrap {{ treeItem.path }}
+                p.my-0.updated-at 最終更新日: {{ formatUpdatedAt(treeItem.updatedAt) }}
                 Button.ms-auto(label='ファイルを見る' size='small' @click.stop='_NavToGitHubSourceFileCommand(treeItem.path ?? "")')
 </template>
 
 <style lang="scss" scoped>
-.d-print-block {
-  white-space: normal;
-  overflow-wrap: anywhere;
-  word-break: break-word;
-}
-
 .wrapper {
   transition: background 0.3s;
   &:hover {

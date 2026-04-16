@@ -109,7 +109,7 @@ onMounted(async (): Promise<void> => {
 </script>
 
 <template lang="pug">
-v-badge#show-issue-dialog.me-4(location="top right" color="error" :content="_count" :model-value="_count > 0")
+v-badge#show-issue-dialog(location="top right" color="error" :content="_count" :model-value="_count > 0")
   slot(:toggle="_toggleIssueDialog" :is-loading="isLoading" :count="_count")
 
 v-dialog(v-model="isDialogOpen" eager max-width="min(900px, 90vw)")
@@ -126,15 +126,15 @@ v-dialog(v-model="isDialogOpen" eager max-width="min(900px, 90vw)")
           v-expansion-panel(v-for='issue in _issuesWithSafeHtml' :key="issue.issueUrl")
             div.issue-header.d-flex.flex-column
               v-expansion-panel-title.d-flex.flex-row.flex-0-0.justify-space-between.align-center
-                p.text-h5.text-break.flex-grow-1 {{ issue.title }}
-                Button.ms-4(label='Go' @click.stop='_NavToIssuePage(issue.issueUrl)')
+                p.text-headline-small.text-break.flex-grow-1.my-0 {{ issue.title }}
+                Button.ms-4(label='GitHubで見る' @click.stop='_NavToIssuePage(issue.issueUrl)')
             v-expansion-panel-text
-              div.markdown-body.pa-4.ma-4.border-thin.rounded.border-primary.bg-grey-lighten-4.text-break(v-html='issue.safeHtml')
+              div.markdown-body.pa-4.ma-4.border-thin.rounded.text-break(v-html='issue.safeHtml')
 
           //- 公開されている Issue が無いときのデフォルト表示
           v-expansion-panel(v-if='_issuesWithSafeHtml.length === 0')
             v-expansion-panel-title
-              p.text-h5.text-break 現在公開されている報告はありません。
+              p.text-headline-small.text-break 現在公開されている報告はありません。
     v-card-actions
       v-spacer
       v-btn(variant="tonal" @click="isDialogOpen = false") 閉じる
@@ -147,6 +147,8 @@ v-dialog(v-model="isDialogOpen" eager max-width="min(900px, 90vw)")
 }
 
 :deep(.markdown-body) {
+  border-color: rgb(var(--v-theme-primary));
+
   ul, ol {
     // Vuetify の global reset（`* { margin: 0; padding: 0; }`）で消えるインデントを復元する。
     padding-left: 1.25rem;

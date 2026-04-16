@@ -20,11 +20,11 @@ const _hasAgreedDistributionPolicy = defineModel<boolean>('hasAgreedDistribution
 div.pt-2
   v-card(variant="tonal")
     v-card-text
-      p.text-subtitle-1.font-weight-medium 選択内容
+      p.text-title-medium.font-weight-medium 選択内容
       p.mt-2.text-medium-emphasis 対象の種類: {{ targetType }}
       p.text-medium-emphasis 対象名: {{ targetName }}
       p.text-medium-emphasis ファイル数: {{ fileEntryCount }}
-  p.text-subtitle-2.font-weight-medium.mt-2 変更点
+  p.text-title-small.font-weight-medium.mt-2 変更点
   .d-flex.flex-wrap.ga-2.mb-2
     v-checkbox(
       v-for="option in uploadChangeTypes"
@@ -71,7 +71,7 @@ div.pt-2
     base-color="primary"
     required
   )
-  p.text-subtitle-2.font-weight-medium.mt-2 確認事項
+  p.text-title-small.font-weight-medium.mt-2 確認事項
   v-checkbox(
     v-model="_hasConfirmedNoPersonalInformation"
     color="primary"

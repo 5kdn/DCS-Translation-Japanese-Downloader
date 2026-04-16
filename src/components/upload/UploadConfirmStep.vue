@@ -48,7 +48,7 @@ div.pt-2
               v-list-item-title.confirm-file-path {{ entry.path }}
   v-card.mt-4(variant="tonal")
     v-card-text
-      p.text-subtitle-1.font-weight-medium アップロード内容
+      p.text-title-medium.font-weight-medium アップロード内容
       p.mt-3 選択名: {{ selectedFolderName }}
       p.text-medium-emphasis サイズ: {{ fileSizeText }}
       p.text-medium-emphasis ファイル数: {{ fileEntryCount }}
@@ -57,13 +57,13 @@ div.pt-2
       p.text-medium-emphasis 変更点: {{ selectedChangeTypes.join('/') }}
       p.text-medium-emphasis 同意事項: すべて同意済み
       v-divider.my-4
-      p.text-subtitle-2.font-weight-medium タイトル
+      p.text-title-small.font-weight-medium タイトル
       p.mt-2.text-break {{ title }}
-      p.text-subtitle-2.font-weight-medium.mt-4 概要
+      p.text-title-small.font-weight-medium.mt-4 概要
       p.mt-2.text-pre-wrap.text-break {{ overview }}
-      p.text-subtitle-2.font-weight-medium.mt-4 変更内容
+      p.text-title-small.font-weight-medium.mt-4 変更内容
       p.mt-2.text-pre-wrap.text-break {{ changeDetails }}
-      p.text-subtitle-2.font-weight-medium.mt-4 留意点
+      p.text-title-small.font-weight-medium.mt-4 留意点
       p.mt-2.text-pre-wrap.text-break {{ notes }}
 </template>
 

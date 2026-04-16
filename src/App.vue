@@ -172,14 +172,14 @@ onMounted(async (): Promise<void> => {
 v-app
   v-app-bar
     v-app-bar-title.text-center DCS Translation Japanese
-    template(#append)
+    div.mr-4
       IssueViewer(v-slot="{ toggle, isLoading }")
-        v-btn(icon="mdi-alert-circle-outline" variant="text" aria-label="Open issues" :disabled="isLoading" @click="toggle")
+        v-icon(icon="mdi-alert-circle-outline" variant="text" aria-label="Open issues" :disabled="isLoading" @click="toggle")
 
   v-main
     v-responsive.main-frame
       v-container.py-2.my-2.py-xs-4.my-xs-4.py-sm-8.my-sm-8.my-md-16.py-md-16.smooth-space
-        h1.text-h2.text-sm-h1.text-center.smooth-space DCS Translation Japanese
+        h1.text-display-large.text-sm-display-large.text-center.smooth-space DCS Translation Japanese
       v-container#announce-area
         v-container.bg-surface.rounded
           v-container#about-this-page.text-center
