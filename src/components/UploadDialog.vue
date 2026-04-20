@@ -254,30 +254,258 @@ const _submitUpload = async (): Promise<void> => {
     isLoading.value = false;
   }
 };
+
+type TreeItem = {
+  id: number;
+  title: string;
+  remarks?: string;
+  isFile?: boolean;
+  children?: TreeItem[];
+};
+
+type DirectorySample = {
+  label: string;
+  message: string;
+  files: TreeItem[];
+};
+
+const aircraftTree: TreeItem[] = [
+  {
+    id: 0,
+    title: 'DCSWorld',
+    remarks: 'DCSインストールフォルダーから同じ構成でフォルダーを作成してください',
+    children: [
+      {
+        id: 1,
+        title: 'Mods',
+        children: [
+          {
+            id: 2,
+            title: 'aircraft',
+            children: [
+              {
+                id: 3,
+                title: 'Su-25T',
+                remarks: '一度のアップロードには１つの機体だけをアップロードしてください',
+                children: [
+                  {
+                    id: 4,
+                    title: 'Missions',
+                    children: [
+                      {
+                        id: 5,
+                        title: 'Single',
+                        children: [
+                          { id: 6, title: 'localization.lua', isFile: true },
+                          {
+                            id: 7,
+                            title: 'Su-25T - Anti-Radar Missiles Practice.miz',
+                            remarks: 'mizファイルと同じ名前でフォルダーを作成してください',
+                            children: [
+                              {
+                                id: 8,
+                                title: 'l10n',
+                                children: [
+                                  {
+                                    id: 9,
+                                    title: 'JP',
+                                    children: [
+                                      {
+                                        id: 10,
+                                        title: 'dictionary',
+                                        remarks: '自身が修正したファイルだけをアップロードしてください',
+                                        isFile: true,
+                                      },
+                                    ],
+                                  },
+                                ],
+                              },
+                            ],
+                          },
+                          {
+                            id: 11,
+                            title: 'Su-25T - Close Down Kopitnari.miz',
+                            children: [
+                              {
+                                id: 12,
+                                title: 'l10n',
+                                children: [{ id: 13, title: 'JP', children: [{ id: 14, title: 'dictionary', isFile: true }] }],
+                              },
+                            ],
+                          },
+                          { id: 99, title: '...', isFile: false },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+];
+
+const campaignsTree: TreeItem[] = [
+  {
+    id: 0,
+    title: 'DCSWorld',
+    remarks: 'DCSインストールフォルダーから同じ構成でフォルダーを作成してください',
+    children: [
+      {
+        id: 1,
+        title: 'Mods',
+        children: [
+          {
+            id: 2,
+            title: 'campaigns',
+            children: [
+              {
+                id: 3,
+                title: 'A-10C The Enemy Within 3',
+                remarks: '一度のアップロードには１つのDLCキャンペーンをアップロードしてください',
+                children: [
+                  { id: 4, title: 'TEW3.cmp', isFile: true },
+                  {
+                    id: 5,
+                    title: 'TEW3 M01 FINAL.miz',
+                    remarks: 'mizファイルと同じ名前でフォルダーを作成してください',
+                    children: [
+                      {
+                        id: 6,
+                        title: 'l10n',
+                        children: [
+                          {
+                            id: 7,
+                            title: 'JP',
+                            children: [
+                              {
+                                id: 8,
+                                title: 'dictionary',
+                                remarks: '自身が修正したファイルだけをアップロードしてください',
+                                isFile: true,
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  {
+                    id: 9,
+                    title: 'TEW3 M02 FINAL.miz',
+                    children: [
+                      {
+                        id: 10,
+                        title: 'l10n',
+                        children: [{ id: 11, title: 'JP', children: [{ id: 12, title: 'dictionary', isFile: true }] }],
+                      },
+                    ],
+                  },
+                  { id: 99, title: '...', isFile: false },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+];
+
+const UserMissionsTree: TreeItem[] = [
+  {
+    id: 0,
+    title: 'UserMissions',
+    remarks: '%USERPROFILE%/Saved Games/DCS/Missions から同じ構成でフォルダーを作成してください',
+    children: [
+      {
+        id: 1,
+        title: 'Campaigns',
+        children: [
+          {
+            id: 2,
+            title: 'Operation Black Knight',
+            remarks: 'ミッション/キャンペーンと同じ名前のフォルダを作成してください',
+            children: [
+              {
+                id: 3,
+                title: 'README_Translation.md',
+                remarks: 'オリジナルファイルが何か確認できるファイルを作成してください（フォーマット指定有り）',
+                isFile: true,
+              },
+              {
+                id: 4,
+                title: '01 - Operation Black Knight - Mission 1.miz',
+                remarks: 'mizファイルと同じ名前でフォルダーを作成してください',
+                children: [
+                  {
+                    id: 5,
+                    title: 'l10n',
+                    children: [
+                      {
+                        id: 6,
+                        title: 'JP',
+                        children: [
+                          {
+                            id: 7,
+                            title: 'dictionary',
+                            remarks: '自身が修正したファイルだけをアップロードしてください',
+                            isFile: true,
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                id: 8,
+                title: '02 - Operation Black Knight - Mission 2.miz',
+                children: [
+                  {
+                    id: 9,
+                    title: 'l10n',
+                    children: [{ id: 10, title: 'JP', children: [{ id: 11, title: 'dictionary', isFile: true }] }],
+                  },
+                ],
+              },
+              { id: 99, title: '...', isFile: false },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+];
+
+const _directorySamples: DirectorySample[] = [
+  {
+    label: '機体',
+    message: 'Su-25Tのシングルミッションをアップロードする例\nフォルダー構成は実際の機体のフォルダー構成と一致させてください。',
+    files: aircraftTree,
+  },
+  {
+    label: 'DLCキャンペーン',
+    message:
+      'A-10C The Enemy Within 3.0をアップロードする例\nフォルダー構成は実際のキャンペーンのフォルダー構成と一致させてください。',
+    files: campaignsTree,
+  },
+  {
+    label: 'ユーザーミッション',
+    message: 'Operation Black Knight キャンペーンをアップロードする例',
+    files: UserMissionsTree,
+  },
+];
 </script>
 
 <template lang="pug">
 v-container
   div
-    h2.d-inline-flex.align-start.text-display-large.mt-10.mb-5
-      span Upload
-      v-tooltip(interactive :open-on-hover="false" open-on-click)
-        template(#activator="{ props }")
-          span.d-inline-flex.align-self-start.ms-2.mt-1(v-bind="props")
-            v-icon(color="medium-emphasis" size="24") mdi-help-circle-outline
-        div
-          p フォルダーを選択し、サーバーにアップロードします。
-          p
-            | 選択するフォルダーは
-            b DCSWorld
-            | または
-            b UserMissions
-            | フォルダー自体である必要があります。
-          p
-            | フォルダ構成は
-            a(href="https://github.com/5kdn/DCS-Translation-Japanese" target="_blank" rel="noopener noreferrer" @click.stop) 5kdn/DCS-Translation-Japanese
-            | リポジトリを参考に作成してください。
-          p 1回のアップロードには、1つの機体、DLCキャンペーン、ユーザーミッション、またはユーザーキャンペーンだけを含めてください。
+    h2.d-inline-flex.align-start.text-display-large.mt-10.mb-5 Upload
+
   div.upload-panel
     input(
       ref="folderInput"
@@ -291,6 +519,47 @@ v-container
 
     v-card
       v-card-title
+
+      v-card-text
+        p フォルダーを選択し、サーバーにアップロードします。
+        p
+          | 選択するフォルダーは&nbsp;
+          b DCSWorld
+          | &nbsp;または&nbsp;
+          b UserMissions
+          | &nbsp;フォルダー自体である必要があります。
+        p
+          | フォルダー構成は
+          a(href="https://github.com/5kdn/DCS-Translation-Japanese" target="_blank" rel="noopener noreferrer" @click.stop) 5kdn/DCS-Translation-Japanese
+          | リポジトリに合わせて作成してください。
+        p 1回のアップロードには、1つの機体、DLCキャンペーン、ユーザーミッション、またはユーザーキャンペーンだけを含めてください。
+
+        v-divider
+        p フォルダー構成例
+        p.directory-configuration-hint.text-medium-emphasis 各項目をクリックすると構成例を表示します。
+        ul.d-flex.ga-4.pa-0
+          li(v-for="sample in _directorySamples" :index="sample.label" style="list-style: none;")
+            v-tooltip(interactive :open-on-hover="false" open-on-click)
+              template(v-slot:activator="{props}")
+                v-chip(variant="tonal" color="primary" v-bind="props") {{ sample.label }}
+              div
+                p {{ sample.message }}
+                v-treeview.rounded.text-body-2(
+                  :items="sample.files"
+                  density="compact"
+                  item-value="id"
+                  open-all
+                  open-on-click
+                  hide-actions
+                  indent-lines
+                )
+                  template(v-slot:prepend="{item}")
+                    v-icon(size="small" :icon="item.isFile ? 'mdi-file-document' : 'mdi-folder-open'")
+                  template(v-slot:title="{item}")
+                    span.d-inline-flex.align-center.flex-wrap.ga-1.py-0
+                      span.text-body-2 {{ item.title }}
+                      span.text-medium-emphasis.text-caption.ms-4(v-if="item.remarks") {{ item.remarks }}
+
       v-card-text
         v-alert.mb-4.text-pre-wrap(type="error" variant="tonal" v-if="_errorMessage") {{ _errorMessage }}
         v-alert.mb-4(type="success" variant="tonal" v-if="_successMessage") {{ _successMessage }}
@@ -362,3 +631,10 @@ v-container
           v-btn(color="primary" variant="tonal" :disabled="!canGoToConfirm" v-if="step === UploadDialogStep.Description" @click="_goToConfirm") 確認する
           v-btn(color="primary" :loading="isLoading" :disabled="!canGoToConfirm" v-if="step === UploadDialogStep.Confirm" @click="_submitUpload") アップロード
 </template>
+
+<style scoped lang="scss">
+.directory-configuration-hint {
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+}
+</style>

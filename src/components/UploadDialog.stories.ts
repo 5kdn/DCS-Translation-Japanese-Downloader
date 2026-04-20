@@ -25,8 +25,22 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   play: async ({ canvasElement }): Promise<void> => {
     const canvas = within(canvasElement);
+    const user = userEvent.setup({ pointerEventsCheck: 0 });
     await expect(await canvas.findByText('フォルダーをドロップする')).toBeInTheDocument();
     await expect(await canvas.findByRole('button', { name: 'フォルダーを選択' })).toBeInTheDocument();
+    await expect(canvas.getByText('各項目をクリックすると構成例を表示します。')).toBeInTheDocument();
+    const aircraftChipLabel = canvas.getByText('機体');
+    await expect(aircraftChipLabel).toBeInTheDocument();
+
+    await user.click(aircraftChipLabel);
+
+    const dialog = within(canvasElement.ownerDocument.body);
+    const tree = await dialog.findByRole('tree');
+    const treeContent = within(tree);
+    await expect(treeContent.getByText('DCSWorld')).toBeInTheDocument();
+    await expect(treeContent.getByText('Mods')).toBeInTheDocument();
+    await expect(treeContent.getByText('aircraft')).toBeInTheDocument();
+    await expect(treeContent.getByText('Su-25T')).toBeInTheDocument();
   },
 };
 
