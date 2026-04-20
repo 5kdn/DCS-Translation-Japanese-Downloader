@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { computed, defineAsyncComponent, ref } from 'vue';
+// biome-ignore lint/correctness/noUnusedImports: used in Vue template
+import userMissionReadmeTranslationTemplateUrl from '@/assets/user_mission_README_Translation_template.md?url';
 import { UploadDialogStep, useUploadDialogState } from '@/composables/useUploadDialogState';
 import { toErrorMessageForDisplay } from '@/errors/errorMessage';
 import { type ParsedUploadSelection, parseSelectedFolder, UPLOAD_CHANGE_TYPES } from '@/features/upload/uploadDialogDomain';
@@ -522,17 +524,22 @@ v-container
 
       v-card-text
         p フォルダーを選択し、サーバーにアップロードします。
-        p
-          | 選択するフォルダーは&nbsp;
-          b DCSWorld
-          | &nbsp;または&nbsp;
-          b UserMissions
-          | &nbsp;フォルダー自体である必要があります。
-        p
-          | フォルダー構成は
-          a(href="https://github.com/5kdn/DCS-Translation-Japanese" target="_blank" rel="noopener noreferrer" @click.stop) 5kdn/DCS-Translation-Japanese
-          | リポジトリに合わせて作成してください。
-        p 1回のアップロードには、1つの機体、DLCキャンペーン、ユーザーミッション、またはユーザーキャンペーンだけを含めてください。
+        ul
+          li: p
+            | 選択するフォルダーは&nbsp;
+            b DCSWorld
+            | &nbsp;または&nbsp;
+            b UserMissions
+            | &nbsp;フォルダー自体である必要があります。
+          li: p
+            | フォルダー構成は
+            a(href="https://github.com/5kdn/DCS-Translation-Japanese" target="_blank" rel="noopener noreferrer" @click.stop) 5kdn/DCS-Translation-Japanese
+            | リポジトリに合わせて作成してください。
+          li: p 1回のアップロードには、1つの機体、DLCキャンペーン、ユーザーミッション、またはユーザーキャンペーンだけを含めてください。
+          li
+            p.d-inline-block.align-center.my-0
+              | ユーザーミッションの翻訳を新規アップロードする際は、オリジナルが確認できるファイル(README_Translation.md)を追加してください
+              v-btn.ml-2(color="secondary" prepend-icon="mdi-download" density="compact" :href="userMissionReadmeTranslationTemplateUrl" download="README_Translation.md") テンプレートをダウンロード
 
         v-divider
         p フォルダー構成例
