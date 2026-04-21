@@ -226,7 +226,7 @@ v-app
           v-alert(type="error" variant="tonal" :text="errorMessage" v-if="errorMessage" class="my-4" closable @click:close="_handleAlertClose")
 
       v-container#upload-area
-        UploadDialog(:on-submit="_handleUploadSubmit")
+        UploadDialog(:on-submit="_handleUploadSubmit" :tree-items="treeItems")
 
       v-container#filelist
         CategorySection(title="Aircrafts" :items="_aircrafts" @error="_handleDownloadError")

@@ -1,10 +1,8 @@
 <script lang="ts" setup>
-import DOMPurify from 'dompurify';
-import markdownit from 'markdown-it';
-import taskLists from 'markdown-it-task-lists';
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue';
 import { toErrorMessageForDisplay } from '@/errors/errorMessage';
 import { fetchIssues, type ListIssueRequest } from '@/lib/client';
+import { renderMarkdown } from '@/lib/renderMarkdown';
 import type { IssueItem } from '@/types/type';
 
 defineOptions({
@@ -17,15 +15,6 @@ const isLoading = ref(false);
 const isDialogOpen = ref(false);
 const errorMessage = ref<string | null>(null);
 const fetchedIssues = ref<IssueItem[]>([]);
-
-const md = markdownit({
-  breaks: false,
-  linkify: false,
-  typographer: false,
-  html: true,
-}).use(taskLists, { enabled: true, label: true, labelAfter: true });
-md.renderer.rules.link_open = (): string => '';
-md.renderer.rules.link_close = (): string => '';
 
 /**
  * @summary APIエラーを表示用メッセージに変換する。
@@ -41,10 +30,7 @@ const toErrorMessage = (error: unknown): string => toErrorMessageForDisplay(erro
  * @remarks message が空のときは既定文言を返却する。
  */
 const renderIssueMessage = (message: string | null | undefined): string => {
-  const fallbackMessage = '詳細を取得できませんでした。';
-  const markdownSource = message?.trim() ? message : fallbackMessage;
-  const renderedHtml = md.render(markdownSource);
-  return DOMPurify.sanitize(renderedHtml, { USE_PROFILES: { html: true } });
+  return renderMarkdown(message);
 };
 
 const _issues = computed<IssueItem[]>((): IssueItem[] => fetchedIssues.value);

@@ -6,12 +6,15 @@ import type {
   UploadTargetType,
 } from '@/features/upload/uploadDialogDomain';
 import { DEFAULT_CHANGE_DETAILS, DEFAULT_NOTES } from '@/features/upload/uploadDialogDomain';
+import type { UploadReadmeMode, UploadReadmeSource } from '@/features/upload/uploadDialogReadme';
+import { isReadmeTextValid } from '@/features/upload/uploadDialogReadme';
 
 export const UploadDialogStep = {
   Idle: 1,
-  Description: 2,
-  Confirm: 3,
-  Result: 4,
+  Readme: 2,
+  Description: 3,
+  Confirm: 4,
+  Result: 5,
 } as const;
 
 export type UploadDialogStep = (typeof UploadDialogStep)[keyof typeof UploadDialogStep];
@@ -50,6 +53,13 @@ export const useUploadDialogState = () => {
   const overview = ref('');
   const changeDetails = ref(DEFAULT_CHANGE_DETAILS);
   const notes = ref(DEFAULT_NOTES);
+  const readmeMode = ref<UploadReadmeMode | null>(null);
+  const readmePath = ref('');
+  const readmeRawUrl = ref<string | null>(null);
+  const readmeSource = ref<UploadReadmeSource>('template');
+  const readmeInitialText = ref('');
+  const readmeEditedText = ref('');
+  const readmeNoticeMessage = ref<string | null>(null);
   const hasConfirmedNoPersonalInformation = ref(false);
   const hasAgreedDistributionPolicy = ref(false);
   const errorMessage = ref<string | null>(null);
@@ -83,6 +93,15 @@ export const useUploadDialogState = () => {
     return `${(size / 1024 / 1024).toFixed(2)} MB`;
   });
 
+  const readmeDownloadUrl = computed((): string => {
+    return `data:text/plain;charset=utf-8,${encodeURIComponent(readmeEditedText.value)}`;
+  });
+
+  const isReadmeStepValid = computed((): boolean => {
+    if (readmeMode.value !== 'create') return true;
+    return isReadmeTextValid(readmeSource.value, readmeInitialText.value, readmeEditedText.value);
+  });
+
   const canGoToConfirm = computed(
     (): boolean =>
       detectedTargetType.value !== null &&
@@ -104,6 +123,147 @@ export const useUploadDialogState = () => {
   const clearNotifications = (): void => {
     errorMessage.value = null;
     successMessage.value = null;
+  };
+
+  /**
+   * @summary README関連状態を設定する。
+   * @param mode README確認モードを指定する。
+   * @param path READMEファイルパスを指定する。
+   * @param source README初期値の取得元を指定する。
+   * @param initialText README初期本文を指定する。
+   * @param rawUrl READMEダウンロードURLを指定する。
+   */
+  const setReadmeState = (
+    mode: UploadReadmeMode,
+    path: string,
+    source: UploadReadmeSource,
+    initialText: string,
+    rawUrl: string | null = null,
+  ): void => {
+    readmeMode.value = mode;
+    readmePath.value = path;
+    readmeRawUrl.value = rawUrl;
+    readmeSource.value = source;
+    readmeInitialText.value = initialText;
+    readmeEditedText.value = initialText;
+  };
+
+  /**
+   * @summary README確認モードだけを更新する。
+   * @param mode README確認モードを指定する。
+   */
+  const setReadmeMode = (mode: UploadReadmeMode): void => {
+    readmeMode.value = mode;
+  };
+
+  /**
+   * @summary README入力値を初期値へ戻す。
+   */
+  const resetReadmeEditedText = (): void => {
+    readmeEditedText.value = readmeInitialText.value;
+  };
+
+  /**
+   * @summary README用通知メッセージを設定する。
+   * @param message 表示用メッセージを指定する。
+   */
+  const setReadmeNoticeMessage = (message: string): void => {
+    readmeNoticeMessage.value = message;
+  };
+
+  /**
+   * @summary README用通知メッセージを初期化する。
+   */
+  const clearReadmeNoticeMessage = (): void => {
+    readmeNoticeMessage.value = null;
+  };
+
+  /**
+   * @summary 生成したREADMEを送信対象へ追加する。
+   * @param path READMEファイルパスを指定する。
+   * @param content README本文を指定する。
+   */
+  const appendGeneratedReadmeFile = (path: string, content: string): void => {
+    const file = new File([content], 'README_Translation.md', { type: 'text/markdown' });
+    const entry: UploadDialogEntry = { path, isDirectory: false };
+    const selectedFile: UploadDialogSelectedFile = { path, file };
+    const existingEntryIndex = fileEntries.value.findIndex(
+      (targetEntry: UploadDialogEntry): boolean => targetEntry.path === path,
+    );
+    const existingSelectedFileIndex = selectedFiles.value.findIndex(
+      (targetSelectedFile: UploadDialogSelectedFile): boolean => targetSelectedFile.path === path,
+    );
+
+    if (existingEntryIndex >= 0) {
+      fileEntries.value.splice(existingEntryIndex, 1, entry);
+    } else {
+      fileEntries.value = [...fileEntries.value, entry].sort((left: UploadDialogEntry, right: UploadDialogEntry): number =>
+        left.path.localeCompare(right.path, undefined, { numeric: true }),
+      );
+      entries.value = [...entries.value, entry].sort((left: UploadDialogEntry, right: UploadDialogEntry): number =>
+        left.path.localeCompare(right.path, undefined, { numeric: true }),
+      );
+      fileEntryCount.value += 1;
+      selectedFolderSize.value += file.size;
+    }
+
+    if (existingSelectedFileIndex >= 0) {
+      const previousFileSize = selectedFiles.value[existingSelectedFileIndex]?.file.size ?? 0;
+      selectedFiles.value.splice(existingSelectedFileIndex, 1, selectedFile);
+      selectedFolderSize.value = Math.max(0, selectedFolderSize.value + file.size - previousFileSize);
+      return;
+    }
+
+    selectedFiles.value = [...selectedFiles.value, selectedFile].sort(
+      (left: UploadDialogSelectedFile, right: UploadDialogSelectedFile): number =>
+        left.path.localeCompare(right.path, undefined, { numeric: true }),
+    );
+  };
+
+  /**
+   * @summary 生成したREADMEを送信対象から除外する。
+   * @param path READMEファイルパスを指定する。
+   */
+  const removeGeneratedReadmeFile = (path: string): void => {
+    const existingEntryIndex = fileEntries.value.findIndex(
+      (targetEntry: UploadDialogEntry): boolean => targetEntry.path === path,
+    );
+    const existingSelectedFileIndex = selectedFiles.value.findIndex(
+      (targetSelectedFile: UploadDialogSelectedFile): boolean => targetSelectedFile.path === path,
+    );
+    if (existingEntryIndex < 0 && existingSelectedFileIndex < 0) return;
+
+    const removedSelectedFile = existingSelectedFileIndex >= 0 ? selectedFiles.value[existingSelectedFileIndex] : null;
+
+    if (existingEntryIndex >= 0) {
+      fileEntries.value.splice(existingEntryIndex, 1);
+      const existingEntriesIndex = entries.value.findIndex(
+        (targetEntry: UploadDialogEntry): boolean => targetEntry.path === path,
+      );
+      if (existingEntriesIndex >= 0) entries.value.splice(existingEntriesIndex, 1);
+      fileEntryCount.value = Math.max(0, fileEntryCount.value - 1);
+    }
+
+    if (existingSelectedFileIndex >= 0) {
+      selectedFiles.value.splice(existingSelectedFileIndex, 1);
+    }
+
+    if (removedSelectedFile !== null) {
+      selectedFolderSize.value = Math.max(0, selectedFolderSize.value - removedSelectedFile.file.size);
+    }
+  };
+
+  /**
+   * @summary README関連状態を初期化する。
+   */
+  const clearReadmeState = (): void => {
+    readmeMode.value = null;
+    readmePath.value = '';
+    readmeRawUrl.value = null;
+    readmeSource.value = 'template';
+    readmeInitialText.value = '';
+    readmeEditedText.value = '';
+    clearReadmeNoticeMessage();
   };
 
   /**
@@ -153,6 +313,7 @@ export const useUploadDialogState = () => {
     fileEntryCount.value = 0;
     detectedTargetType.value = null;
     detectedTargetName.value = '';
+    clearReadmeState();
     step.value = UploadDialogStep.Idle;
   };
 
@@ -167,6 +328,7 @@ export const useUploadDialogState = () => {
     overview.value = '';
     changeDetails.value = DEFAULT_CHANGE_DETAILS;
     notes.value = DEFAULT_NOTES;
+    clearReadmeState();
     hasConfirmedNoPersonalInformation.value = false;
     hasAgreedDistributionPolicy.value = false;
     clearNotifications();
@@ -193,6 +355,13 @@ export const useUploadDialogState = () => {
     overview,
     changeDetails,
     notes,
+    readmeMode,
+    readmePath,
+    readmeRawUrl,
+    readmeSource,
+    readmeInitialText,
+    readmeEditedText,
+    readmeNoticeMessage,
     hasConfirmedNoPersonalInformation,
     hasAgreedDistributionPolicy,
     errorMessage,
@@ -200,10 +369,20 @@ export const useUploadDialogState = () => {
     title,
     description,
     fileSizeText,
+    readmeDownloadUrl,
+    isReadmeStepValid,
     canGoToConfirm,
     clearNotifications,
     setErrorMessage,
     setSuccessMessage,
+    setReadmeState,
+    setReadmeMode,
+    resetReadmeEditedText,
+    setReadmeNoticeMessage,
+    clearReadmeNoticeMessage,
+    appendGeneratedReadmeFile,
+    removeGeneratedReadmeFile,
+    clearReadmeState,
     applySelectedUpload,
     clearSelectedUpload,
     resetState,
