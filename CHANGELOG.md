@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.1.0](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/compare/v2.0.1...v2.1.0) (2026-04-21)
+
+
+### Features
+
+* **upload:** ユーザーミッションのアップロード時にREADME_Translation.mdの検証と作成機能を追加 ([#135](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/issues/135)) ([3696363](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/commit/3696363632dab9bb6459fc68df58d30f036e503f))
+
+
+### Bug Fixes
+
+* **deps:** bump dompurify from 3.3.3 to 3.4.0 in the presentation group across 1 directory ([#132](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/issues/132)) ([7a98e62](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/commit/7a98e6258c98528f1f69aee3b03ed290bd7ab4aa))
+
 ## [2.0.1](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/compare/v2.0.0...v2.0.1) (2026-04-16)
 
 
