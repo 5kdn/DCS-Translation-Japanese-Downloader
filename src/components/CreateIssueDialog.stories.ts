@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite';
 import { expect, fn, spyOn, userEvent, within } from 'storybook/test';
 import { ref } from 'vue';
+import { createJsonResponse, installFetchMock, readRequestInfo } from '../../.storybook/fetchMock';
 import CreateIssueDialog from './CreateIssueDialog.vue';
 
 const meta = {
@@ -403,11 +404,11 @@ export const PathChangesTitle: Story = {
 };
 
 const overrideFetch = (nextFetch: typeof fetch): (() => void) => {
-  const originalFetch = globalThis.fetch;
-  globalThis.fetch = nextFetch;
-  return () => {
-    globalThis.fetch = originalFetch;
-  };
+  const installed = installFetchMock({
+    match: (request): boolean => request.url.includes('/issue/create'),
+    handle: async (_request, input, init): Promise<Response> => nextFetch(input, init),
+  });
+  return installed.restore;
 };
 
 const createPendingFetch = (): typeof fetch => {
@@ -419,13 +420,7 @@ const createRejectFetch = (error: Error): typeof fetch => {
 };
 
 const createResolveFetch = (payload: object): typeof fetch => {
-  return (() =>
-    Promise.resolve(
-      new Response(JSON.stringify(payload), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      }),
-    )) as typeof fetch;
+  return (() => Promise.resolve(createJsonResponse(payload, { status: 200 }))) as typeof fetch;
 };
 
 const createCaptureFetch = (
@@ -445,34 +440,7 @@ const createCaptureFetch = (
       resolved = true;
       resolveCapture(capturedRequest);
     }
-    return new Response(JSON.stringify(payload), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return createJsonResponse(payload, { status: 200 });
   }) as typeof fetch;
   return { fetch: fetchFn, captured };
-};
-
-const readRequestInfo = async (
-  input: RequestInfo | URL,
-  init?: RequestInit,
-): Promise<{ url: string; method: string; bodyText: string | null }> => {
-  if (input instanceof Request) {
-    return { url: input.url, method: input.method, bodyText: await input.clone().text() };
-  }
-  return {
-    url: input.toString(),
-    method: init?.method ?? 'GET',
-    bodyText: await resolveBodyText(init?.body),
-  };
-};
-
-const resolveBodyText = async (body: BodyInit | null | undefined): Promise<string | null> => {
-  if (body == null) return null;
-  if (typeof body === 'string') return body;
-  try {
-    return await new Response(body).text();
-  } catch {
-    return null;
-  }
 };

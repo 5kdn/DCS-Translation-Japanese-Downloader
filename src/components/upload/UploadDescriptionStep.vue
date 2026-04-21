@@ -18,13 +18,13 @@ const _hasAgreedDistributionPolicy = defineModel<boolean>('hasAgreedDistribution
 
 <template lang="pug">
 div.pt-2
+  p.text-title-small.font-weight-medium 選択内容
   v-card(variant="tonal")
-    v-card-text
-      p.text-title-medium.font-weight-medium 選択内容
-      p.mt-2.text-medium-emphasis 対象の種類: {{ targetType }}
-      p.text-medium-emphasis 対象名: {{ targetName }}
-      p.text-medium-emphasis ファイル数: {{ fileEntryCount }}
-  p.text-title-small.font-weight-medium.mt-2 変更点
+    v-card-text.py-2
+      p.text-medium-emphasis.my-0 対象の種類: {{ targetType }}
+      p.text-medium-emphasis.my-0 対象名: {{ targetName }}
+      p.text-medium-emphasis.my-0 ファイル数: {{ fileEntryCount }}
+  p.text-title-small.font-weight-medium 変更点
   .d-flex.flex-wrap.ga-2.mb-2
     v-checkbox(
       v-for="option in uploadChangeTypes"
@@ -97,3 +97,12 @@ div.pt-2
         ) 流通制御ポリシー
         | に同意します
 </template>
+
+<style scoped lang="scss">
+.step-section-surface {
+  padding: 1rem 1.25rem;
+  border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+  border-radius: 12px;
+  background-color: rgba(var(--v-theme-on-surface), 0.02);
+}
+</style>

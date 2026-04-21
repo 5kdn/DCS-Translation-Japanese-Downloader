@@ -2,6 +2,7 @@
 import { defineAsyncComponent, ref } from 'vue';
 import { type Target, useDownloadZip } from '@/composables/useDownloadZip';
 import { toErrorMessageForDisplay } from '@/errors/errorMessage';
+import { buildGitHubBlobUrl, buildGitHubRawUrl } from '@/lib/githubUrl';
 import type { DownloadItemRequirement } from '@/types/type';
 
 defineOptions({
@@ -155,43 +156,13 @@ const _DownloadButtonClickCommand = async (item: DownloadItemRequirement): Promi
  * @throws 環境変数が未設定の場合は例外を投げる。
  */
 const _NavToGitHubSourceFileCommand = (path: string): void => {
-  const owner = import.meta.env.VITE_TARGET_OWNER;
-  const repo = import.meta.env.VITE_TARGET_REPO;
-  const ref = import.meta.env.VITE_TARGET_REF;
-  const baseUrl = 'http://github.com';
-
-  if (typeof owner !== 'string') {
-    throw new Error('VITE_TARGET_OWNER が未設定です。');
-  }
-  if (typeof repo !== 'string') {
-    throw new Error('VITE_TARGET_REPO が未設定です。');
-  }
-  if (typeof ref !== 'string') {
-    throw new Error('VITE_TARGET_REF が未設定です。');
-  }
-
-  const url = `${baseUrl}/${import.meta.env.VITE_TARGET_OWNER}/${import.meta.env.VITE_TARGET_REPO}/blob/${import.meta.env.VITE_TARGET_REF}/${path}`;
+  const url = buildGitHubBlobUrl(path);
   window.open(url, '_blank', 'noopener,noreferrer');
 };
 
 const _NavToGitHubSourceDirCommand = (category: DownloadItemRequirement): void => {
-  const owner = import.meta.env.VITE_TARGET_OWNER;
-  const repo = import.meta.env.VITE_TARGET_REPO;
-  const ref = import.meta.env.VITE_TARGET_REF;
-  const baseUrl = 'http://github.com';
-
-  if (typeof owner !== 'string') {
-    throw new Error('VITE_TARGET_OWNER が未設定です。');
-  }
-  if (typeof repo !== 'string') {
-    throw new Error('VITE_TARGET_REPO が未設定です。');
-  }
-  if (typeof ref !== 'string') {
-    throw new Error('VITE_TARGET_REF が未設定です。');
-  }
-
   const path = resolveDirectoryPath(category);
-  const url = `${baseUrl}/${import.meta.env.VITE_TARGET_OWNER}/${import.meta.env.VITE_TARGET_REPO}/blob/${import.meta.env.VITE_TARGET_REF}/${path}`;
+  const url = buildGitHubBlobUrl(path);
   window.open(url, '_blank', 'noopener,noreferrer');
 };
 
@@ -205,31 +176,9 @@ const _OnCreateIssueDialogError = (message: string): void => {
 
 /** GitHub のパスからダウンロードURLを生成する */
 const generateDownloadUrl = (path: string): Target => {
-  const owner = import.meta.env.VITE_TARGET_OWNER;
-  const repo = import.meta.env.VITE_TARGET_REPO;
-  const ref = import.meta.env.VITE_TARGET_REF;
-  const baseUrl = 'https://raw.githubusercontent.com';
-
-  if (typeof owner !== 'string') {
-    throw new Error('VITE_TARGET_OWNER が未設定です。');
-  }
-  if (typeof repo !== 'string') {
-    throw new Error('VITE_TARGET_REPO が未設定です。');
-  }
-  if (typeof ref !== 'string') {
-    throw new Error('VITE_TARGET_REF が未設定です。');
-  }
-
-  const normalizedPath = path
-    .replace(/\\/g, '/')
-    .replace(/\/+/g, '/')
-    .replace(/^\/+/, '')
-    .split('/')
-    .map(encodeURIComponent)
-    .join('/');
   const target: Target = {
     path: path,
-    url: `${baseUrl}/${owner}/${repo}/${ref}/${normalizedPath}`,
+    url: buildGitHubRawUrl(path),
   };
   return target;
 };

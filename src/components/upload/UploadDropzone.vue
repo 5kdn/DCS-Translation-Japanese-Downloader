@@ -57,9 +57,9 @@ div.upload-dropzone.rounded-lg.pa-8.text-center(
   @dragleave="_emitDragLeave"
   @drop="_emitDrop"
 )
-  .d-flex.align-center.justify-center.ga-3
+  .d-inline-flex.align-center.justify-center.ga-3
     v-icon(size="24" color="primary") mdi-folder-upload-outline
-    p.text-title-large.text-primary.mb-0 フォルダーをドロップする
+    span.text-title-large.text-primary フォルダーをドロップする
   p.mt-2.text-primary または
   .d-flex.flex-column.flex-sm-row.justify-center.ga-3.mt-4
     Button(label="フォルダーを選択" :loading="isLoading" @click="_emitChooseFolder")
