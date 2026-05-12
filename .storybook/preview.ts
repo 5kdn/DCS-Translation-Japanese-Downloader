@@ -26,6 +26,7 @@ export const GlobalTypes = {
 };
 
 const preview: Preview = {
+  decorators: [withVuetifyTheme],
   parameters: {
     controls: {
       matchers: {
@@ -36,5 +37,4 @@ const preview: Preview = {
   },
 };
 
-export const decorator = [withVuetifyTheme];
 export default preview;
