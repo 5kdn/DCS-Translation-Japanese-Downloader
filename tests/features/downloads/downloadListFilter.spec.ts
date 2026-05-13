@@ -3,7 +3,7 @@ import {
   applyDownloadListFilter,
   filterDownloadListRowsByName,
   filterDownloadListRowsByUpdatedAfter,
-  sortDownloadListRowsByLatestUpdatedAtDesc,
+  sortDownloadListRowsByNameAsc,
 } from '@/features/downloads/downloadListFilter';
 import type { DownloadListFilter, DownloadListRow } from '@/features/downloads/downloadListModels';
 
@@ -48,7 +48,7 @@ describe('downloadListFilter', () => {
     expect(applyDownloadListFilter(rows, filter)).toEqual([rows[0]]);
   });
 
-  it('初期ソートで最終更新日降順かつ同日の場合は名称昇順に並べる', () => {
+  it('名称の昇順で並べる', () => {
     const rows = [
       createRow('Zulu', '2026-05-10T00:00:00Z'),
       createRow('Alpha', '2026-05-10T00:00:00Z'),
@@ -56,11 +56,6 @@ describe('downloadListFilter', () => {
       createRow('Latest', '2026-05-11T00:00:00Z'),
     ];
 
-    expect(sortDownloadListRowsByLatestUpdatedAtDesc(rows).map((row) => row.name)).toEqual([
-      'Latest',
-      'Alpha',
-      'Zulu',
-      'NoDate',
-    ]);
+    expect(sortDownloadListRowsByNameAsc(rows).map((row) => row.name)).toEqual(['Alpha', 'Latest', 'NoDate', 'Zulu']);
   });
 });

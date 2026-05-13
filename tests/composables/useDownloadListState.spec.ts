@@ -17,6 +17,19 @@ const createTreeItem = (path: string, updatedAt: string): TreeItem => {
 };
 
 describe('useDownloadListState', () => {
+  const createMixedTreeItems = (): TreeItem[] => {
+    return [
+      createTreeItem('DCSWorld/Mods/aircraft/AH-64D/Missions/QuickStart/Hover.miz/l10n/JP/dictionary', '2026-05-08T00:00:00Z'),
+      createTreeItem(
+        'DCSWorld/Mods/aircraft/F-16C/Missions/QuickStart/Cold Start.miz/l10n/JP/dictionary',
+        '2026-05-11T00:00:00Z',
+      ),
+      createTreeItem('DCSWorld/Mods/campaigns/The Enemy Within/Mission_01.miz/l10n/JP/dictionary', '2026-05-12T00:00:00Z'),
+      createTreeItem('UserMissions/Campaigns/Operation Black Knight/Mission_01.miz/l10n/JP/dictionary', '2026-05-10T00:00:00Z'),
+      createTreeItem('UserMissions/Georgian Oil War/Mission_01.miz/l10n/JP/dictionary', '2026-05-09T00:00:00Z'),
+    ];
+  };
+
   it('初期状態では最初のタブを選択し、そのカテゴリだけを返す', () => {
     const treeItems = ref<TreeItem[]>([
       createTreeItem(
@@ -48,6 +61,23 @@ describe('useDownloadListState', () => {
     expect(state.rowsByCategory.value[DownloadListCategoryKey.UserMissions].map((row) => row.name)).toEqual(['Sample Mission']);
   });
 
+  it('カテゴリ切り替えごとに現在表示行を切り替える', () => {
+    const treeItems = ref<TreeItem[]>(createMixedTreeItems());
+    const state = useDownloadListState(treeItems);
+
+    expect(state.currentRows.value.map((row) => row.name)).toEqual(['AH-64D', 'F-16C']);
+
+    state.setActiveCategory(DownloadListCategoryKey.DlcCampaigns);
+    expect(state.currentRows.value.map((row) => row.name)).toEqual(['The Enemy Within']);
+
+    state.setActiveCategory(DownloadListCategoryKey.UserCampaigns);
+    expect(state.currentRows.value.map((row) => row.name)).toEqual(['Operation Black Knight']);
+
+    state.setActiveCategory(DownloadListCategoryKey.UserMissions);
+    expect(state.currentRows.value.map((row) => row.name)).toEqual(['Georgian Oil War']);
+    expect(state.currentRows.value.map((row) => row.name)).not.toContain('Operation Black Knight');
+  });
+
   it('名称フィルターと日付フィルターを同時適用する', () => {
     const treeItems = ref<TreeItem[]>([
       createTreeItem(
@@ -67,6 +97,20 @@ describe('useDownloadListState', () => {
 
     expect(state.visibleRows.value.map((row) => row.name)).toEqual(['F-16C']);
     expect(state.hasVisibleRows.value).toBe(true);
+  });
+
+  it('フィルター適用中でもタブ切り替え後のカテゴリへ再適用する', () => {
+    const treeItems = ref<TreeItem[]>(createMixedTreeItems());
+    const state = useDownloadListState(treeItems);
+
+    state.setSearchText('war');
+    expect(state.visibleRows.value).toEqual([]);
+
+    state.setActiveCategory(DownloadListCategoryKey.UserMissions);
+    expect(state.visibleRows.value.map((row) => row.name)).toEqual(['Georgian Oil War']);
+
+    state.setUpdatedAfter(new Date('2026-05-10T00:00:00Z'));
+    expect(state.visibleRows.value).toEqual([]);
   });
 
   it('フィルター結果が空になった場合に検知できる', () => {

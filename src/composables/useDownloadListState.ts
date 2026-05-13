@@ -1,7 +1,7 @@
 import type { MaybeRefOrGetter } from 'vue';
 import { computed, ref, toValue } from 'vue';
 import { DOWNLOAD_LIST_CATEGORIES, DownloadListCategoryKey } from '@/features/downloads/downloadListCategory';
-import { applyDownloadListFilter, sortDownloadListRowsByLatestUpdatedAtDesc } from '@/features/downloads/downloadListFilter';
+import { applyDownloadListFilter, sortDownloadListRowsByNameAsc } from '@/features/downloads/downloadListFilter';
 import type { DownloadListFilter, DownloadListRow } from '@/features/downloads/downloadListModels';
 import { createDownloadListRows } from '@/features/downloads/downloadListRow';
 import type { TreeItem } from '@/types/type';
@@ -30,7 +30,7 @@ export const useDownloadListState = (treeItems: MaybeRefOrGetter<TreeItem[]>) =>
 
     return DOWNLOAD_LIST_CATEGORIES.reduce<DownloadListRowsByCategory>(
       (acc, category) => {
-        acc[category.key] = sortDownloadListRowsByLatestUpdatedAtDesc(
+        acc[category.key] = sortDownloadListRowsByNameAsc(
           createDownloadListRows(source, category.prefix, category.ignorePatterns),
         );
         return acc;

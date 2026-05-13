@@ -42,20 +42,12 @@ export const applyDownloadListFilter = (rows: DownloadListRow[], filter: Downloa
 };
 
 /**
- * @summary 一覧行を最終更新日の降順で並べ替える。
- * @description 更新日が同一または欠損している場合は名称昇順で安定化する。
+ * @summary 一覧行を名称の昇順で並べ替える。
  * @param rows 一覧行を指定する。
  * @returns 並べ替え後の一覧行を返す。
  */
-export const sortDownloadListRowsByLatestUpdatedAtDesc = (rows: DownloadListRow[]): DownloadListRow[] => {
+export const sortDownloadListRowsByNameAsc = (rows: DownloadListRow[]): DownloadListRow[] => {
   return [...rows].sort((left: DownloadListRow, right: DownloadListRow): number => {
-    const leftTime = left.latestUpdatedAt?.getTime() ?? Number.NEGATIVE_INFINITY;
-    const rightTime = right.latestUpdatedAt?.getTime() ?? Number.NEGATIVE_INFINITY;
-
-    if (leftTime !== rightTime) {
-      return rightTime - leftTime;
-    }
-
     return collator.compare(left.name, right.name);
   });
 };

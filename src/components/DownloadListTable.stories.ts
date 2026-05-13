@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/vue3-vite';
 import { expect, fn, spyOn, userEvent, waitFor, within } from 'storybook/test';
 import type { DownloadListRow } from '@/features/downloads/downloadListModels';
 import type { TreeItem } from '@/types/type';
+import { installFetchMock } from '../../.storybook/fetchMock';
 import DownloadListTable from './DownloadListTable.vue';
 
 const createTreeItem = (path: string, updatedAt: string): TreeItem => {
@@ -97,10 +98,10 @@ export const OpenGitHubDirectory: Story = {
     const canvas = within(canvasElement);
     const directoryButtons = canvas.getAllByRole('button', { name: 'フォルダを見る' });
 
-    directoryButtons[0]?.click();
+    directoryButtons[1]?.click();
 
     await expect(openSpy).toHaveBeenCalledWith(
-      'https://github.com/5kdn/DCS-Translation-Japanese/blob/master/DCSWorld/Mods/aircraft/F-16C',
+      'https://github.com/5kdn/DCS-Translation-Japanese/blob/master/UserMissions/Campaigns/Operation Black Knight',
       '_blank',
       'noopener,noreferrer',
     );
@@ -124,10 +125,18 @@ export const OpenReportDialog: Story = {
 
 export const DownloadStarts: Story = {
   play: async ({ canvasElement }): Promise<void> => {
+    import.meta.env.VITE_TARGET_OWNER = '5kdn';
+    import.meta.env.VITE_TARGET_REPO = 'DCS-Translation-Japanese';
+    import.meta.env.VITE_TARGET_REF = 'master';
+
     const createObjectUrlSpy = spyOn(URL, 'createObjectURL').mockReturnValue('blob:download-list-table');
     const revokeObjectUrlSpy = spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
     const anchorClickSpy = spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
     const appendChildSpy = spyOn(document.body, 'appendChild');
+    const fetchMock = installFetchMock({
+      match: ({ url, method }) => method === 'GET' && url.startsWith('https://raw.githubusercontent.com/'),
+      handle: () => new Response(new Uint8Array([0x50, 0x4b]).buffer, { status: 200 }),
+    });
     const canvas = within(canvasElement);
     const downloadButtons = canvas.getAllByRole('button', { name: 'DL' });
 
@@ -143,6 +152,7 @@ export const DownloadStarts: Story = {
     const anchorElement = appendChildSpy.mock.calls[0]?.[0] as HTMLAnchorElement | undefined;
     await expect(anchorElement?.download).toBe('Operation Black Knight.zip');
 
+    fetchMock.restore();
     createObjectUrlSpy.mockRestore();
     revokeObjectUrlSpy.mockRestore();
     anchorClickSpy.mockRestore();
@@ -150,7 +160,7 @@ export const DownloadStarts: Story = {
   },
 };
 
-export const InitialSortByName: Story = {
+export const InitialSortByNameAsc: Story = {
   play: async ({ canvasElement }): Promise<void> => {
     const rows = Array.from(canvasElement.querySelectorAll('tbody tr'));
     expect(rows).toHaveLength(2);
