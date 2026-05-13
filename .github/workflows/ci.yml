@@ -24,6 +24,7 @@ permissions:
   contents: read
 
 env:
+  NODE_VERSION: '24.x'
   PNPM_VERSION: '10.33.0'
   VITE_API_BASE_URL: http://example.com
   VITE_TARGET_OWNER: dummy-owner
@@ -43,7 +44,7 @@ jobs:
           version: ${{ env.PNPM_VERSION }}
       - uses: actions/setup-node@v6
         with:
-          node-version: 'latest'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
           cache-dependency-path: pnpm-lock.yaml
 
@@ -61,7 +62,7 @@ jobs:
           version: ${{ env.PNPM_VERSION }}
       - uses: actions/setup-node@v6
         with:
-          node-version: 'latest'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
           cache-dependency-path: pnpm-lock.yaml
 
@@ -79,7 +80,7 @@ jobs:
           version: ${{ env.PNPM_VERSION }}
       - uses: actions/setup-node@v6
         with:
-          node-version: 'latest'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
 
       - run: pnpm i --frozen-lockfile
@@ -91,7 +92,7 @@ jobs:
           key: ${{ runner.os }}-ms-playwright-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Install Playwright
-        run: pnpm exec playwright install --with-deps
+        run: pnpm exec playwright install chromium
 
       - name: Run Tests
         run: pnpm vitest --run
@@ -107,7 +108,7 @@ jobs:
           version: ${{ env.PNPM_VERSION }}
       - uses: actions/setup-node@v6
         with:
-          node-version: 'latest'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
           cache-dependency-path: pnpm-lock.yaml
 
