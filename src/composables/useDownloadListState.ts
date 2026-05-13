@@ -52,6 +52,10 @@ export const useDownloadListState = (treeItems: MaybeRefOrGetter<TreeItem[]>) =>
     return rowsByCategory.value[activeCategoryKey.value];
   });
 
+  const searchCandidates = computed<readonly string[]>(() => {
+    return [...new Set(currentRows.value.map((row: DownloadListRow): string => row.name))];
+  });
+
   const visibleRows = computed<DownloadListRow[]>(() => {
     return applyDownloadListFilter(currentRows.value, filter.value);
   });
@@ -99,6 +103,7 @@ export const useDownloadListState = (treeItems: MaybeRefOrGetter<TreeItem[]>) =>
     filter,
     rowsByCategory,
     currentRows,
+    searchCandidates,
     visibleRows,
     hasVisibleRows,
     setActiveCategory,

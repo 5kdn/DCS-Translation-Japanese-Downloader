@@ -1,4 +1,5 @@
 import type { DownloadListFilter, DownloadListRow } from '@/features/downloads/downloadListModels';
+import { matchesDownloadListNameSearch } from '@/features/downloads/downloadListNameSearch';
 
 const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
 
@@ -9,11 +10,10 @@ const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'bas
  * @returns 条件に一致した一覧行を返す。
  */
 export const filterDownloadListRowsByName = (rows: DownloadListRow[], searchText: string): DownloadListRow[] => {
-  const normalizedSearchText = searchText.trim().toLocaleLowerCase();
-  if (normalizedSearchText.length === 0) return rows;
+  if (searchText.trim().length === 0) return rows;
 
   return rows.filter((row: DownloadListRow): boolean => {
-    return row.name.toLocaleLowerCase().includes(normalizedSearchText);
+    return matchesDownloadListNameSearch(row.name, searchText);
   });
 };
 

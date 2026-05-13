@@ -92,11 +92,24 @@ describe('useDownloadListState', () => {
     ]);
 
     const state = useDownloadListState(treeItems);
-    state.setSearchText('f-');
+    state.setSearchText('f16');
     state.setUpdatedAfter(new Date('2026-05-10T00:00:00Z'));
 
     expect(state.visibleRows.value.map((row) => row.name)).toEqual(['F-16C']);
     expect(state.hasVisibleRows.value).toBe(true);
+  });
+
+  it('現在カテゴリごとに名称候補一覧を切り替える', () => {
+    const treeItems = ref<TreeItem[]>(createMixedTreeItems());
+    const state = useDownloadListState(treeItems);
+
+    expect(state.searchCandidates.value).toEqual(['AH-64D', 'F-16C']);
+
+    state.setActiveCategory(DownloadListCategoryKey.DlcCampaigns);
+    expect(state.searchCandidates.value).toEqual(['The Enemy Within']);
+
+    state.setActiveCategory(DownloadListCategoryKey.UserCampaigns);
+    expect(state.searchCandidates.value).toEqual(['Operation Black Knight']);
   });
 
   it('フィルター適用中でもタブ切り替え後のカテゴリへ再適用する', () => {

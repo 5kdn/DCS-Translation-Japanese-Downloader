@@ -78,12 +78,21 @@ const downloadCategoryTabsMockModule = {
         type: Array,
         required: true,
       },
+      searchCandidates: {
+        type: Array,
+        required: false,
+      },
     },
     setup(props) {
       return () =>
         h('div', { 'data-testid': 'download-category-tabs-stub' }, [
           h('output', { 'data-testid': 'rows-is-array' }, String(Array.isArray(props.rows))),
           h('output', { 'data-testid': 'row-names' }, props.rows.map((row: { name: string }) => row.name).join('|')),
+          h(
+            'output',
+            { 'data-testid': 'search-candidates' },
+            (props.searchCandidates as string[] | undefined)?.join('|') ?? '',
+          ),
         ]);
     },
   }),
@@ -170,10 +179,12 @@ describe('App', () => {
     const tabsElement = container.querySelector('[data-testid="download-category-tabs-stub"]');
     const rowsIsArrayElement = container.querySelector('[data-testid="rows-is-array"]');
     const rowNamesElement = container.querySelector('[data-testid="row-names"]');
+    const searchCandidatesElement = container.querySelector('[data-testid="search-candidates"]');
 
     expect(tabsElement).not.toBeNull();
     expect(rowsIsArrayElement?.textContent).toBe('true');
     expect(rowNamesElement?.textContent).toBe('F-16C');
+    expect(searchCandidatesElement?.textContent).toBe('F-16C');
 
     app.unmount();
   });

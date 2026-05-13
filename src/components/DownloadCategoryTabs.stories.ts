@@ -79,6 +79,7 @@ const meta = {
     categories: DOWNLOAD_LIST_CATEGORIES,
     activeCategoryKey: DownloadListCategoryKey.Aircrafts,
     searchText: '',
+    searchCandidates: aircraftRows.map((row) => row.name),
     updatedAfter: null,
     rows: aircraftRows,
     'onUpdate:activeCategoryKey': fn(),
@@ -99,6 +100,9 @@ const meta = {
       });
       const rows = computed<DownloadListRow[]>(() => {
         return applyDownloadListFilter(rowsByCategory[activeCategoryKey.value], filter.value);
+      });
+      const searchCandidates = computed<readonly string[]>(() => {
+        return rowsByCategory[activeCategoryKey.value].map((row) => row.name);
       });
 
       const handleActiveCategoryKey = (value: DownloadListCategoryKey): void => {
@@ -126,6 +130,7 @@ const meta = {
             categories: args.categories,
             activeCategoryKey: activeCategoryKey.value,
             searchText: searchText.value,
+            searchCandidates: searchCandidates.value,
             updatedAfter: updatedAfter.value,
             rows: rows.value,
             'onUpdate:activeCategoryKey': handleActiveCategoryKey,
@@ -199,7 +204,7 @@ export const InputFilters: Story = {
     onSearchText.mockClear();
     const canvas = within(canvasElement);
 
-    await userEvent.type(canvas.getByLabelText('名称で絞り込み'), 'F-16');
+    await userEvent.type(canvas.getByLabelText('名称で絞り込み'), 'f16');
 
     await waitFor(() => {
       expect(onSearchText).toHaveBeenCalled();
@@ -242,7 +247,7 @@ export const CombinedFilters: Story = {
     const canvas = within(canvasElement);
     const documentBody = within(canvasElement.ownerDocument.body);
 
-    await userEvent.type(canvas.getByLabelText('名称で絞り込み'), 'F-16');
+    await userEvent.type(canvas.getByLabelText('名称で絞り込み'), 'f16');
     await userEvent.click(canvas.getByLabelText('最終更新日 (以降)'));
 
     const dayLabel = await documentBody.findByText('10');
@@ -262,6 +267,24 @@ export const CombinedFilters: Story = {
       expect(documentBody.getAllByText('F-16C').length).toBeGreaterThan(0);
     });
     await expect(documentBody.getByText('ファイル数: 1')).toBeTruthy();
+  },
+};
+
+export const SearchCandidateSelection: Story = {
+  play: async ({ canvasElement, args }): Promise<void> => {
+    const onSearchText = args['onUpdate:searchText'] as unknown as ReturnType<typeof fn>;
+    onSearchText.mockClear();
+    const canvas = within(canvasElement);
+    const input = canvas.getByLabelText('名称で絞り込み');
+
+    await userEvent.click(input);
+    await userEvent.type(input, 'ah');
+    await userEvent.keyboard('{Enter}');
+
+    await waitFor(() => {
+      expect(onSearchText).toHaveBeenLastCalledWith('AH-64D');
+    });
+    await expect(canvas.getByTestId('active-row-names')).toHaveTextContent('AH-64D');
   },
 };
 

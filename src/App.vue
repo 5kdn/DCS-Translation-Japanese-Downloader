@@ -45,6 +45,7 @@ const _updatedAfter = computed({
   },
 });
 
+const _searchCandidates = computed(() => _downloadListState.searchCandidates.value);
 const _visibleRows = computed(() => _downloadListState.visibleRows.value);
 
 /**
@@ -213,6 +214,7 @@ v-app
           v-model:activeCategoryKey="_activeCategoryKey"
           v-model:searchText="_searchText"
           v-model:updatedAfter="_updatedAfter"
+          :search-candidates="_searchCandidates"
           :rows="_visibleRows"
           @error="_handleDownloadError"
         )

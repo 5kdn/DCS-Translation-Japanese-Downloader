@@ -3,6 +3,7 @@ import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, onMounted, r
 import { useDate } from 'vuetify';
 import type { DownloadListCategoryDefinition, DownloadListCategoryKey } from '@/features/downloads/downloadListCategory';
 import type { DownloadListRow } from '@/features/downloads/downloadListModels';
+import { filterDownloadListNameCandidates } from '@/features/downloads/downloadListNameSearch';
 import { normalizeDatePickerValue } from '@/helpers/datePicker';
 
 defineOptions({
@@ -15,6 +16,7 @@ const props = defineProps<{
   categories: readonly DownloadListCategoryDefinition[];
   activeCategoryKey: DownloadListCategoryKey;
   searchText: string;
+  searchCandidates: readonly string[];
   updatedAfter: Date | null;
   rows: DownloadListRow[];
 }>();
@@ -57,6 +59,10 @@ const _updatedAfterDisplay = computed<string>(() => {
     month: '2-digit',
     day: '2-digit',
   });
+});
+
+const _filteredSearchCandidates = computed<string[]>(() => {
+  return filterDownloadListNameCandidates(props.searchCandidates, props.searchText);
 });
 
 const _tableKey = computed<string>(() => {
@@ -143,8 +149,9 @@ v-card(variant="tonal")
 
   v-card-text
     .d-flex.flex-column.flex-lg-row.align-lg-center.ga-4.mb-4
-      v-text-field.flex-1-1(
+      v-combobox.flex-1-1(
         :model-value="searchText"
+        :items="_filteredSearchCandidates"
         label="名称で絞り込み"
         aria-label="名称で絞り込み"
         prepend-inner-icon="mdi-magnify"
@@ -152,6 +159,10 @@ v-card(variant="tonal")
         clearable
         density="comfortable"
         hide-details
+        variant="filled"
+        auto-select-first
+        :custom-filter="() => true"
+        menu-icon=""
         @update:model-value="_handleSearchTextChange"
       )
 
