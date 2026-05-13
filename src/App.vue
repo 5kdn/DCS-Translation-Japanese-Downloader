@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import type { ComputedRef, Ref } from 'vue';
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue';
 // biome-ignore lint/correctness/noUnusedImports: used in Vue template
 import associate_miz_with_zip from '@/assets/associate_miz_with_zip.reg.txt?raw';
+import { useDownloadListState } from '@/composables/useDownloadListState';
 import { toErrorMessageForDisplay } from '@/errors/errorMessage';
 import type { UploadDialogSubmitPayload } from '@/features/upload/uploadDialogSubmit';
 import type { CreatePrResponse } from '@/lib/client';
 import { fetchCreatePr, fetchTree, healthCheck } from '@/lib/client';
-import type { DownloadItemRequirement, TreeItem } from '@/types/type';
+import type { TreeItem } from '@/types/type';
 
 defineOptions({
   components: {
-    CategorySection: defineAsyncComponent(() => import('./components/CategorySection.vue')),
+    DownloadCategoryTabs: defineAsyncComponent(() => import('./components/DownloadCategoryTabs.vue')),
     Footer: defineAsyncComponent(() => import('./components/Footer.vue')),
     IssueViewer: defineAsyncComponent(() => import('./components/IssueViewer.vue')),
     Button: defineAsyncComponent(() => import('./components/common/Button.vue')),
@@ -22,51 +22,31 @@ defineOptions({
 const isLoadingTree = ref(false);
 const errorMessage = ref<string | null>(null);
 const treeItems = ref<TreeItem[]>([]);
+const _downloadListState = useDownloadListState(treeItems);
 
-/**
- * @summary ツリー項目からカテゴリごとのパスリストを生成する。
- * @param treeItems ツリー項目一覧を保持する参照を受け取る。
- * @param prefix カテゴリ抽出対象とするパスのプレフィックスを指定する。
- * @param ignorePatterns カテゴリ抽出時に除外するパスのプレフィックス一覧を指定する。
- * @returns プレフィックスに合致したカテゴリ名とパス配列の組をリアクティブに返す。
- */
-const createCategoryList = (
-  treeItems: Ref<TreeItem[]>,
-  prefix: string,
-  ignorePatterns: string[] = [],
-): ComputedRef<{ name: string; items: TreeItem[] }[]> =>
-  computed<DownloadItemRequirement[]>((): DownloadItemRequirement[] => {
-    const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
-    const categories: Record<string, TreeItem[]> = {};
-    treeItems.value.forEach((item: TreeItem): void => {
-      const path = item.path;
-      if (typeof path !== 'string' || !path.startsWith(prefix)) return;
-      if (item.type !== 'blob') return;
-      if (ignorePatterns.some((pattern: string): boolean => path.startsWith(pattern))) return;
-      const name = path.slice(prefix.length).split('/')[0];
-      if (name === undefined) return;
-      if (!categories[name]) categories[name] = [] as TreeItem[];
-      categories[name].push(item);
-    });
+const _activeCategoryKey = computed({
+  get: () => _downloadListState.activeCategoryKey.value,
+  set: (value) => {
+    _downloadListState.setActiveCategory(value);
+  },
+});
 
-    return Object.keys(categories)
-      .sort(collator.compare)
-      .map((key: string): DownloadItemRequirement => {
-        return {
-          name: key,
-          items: [...(categories[key] ?? [])].sort((a: TreeItem, b: TreeItem): number => {
-            const left = a.path ?? '';
-            const right = b.path ?? '';
-            return collator.compare(left, right);
-          }),
-        } as DownloadItemRequirement;
-      });
-  });
+const _searchText = computed({
+  get: () => _downloadListState.searchText.value,
+  set: (value: string) => {
+    _downloadListState.setSearchText(value);
+  },
+});
 
-const _aircrafts = createCategoryList(treeItems, 'DCSWorld/Mods/aircraft/');
-const _dlcCampaigns = createCategoryList(treeItems, 'DCSWorld/Mods/campaigns/');
-const _userCampaigns = createCategoryList(treeItems, 'UserMissions/Campaigns/');
-const _userMissions = createCategoryList(treeItems, 'UserMissions/', ['UserMissions/Campaigns/']);
+const _updatedAfter = computed({
+  get: () => _downloadListState.updatedAfter.value,
+  set: (value) => {
+    _downloadListState.setUpdatedAfter(value);
+  },
+});
+
+const _searchCandidates = computed(() => _downloadListState.searchCandidates.value);
+const _visibleRows = computed(() => _downloadListState.visibleRows.value);
 
 /**
  * @summary 例外を画面表示向けメッセージへ変換する。
@@ -228,11 +208,16 @@ v-app
       v-container#upload-area
         UploadDialog(:on-submit="_handleUploadSubmit" :tree-items="treeItems")
 
-      v-container#filelist
-        CategorySection(title="Aircrafts" :items="_aircrafts" @error="_handleDownloadError")
-        CategorySection(title="DLC Campaigns" :items="_dlcCampaigns" @error="_handleDownloadError")
-        CategorySection(title="User Campaigns" :items="_userCampaigns" @error="_handleDownloadError")
-        CategorySection(title="User Missions" :items="_userMissions" @error="_handleDownloadError")
+      v-container#download-area
+        DownloadCategoryTabs(
+          :categories="_downloadListState.categories"
+          v-model:activeCategoryKey="_activeCategoryKey"
+          v-model:searchText="_searchText"
+          v-model:updatedAfter="_updatedAfter"
+          :search-candidates="_searchCandidates"
+          :rows="_visibleRows"
+          @error="_handleDownloadError"
+        )
 
   Footer
 </template>

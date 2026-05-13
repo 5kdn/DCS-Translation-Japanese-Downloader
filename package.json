@@ -15,7 +15,7 @@
     "build": "pnpm run generate-licenses && vue-tsc -b && vite build",
     "test": "pnpm run test:unit && pnpm run test:storybook",
     "test:unit": "vitest --run --project vitest",
-    "test:storybook": "pnpm exec playwright install && vitest --run --project storybook",
+    "test:storybook": "pnpm exec playwright install chromium && vitest --run --project storybook",
     "lint": "biome lint .",
     "fmt": "biome format . --write",
     "check": "biome check .",
