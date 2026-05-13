@@ -697,177 +697,176 @@ const _directorySamples: DirectorySample[] = [
 </script>
 
 <template lang="pug">
-v-container
-  div
-    h2.d-inline-flex.align-start.text-display-large.mt-10.mb-5 Upload
+div
+  h2.d-inline-flex.align-start.text-display-large.mt-10.mb-5 Upload
 
-  div.upload-panel
-    input(
-      ref="folderInput"
-      type="file"
-      webkitdirectory
-      directory
-      multiple
-      class="d-none"
-      @change="_handleFolderInputChange"
-    )
+div.upload-panel
+  input(
+    ref="folderInput"
+    type="file"
+    webkitdirectory
+    directory
+    multiple
+    class="d-none"
+    @change="_handleFolderInputChange"
+  )
 
+  v-card
+    v-card-text
+      p フォルダーを選択し、サーバーにアップロードします。
+      ul
+        li: p
+          | 選択するフォルダーは&nbsp;
+          b DCSWorld
+          | &nbsp;または&nbsp;
+          b UserMissions
+          | &nbsp;フォルダー自体である必要があります。
+        li: p
+          | フォルダー構成は
+          a(href="https://github.com/5kdn/DCS-Translation-Japanese" target="_blank" rel="noopener noreferrer" @click.stop) 5kdn/DCS-Translation-Japanese
+          | リポジトリに合わせて作成してください。
+        li: p 1回のアップロードには、1つの機体、DLCキャンペーン、ユーザーミッション、またはユーザーキャンペーンだけを含めてください。
+        li
+          p.d-inline-block.align-center.my-0
+            | ユーザーミッションの翻訳を新規アップロードする際は、オリジナルが確認できるファイル(README_Translation.md)を追加してください。
+            v-btn.ml-2(color="secondary" prepend-icon="mdi-download" density="compact" :href="userMissionReadmeTranslationTemplateUrl" download="README_Translation.md") テンプレートをダウンロード
+
+      v-divider
+      p フォルダー構成例
+      p.directory-configuration-hint.text-medium-emphasis 各項目をクリックすると構成例を表示します。
+      ul.d-flex.ga-4.pa-0
+        li(v-for="sample in _directorySamples" :index="sample.label" style="list-style: none;")
+          v-tooltip(interactive :open-on-hover="false" open-on-click)
+            template(v-slot:activator="{props}")
+              v-chip(variant="tonal" color="primary" v-bind="props") {{ sample.label }}
+            div
+              p(v-for="message in sample.messages") {{ message }}
+              v-treeview.rounded.text-body-2(
+                :items="sample.files"
+                density="compact"
+                item-value="id"
+                open-all
+                open-on-click
+                hide-actions
+                indent-lines
+              )
+                template(v-slot:prepend="{item}")
+                  v-icon(size="small" :icon="item.isFile ? 'mdi-file-document' : 'mdi-folder-open'")
+                template(v-slot:title="{item}")
+                  span.d-inline-flex.align-center.flex-wrap.ga-1.py-0
+                    span.text-body-2 {{ item.title }}
+                    span.text-medium-emphasis.text-caption.ms-4(v-if="item.remarks") {{ item.remarks }}
+
+    v-card-text
+      v-alert.mb-4.text-pre-wrap(type="error" variant="tonal" v-if="_errorMessage") {{ _errorMessage }}
+      v-alert.mb-4(type="success" variant="tonal" v-if="_successMessage") {{ _successMessage }}
+      UploadDropzone(
+        :is-drag-over="isDragOver"
+        :is-loading="isLoading"
+        @choose-folder="_openFolderPicker"
+        @dragover="_handleDragOver"
+        @dragleave="_handleDragLeave"
+        @drop="_handleDrop"
+      )
+
+  v-dialog(v-model="_isDialogOpen" max-width="960" persistent)
     v-card
-      v-card-text
-        p フォルダーを選択し、サーバーにアップロードします。
-        ul
-          li: p
-            | 選択するフォルダーは&nbsp;
-            b DCSWorld
-            | &nbsp;または&nbsp;
-            b UserMissions
-            | &nbsp;フォルダー自体である必要があります。
-          li: p
-            | フォルダー構成は
-            a(href="https://github.com/5kdn/DCS-Translation-Japanese" target="_blank" rel="noopener noreferrer" @click.stop) 5kdn/DCS-Translation-Japanese
-            | リポジトリに合わせて作成してください。
-          li: p 1回のアップロードには、1つの機体、DLCキャンペーン、ユーザーミッション、またはユーザーキャンペーンだけを含めてください。
-          li
-            p.d-inline-block.align-center.my-0
-              | ユーザーミッションの翻訳を新規アップロードする際は、オリジナルが確認できるファイル(README_Translation.md)を追加してください。
-              v-btn.ml-2(color="secondary" prepend-icon="mdi-download" density="compact" :href="userMissionReadmeTranslationTemplateUrl" download="README_Translation.md") テンプレートをダウンロード
-
-        v-divider
-        p フォルダー構成例
-        p.directory-configuration-hint.text-medium-emphasis 各項目をクリックすると構成例を表示します。
-        ul.d-flex.ga-4.pa-0
-          li(v-for="sample in _directorySamples" :index="sample.label" style="list-style: none;")
-            v-tooltip(interactive :open-on-hover="false" open-on-click)
-              template(v-slot:activator="{props}")
-                v-chip(variant="tonal" color="primary" v-bind="props") {{ sample.label }}
-              div
-                p(v-for="message in sample.messages") {{ message }}
-                v-treeview.rounded.text-body-2(
-                  :items="sample.files"
-                  density="compact"
-                  item-value="id"
-                  open-all
-                  open-on-click
-                  hide-actions
-                  indent-lines
-                )
-                  template(v-slot:prepend="{item}")
-                    v-icon(size="small" :icon="item.isFile ? 'mdi-file-document' : 'mdi-folder-open'")
-                  template(v-slot:title="{item}")
-                    span.d-inline-flex.align-center.flex-wrap.ga-1.py-0
-                      span.text-body-2 {{ item.title }}
-                      span.text-medium-emphasis.text-caption.ms-4(v-if="item.remarks") {{ item.remarks }}
-
-      v-card-text
-        v-alert.mb-4.text-pre-wrap(type="error" variant="tonal" v-if="_errorMessage") {{ _errorMessage }}
-        v-alert.mb-4(type="success" variant="tonal" v-if="_successMessage") {{ _successMessage }}
-        UploadDropzone(
-          :is-drag-over="isDragOver"
-          :is-loading="isLoading"
-          @choose-folder="_openFolderPicker"
-          @dragover="_handleDragOver"
-          @dragleave="_handleDragLeave"
-          @drop="_handleDrop"
+      v-card-title.d-flex.align-center
+        span.font-weight-medium {{ _dialogTitle }}
+        v-spacer
+        v-btn(
+          icon="mdi-close"
+          variant="text"
+          aria-label="Close upload dialog"
+          :disabled="isLoading"
+          @click="_cancelUpload"
         )
-
-    v-dialog(v-model="_isDialogOpen" max-width="960" persistent)
-      v-card
-        v-card-title.d-flex.align-center
-          span.font-weight-medium {{ _dialogTitle }}
-          v-spacer
-          v-btn(
-            icon="mdi-close"
-            variant="text"
-            aria-label="Close upload dialog"
-            :disabled="isLoading"
-            @click="_cancelUpload"
-          )
-        v-card-text
-          v-stepper(:model-value="_visibleCurrentStepValue" alt-labels flat border="1")
-            v-stepper-header
-              v-stepper-item(
-                v-for="visibleStep in _visibleSteps"
-                :key="visibleStep.value"
-                :value="visibleStep.number"
-                :title="visibleStep.label"
-                :complete="visibleStep.state === 'complete'"
-                color="primary"
-                :editable="false"
-                :ripple="false"
+      v-card-text
+        v-stepper(:model-value="_visibleCurrentStepValue" alt-labels flat border="1")
+          v-stepper-header
+            v-stepper-item(
+              v-for="visibleStep in _visibleSteps"
+              :key="visibleStep.value"
+              :value="visibleStep.number"
+              :title="visibleStep.label"
+              :complete="visibleStep.state === 'complete'"
+              color="primary"
+              :editable="false"
+              :ripple="false"
+            )
+          v-alert.mb-4.text-pre-wrap(type="error" variant="tonal" v-if="step !== UploadDialogStep.Result && _errorMessage") {{ _errorMessage }}
+          v-alert.mb-4(type="success" variant="tonal" v-if="step !== UploadDialogStep.Result && _successMessage") {{ _successMessage }}
+          v-stepper-window(:model-value="_visibleCurrentStepValue")
+            v-stepper-window-item(
+              v-for="visibleStep in _visibleSteps"
+              :key="visibleStep.value"
+              :value="visibleStep.number"
+            )
+              UploadReadmeStep(
+                v-if="visibleStep.value === UploadDialogStep.Readme && _readmeMode !== null && _readmeMode !== 'skip'"
+                :mode="_readmeMode"
+                :readme-path="_readmePath"
+                :raw-url="_readmeRawUrl"
+                :source="_readmeSource"
+                :initial-text="_readmeInitialText"
+                :notice-message="_readmeNoticeMessage"
+                v-model:edited-text="_readmeEditedText"
+                @continue-without-changes="_goToDescriptionFromReadme"
+                @request-create="_switchReadmeToCreate"
+                @reset="_resetReadmeInput"
               )
-            v-alert.mb-4.text-pre-wrap(type="error" variant="tonal" v-if="step !== UploadDialogStep.Result && _errorMessage") {{ _errorMessage }}
-            v-alert.mb-4(type="success" variant="tonal" v-if="step !== UploadDialogStep.Result && _successMessage") {{ _successMessage }}
-            v-stepper-window(:model-value="_visibleCurrentStepValue")
-              v-stepper-window-item(
-                v-for="visibleStep in _visibleSteps"
-                :key="visibleStep.value"
-                :value="visibleStep.number"
+
+              UploadDescriptionStep(
+                v-else-if="visibleStep.value === UploadDialogStep.Description"
+                :target-type="_detectedTargetType"
+                :target-name="_detectedTargetName"
+                :file-entry-count="_fileEntryCount"
+                :upload-change-types="_uploadChangeTypes"
+                v-model:selected-change-types="_selectedChangeTypes"
+                v-model:overview="_overview"
+                v-model:change-details="_changeDetails"
+                v-model:notes="_notes"
+                v-model:has-confirmed-no-personal-information="_hasConfirmedNoPersonalInformation"
+                v-model:has-agreed-distribution-policy="_hasAgreedDistributionPolicy"
               )
-                UploadReadmeStep(
-                  v-if="visibleStep.value === UploadDialogStep.Readme && _readmeMode !== null && _readmeMode !== 'skip'"
-                  :mode="_readmeMode"
-                  :readme-path="_readmePath"
-                  :raw-url="_readmeRawUrl"
-                  :source="_readmeSource"
-                  :initial-text="_readmeInitialText"
-                  :notice-message="_readmeNoticeMessage"
-                  v-model:edited-text="_readmeEditedText"
-                  @continue-without-changes="_goToDescriptionFromReadme"
-                  @request-create="_switchReadmeToCreate"
-                  @reset="_resetReadmeInput"
-                )
 
-                UploadDescriptionStep(
-                  v-else-if="visibleStep.value === UploadDialogStep.Description"
-                  :target-type="_detectedTargetType"
-                  :target-name="_detectedTargetName"
-                  :file-entry-count="_fileEntryCount"
-                  :upload-change-types="_uploadChangeTypes"
-                  v-model:selected-change-types="_selectedChangeTypes"
-                  v-model:overview="_overview"
-                  v-model:change-details="_changeDetails"
-                  v-model:notes="_notes"
-                  v-model:has-confirmed-no-personal-information="_hasConfirmedNoPersonalInformation"
-                  v-model:has-agreed-distribution-policy="_hasAgreedDistributionPolicy"
-                )
+              UploadConfirmStep(
+                v-else-if="visibleStep.value === UploadDialogStep.Confirm"
+                :file-entries="fileEntries"
+                :expanded-confirm-panels="_expandedConfirmPanels"
+                :selected-folder-name="selectedFolderName"
+                :file-size-text="_fileSizeText"
+                :file-entry-count="_fileEntryCount"
+                :target-type="_detectedTargetType"
+                :target-name="_detectedTargetName"
+                :selected-change-types="_selectedChangeTypes"
+                :title="_title"
+                :overview="_overview"
+                :change-details="_changeDetails"
+                :notes="_notes"
+                @update:expanded-confirm-panels="_expandedConfirmPanels = $event"
+              )
 
-                UploadConfirmStep(
-                  v-else-if="visibleStep.value === UploadDialogStep.Confirm"
-                  :file-entries="fileEntries"
-                  :expanded-confirm-panels="_expandedConfirmPanels"
-                  :selected-folder-name="selectedFolderName"
-                  :file-size-text="_fileSizeText"
-                  :file-entry-count="_fileEntryCount"
-                  :target-type="_detectedTargetType"
-                  :target-name="_detectedTargetName"
-                  :selected-change-types="_selectedChangeTypes"
-                  :title="_title"
-                  :overview="_overview"
-                  :change-details="_changeDetails"
-                  :notes="_notes"
-                  @update:expanded-confirm-panels="_expandedConfirmPanels = $event"
-                )
+              UploadResultStep(
+                v-else-if="visibleStep.value === UploadDialogStep.Result"
+                :result="_submitResult"
+              )
 
-                UploadResultStep(
-                  v-else-if="visibleStep.value === UploadDialogStep.Result"
-                  :result="_submitResult"
-                )
-
-        v-card-actions.px-6.pb-4
-          v-btn(variant="text" :disabled="isLoading" v-if="_canGoBack" @click="_goBack") 戻る
-          v-btn(variant="tonal" :disabled="isLoading" @click="_cancelUpload") {{ step === UploadDialogStep.Result ? '閉じる' : 'キャンセル' }}
-          v-spacer
-          template(v-if="step === UploadDialogStep.Readme && _readmeMode === 'existing'")
-            v-btn(color="primary" variant="tonal" prepend-icon="mdi-file-edit-outline" :disabled="isLoading" @click="_switchReadmeToCreate") 修正する
-            v-btn(color="primary" variant="tonal" :disabled="isLoading" @click="_goToDescriptionFromReadme") 変更無し
-          v-btn(
-            color="primary"
-            v-if="step === UploadDialogStep.Readme && _readmeMode === 'create'"
-            :disabled="isLoading || !_isReadmeStepValid"
-            @click="_applyReadmeAndContinue"
-          ) 次へ
-          v-btn(color="primary" variant="tonal" :disabled="!canGoToConfirm" v-if="step === UploadDialogStep.Description" @click="_goToConfirm") 確認する
-          v-btn(color="primary" :loading="isLoading" :disabled="!canGoToConfirm" v-if="step === UploadDialogStep.Confirm" @click="_submitUpload") アップロード
+      v-card-actions.px-6.pb-4
+        v-btn(variant="text" :disabled="isLoading" v-if="_canGoBack" @click="_goBack") 戻る
+        v-btn(variant="tonal" :disabled="isLoading" @click="_cancelUpload") {{ step === UploadDialogStep.Result ? '閉じる' : 'キャンセル' }}
+        v-spacer
+        template(v-if="step === UploadDialogStep.Readme && _readmeMode === 'existing'")
+          v-btn(color="primary" variant="tonal" prepend-icon="mdi-file-edit-outline" :disabled="isLoading" @click="_switchReadmeToCreate") 修正する
+          v-btn(color="primary" variant="tonal" :disabled="isLoading" @click="_goToDescriptionFromReadme") 変更無し
+        v-btn(
+          color="primary"
+          v-if="step === UploadDialogStep.Readme && _readmeMode === 'create'"
+          :disabled="isLoading || !_isReadmeStepValid"
+          @click="_applyReadmeAndContinue"
+        ) 次へ
+        v-btn(color="primary" variant="tonal" :disabled="!canGoToConfirm" v-if="step === UploadDialogStep.Description" @click="_goToConfirm") 確認する
+        v-btn(color="primary" :loading="isLoading" :disabled="!canGoToConfirm" v-if="step === UploadDialogStep.Confirm" @click="_submitUpload") アップロード
 </template>
 
 <style scoped lang="scss">

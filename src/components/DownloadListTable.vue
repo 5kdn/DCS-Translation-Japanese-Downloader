@@ -104,6 +104,16 @@ const _handleDownloadFileDialogModelUpdate = (value: boolean): void => {
     _rowActions.closeDownloadFileDialog();
   }
 };
+
+/**
+ * @summary 行操作ボタンのアクセシブル名を生成する。
+ * @param row 行情報を指定する。
+ * @param action 操作名を指定する。
+ * @returns アクセシブル名を返す。
+ */
+const _buildActionAriaLabel = (row: DownloadListRow, action: string): string => {
+  return `${row.name} の${action}`;
+};
 </script>
 
 <template lang="pug">
@@ -135,6 +145,7 @@ div
               size="small"
               variant="outlined"
               color="primary"
+              :aria-label="_buildActionAriaLabel(_resolveRow(item), 'ファイル一覧を開く')"
               :disabled="_rowActions.isActionLocked(_resolveRow(item).name)"
               @click="_rowActions.openDownloadFileDialog(_resolveRow(item))"
             ) ファイル一覧
@@ -146,6 +157,7 @@ div
               size="small"
               variant="outlined"
               color="primary"
+              :aria-label="_buildActionAriaLabel(_resolveRow(item), 'フォルダを開く')"
               :disabled="_rowActions.isActionLocked(_resolveRow(item).name)"
               @click="_rowActions.openGitHubDirectory(_resolveRow(item))"
             ) フォルダを見る
@@ -156,6 +168,7 @@ div
               v-bind="tooltipProps"
               size="small"
               color="error"
+              :aria-label="_buildActionAriaLabel(_resolveRow(item), '問題を報告する')"
               :disabled="_rowActions.isActionLocked(_resolveRow(item).name)"
               @click="_rowActions.openCreateIssueDialog(_resolveRow(item))"
             ) 報告
@@ -166,6 +179,7 @@ div
               v-bind="tooltipProps"
               size="small"
               color="primary"
+              :aria-label="_buildActionAriaLabel(_resolveRow(item), 'ZIP をダウンロードする')"
               :disabled="_rowActions.isActionLocked(_resolveRow(item).name)"
               :loading="_rowActions.isDownloading(_resolveRow(item).name)"
               @click="_rowActions.downloadRow(_resolveRow(item))"

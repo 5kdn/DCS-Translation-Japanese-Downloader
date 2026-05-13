@@ -79,6 +79,15 @@ const _openGitHubSource = (node: DownloadFileTreeNode): void => {
   const url = buildGitHubBlobUrl(node.path);
   window.open(url, '_blank', 'noopener,noreferrer');
 };
+
+/**
+ * @summary ツリーノード操作のアクセシブル名を生成する。
+ * @param node 対象ノードを指定する。
+ * @returns アクセシブル名を返す。
+ */
+const _buildNodeAriaLabel = (node: DownloadFileTreeNode): string => {
+  return `${node.name} を GitHub で開く`;
+};
 </script>
 
 <template lang="pug">
@@ -88,7 +97,7 @@ v-dialog(v-model="_dialogModel" max-width="960")
       div
         div.text-h6 {{ _dialogTitle }}
         div.text-body-2.text-medium-emphasis(v-if="_directoryPath") {{ _directoryPath }}
-      v-btn(icon="mdi-close" variant="text" density="comfortable" aria-label="Close file list dialog" @click="_closeDialog")
+      v-btn(icon="mdi-close" variant="text" density="comfortable" aria-label="ファイル一覧ダイアログを閉じる" @click="_closeDialog")
 
     v-card-text
       p.text-medium-emphasis.mb-4 ファイル数: {{ _fileCount }}
@@ -115,6 +124,7 @@ v-dialog(v-model="_dialogModel" max-width="960")
                 variant="text"
                 color="primary"
                 block
+                :aria-label="_buildNodeAriaLabel(_resolveTreeNode(item))"
                 @click.stop="_openGitHubSource(_resolveTreeNode(item))"
               )
                 span.text-body-2.text-none.text-break {{ _resolveTreeNode(item).name }}

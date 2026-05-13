@@ -27,7 +27,7 @@ const createRow = (name: string, directoryPath: string, latestUpdatedAt: string 
 };
 
 const meta = {
-  title: 'DownloadListTable/DownloadListTable',
+  title: 'Download/DownloadListTable',
   component: DownloadListTable,
   tags: ['autodocs'],
   argTypes: {
@@ -66,10 +66,10 @@ export const Default: Story = {
     canvas.getByText('名称');
     canvas.getByText('最終更新日');
     canvas.getByText('Operation Black Knight');
-    expect(canvas.getAllByRole('button', { name: 'ファイル一覧' })).toHaveLength(2);
-    expect(canvas.getAllByRole('button', { name: 'フォルダを見る' })).toHaveLength(2);
-    expect(canvas.getAllByRole('button', { name: '報告' })).toHaveLength(2);
-    expect(canvas.getAllByRole('button', { name: 'DL' })).toHaveLength(2);
+    expect(canvas.getAllByRole('button', { name: /ファイル一覧を開く/ })).toHaveLength(2);
+    expect(canvas.getAllByRole('button', { name: /フォルダを開く/ })).toHaveLength(2);
+    expect(canvas.getAllByRole('button', { name: /問題を報告する/ })).toHaveLength(2);
+    expect(canvas.getAllByRole('button', { name: /ZIP をダウンロードする/ })).toHaveLength(2);
   },
 };
 
@@ -80,7 +80,7 @@ export const OpenFileDialog: Story = {
     import.meta.env.VITE_TARGET_REF = 'master';
 
     const canvas = within(canvasElement);
-    const fileListButtons = canvas.getAllByRole('button', { name: 'ファイル一覧' });
+    const fileListButtons = canvas.getAllByRole('button', { name: /ファイル一覧を開く/ });
     fileListButtons[0]?.click();
 
     const dialogScope = within(canvasElement.ownerDocument.body);
@@ -96,7 +96,7 @@ export const OpenGitHubDirectory: Story = {
 
     const openSpy = spyOn(window, 'open').mockImplementation(() => null);
     const canvas = within(canvasElement);
-    const directoryButtons = canvas.getAllByRole('button', { name: 'フォルダを見る' });
+    const directoryButtons = canvas.getAllByRole('button', { name: /フォルダを開く/ });
 
     directoryButtons[1]?.click();
 
@@ -113,7 +113,7 @@ export const OpenGitHubDirectory: Story = {
 export const OpenReportDialog: Story = {
   play: async ({ canvasElement }): Promise<void> => {
     const canvas = within(canvasElement);
-    const reportButtons = canvas.getAllByRole('button', { name: '報告' });
+    const reportButtons = canvas.getAllByRole('button', { name: /問題を報告する/ });
 
     await userEvent.click(reportButtons[1] as HTMLElement);
 
@@ -138,7 +138,7 @@ export const DownloadStarts: Story = {
       handle: () => new Response(new Uint8Array([0x50, 0x4b]).buffer, { status: 200 }),
     });
     const canvas = within(canvasElement);
-    const downloadButtons = canvas.getAllByRole('button', { name: 'DL' });
+    const downloadButtons = canvas.getAllByRole('button', { name: /ZIP をダウンロードする/ });
 
     await userEvent.click(downloadButtons[1] as HTMLElement);
 
@@ -187,13 +187,38 @@ export const UpdatedAtUnset: Story = {
 export const TooltipDisplay: Story = {
   play: async ({ canvasElement }): Promise<void> => {
     const canvas = within(canvasElement);
-    const fileListButtons = canvas.getAllByRole('button', { name: 'ファイル一覧' });
+    const fileListButtons = canvas.getAllByRole('button', { name: /ファイル一覧を開く/ });
 
     await userEvent.hover(fileListButtons[0] as HTMLElement);
 
     const dialogScope = within(canvasElement.ownerDocument.body);
     await waitFor(() => {
       expect(dialogScope.getAllByText('ファイル一覧を表示する').length).toBeGreaterThan(0);
+    });
+  },
+};
+
+export const SortByUpdatedAt: Story = {
+  args: {
+    rows: [
+      createRow('Alpha', 'UserMissions/Alpha', '2026-05-12T00:00:00Z', [
+        createTreeItem('UserMissions/Alpha/Mission_01.miz/l10n/JP/dictionary', '2026-05-12T00:00:00Z'),
+      ]),
+      createRow('Zulu', 'UserMissions/Zulu', '2026-05-10T00:00:00Z', [
+        createTreeItem('UserMissions/Zulu/Mission_01.miz/l10n/JP/dictionary', '2026-05-10T00:00:00Z'),
+      ]),
+    ],
+  },
+  play: async ({ canvasElement }): Promise<void> => {
+    const canvas = within(canvasElement);
+    const updatedAtHeader = canvas.getByRole('columnheader', { name: /最終更新日/ });
+
+    await userEvent.click(updatedAtHeader);
+
+    await waitFor(() => {
+      const rows = Array.from(canvasElement.querySelectorAll('tbody tr'));
+      expect(rows[0]?.textContent).toContain('Zulu');
+      expect(rows[1]?.textContent).toContain('Alpha');
     });
   },
 };
@@ -221,7 +246,7 @@ export const DownloadErrorEmitsError: Story = {
     const consoleErrorSpy = spyOn(console, 'error').mockImplementation(() => {});
     const canvas = within(canvasElement);
 
-    await userEvent.click(canvas.getByRole('button', { name: 'DL' }));
+    await userEvent.click(canvas.getByRole('button', { name: /ZIP をダウンロードする/ }));
 
     await expect(onError).toHaveBeenCalledTimes(1);
 

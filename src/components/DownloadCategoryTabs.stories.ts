@@ -66,7 +66,7 @@ const rowsByCategory: Record<DownloadListCategoryKey, DownloadListRow[]> = {
 };
 
 const meta = {
-  title: 'DownloadCategoryTabs/DownloadCategoryTabs',
+  title: 'Download/DownloadCategoryTabs',
   component: DownloadCategoryTabs,
   tags: ['autodocs'],
   argTypes: {
@@ -234,5 +234,46 @@ export const UpdatedAfterFilter: Story = {
       expect(onUpdatedAfter).toHaveBeenLastCalledWith(null);
     });
     await expect(canvas.getByTestId('active-row-names')).toHaveTextContent('F-16C|AH-64D');
+  },
+};
+
+export const CombinedFilters: Story = {
+  play: async ({ canvasElement }): Promise<void> => {
+    const canvas = within(canvasElement);
+    const documentBody = within(canvasElement.ownerDocument.body);
+
+    await userEvent.type(canvas.getByLabelText('名称で絞り込み'), 'F-16');
+    await userEvent.click(canvas.getByLabelText('最終更新日 (以降)'));
+
+    const dayLabel = await documentBody.findByText('10');
+    const dayButton = dayLabel.closest('button');
+    if (dayButton === null) {
+      throw new Error('日付ボタンが見つからない');
+    }
+    dayButton.click();
+
+    await waitFor(() => {
+      expect(canvas.getByTestId('active-row-names')).toHaveTextContent('F-16C');
+    });
+
+    await userEvent.click(canvas.getByRole('button', { name: 'F-16C のファイル一覧を開く' }));
+
+    await waitFor(() => {
+      expect(documentBody.getAllByText('F-16C').length).toBeGreaterThan(0);
+    });
+    await expect(documentBody.getByText('ファイル数: 1')).toBeTruthy();
+  },
+};
+
+export const EmptyAfterFiltering: Story = {
+  play: async ({ canvasElement }): Promise<void> => {
+    const canvas = within(canvasElement);
+
+    await userEvent.type(canvas.getByLabelText('名称で絞り込み'), 'zzz');
+
+    await waitFor(() => {
+      expect(canvas.getByText('表示できる項目がありません。')).toBeTruthy();
+    });
+    await expect(canvas.getByTestId('active-row-names')).toHaveTextContent('');
   },
 };

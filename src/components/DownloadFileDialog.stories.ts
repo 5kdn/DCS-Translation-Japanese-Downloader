@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite';
-import { expect, spyOn, within } from 'storybook/test';
+import { expect, spyOn, waitFor, within } from 'storybook/test';
 import type { DownloadListRow } from '@/features/downloads/downloadListModels';
 import type { TreeItem } from '@/types/type';
 import DownloadFileDialog from './DownloadFileDialog.vue';
@@ -34,7 +34,7 @@ const createRow = (): DownloadListRow => {
 };
 
 const meta = {
-  title: 'DownloadFileDialog/DownloadFileDialog',
+  title: 'Download/DownloadFileDialog',
   component: DownloadFileDialog,
   tags: ['autodocs'],
   args: {
@@ -68,7 +68,9 @@ export const OpenNodeLink: Story = {
 
     const openSpy = spyOn(window, 'open').mockImplementation(() => null);
     const dialogScope = within(canvasElement.ownerDocument.body);
-    const readmeButton = dialogScope.getByRole('button', { name: 'README_Translation.md' }) as HTMLButtonElement;
+    const readmeButton = dialogScope.getByRole('button', {
+      name: 'README_Translation.md を GitHub で開く',
+    }) as HTMLButtonElement;
 
     readmeButton.click();
 
@@ -82,6 +84,20 @@ export const OpenNodeLink: Story = {
   },
 };
 
+export const TooltipDisplay: Story = {
+  play: async ({ canvasElement }): Promise<void> => {
+    const dialogScope = within(canvasElement.ownerDocument.body);
+    const readmeButton = dialogScope.getByRole('button', { name: 'README_Translation.md を GitHub で開く' });
+
+    readmeButton.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
+    readmeButton.dispatchEvent(new FocusEvent('focus', { bubbles: true }));
+
+    await waitFor(() => {
+      expect(dialogScope.getAllByText('翻訳リポジトリ上の原本を見る').length).toBeGreaterThan(0);
+    });
+  },
+};
+
 export const Empty: Story = {
   args: {
     row: {
@@ -90,5 +106,9 @@ export const Empty: Story = {
       latestUpdatedAt: null,
       items: [],
     },
+  },
+  play: async ({ canvasElement }): Promise<void> => {
+    const dialogScope = within(canvasElement.ownerDocument.body);
+    await expect(dialogScope.getByText('表示できるファイルがありません。')).toBeTruthy();
   },
 };

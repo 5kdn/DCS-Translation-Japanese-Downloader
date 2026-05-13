@@ -136,7 +136,7 @@ onBeforeUnmount((): void => {
 <template lang="pug">
 h2.d-inline-flex.align-start.text-display-large.mt-10.mb-5 Download
 v-card(variant="tonal")
-  v-tabs(v-model="_activeCategoryKey" color="primary" grow mandatory)
+  v-tabs(v-model="_activeCategoryKey" color="primary" grow mandatory aria-label="ダウンロードカテゴリ")
     v-tab(v-for="category in categories" :key="category.key" :value="category.key") {{ category.label }}
 
   v-divider
@@ -146,6 +146,7 @@ v-card(variant="tonal")
       v-text-field.flex-1-1(
         :model-value="searchText"
         label="名称で絞り込み"
+        aria-label="名称で絞り込み"
         prepend-inner-icon="mdi-magnify"
         autocomplete="off"
         clearable
@@ -161,6 +162,7 @@ v-card(variant="tonal")
               v-bind="menuProps"
               :model-value="_updatedAfterDisplay"
               :label="_updatedAfterLabel"
+              :aria-label="_updatedAfterLabel"
               prepend-inner-icon="mdi-calendar"
               readonly
               clearable
