@@ -2,7 +2,7 @@
   "jszip@3.10.1": {
     "licenses": "MIT"
   },
-  "dompurify@3.4.0": {
+  "dompurify@3.4.3": {
     "licenses": "Apache-2.0"
   }
 }
