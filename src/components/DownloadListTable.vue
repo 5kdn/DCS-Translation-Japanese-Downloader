@@ -1,9 +1,7 @@
 <script lang="ts" setup>
 import { computed, defineAsyncComponent, ref } from 'vue';
-import { type Target, useDownloadZip } from '@/composables/useDownloadZip';
-import { toErrorMessageForDisplay } from '@/errors/errorMessage';
+import { useDownloadListRowActions } from '@/composables/useDownloadListRowActions';
 import type { DownloadListRow } from '@/features/downloads/downloadListModels';
-import { buildGitHubBlobUrl, buildGitHubRawUrl } from '@/lib/githubUrl';
 
 defineOptions({
   components: {
@@ -42,51 +40,11 @@ const _headers = computed<DownloadListHeader[]>(() => {
 });
 
 const _sortBy = ref<DownloadListSortItem[]>([{ key: 'name', order: 'asc' }]);
-const _busyRowNames = ref<Set<string>>(new Set());
-const _createIssueDialogModel = ref(false);
-const _createIssueDialogPath = ref('');
-const _downloadFileDialogModel = ref(false);
-const _selectedFileDialogRow = ref<DownloadListRow | null>(null);
-
-const { createZipFromTargets } = useDownloadZip({ maxConcurrentDownloads: 6 });
-
-/**
- * @summary 指定行が処理中か判定する。
- * @param rowName 行名を指定する。
- * @returns 処理中であれば true を返す。
- */
-const _isBusy = (rowName: string): boolean => {
-  return _busyRowNames.value.has(rowName);
-};
-
-/**
- * @summary 指定行を処理中としてマークする。
- * @param rowName 行名を指定する。
- */
-const _startBusy = (rowName: string): void => {
-  const next = new Set(_busyRowNames.value);
-  next.add(rowName);
-  _busyRowNames.value = next;
-};
-
-/**
- * @summary 指定行の処理中マークを解除する。
- * @param rowName 行名を指定する。
- */
-const _endBusy = (rowName: string): void => {
-  const next = new Set(_busyRowNames.value);
-  next.delete(rowName);
-  _busyRowNames.value = next;
-};
-
-/**
- * @summary 不明な例外を画面表示向けメッセージへ変換する。
- * @param error 例外オブジェクトを指定する。
- * @returns 表示用メッセージを返す。
- */
-const _resolveErrorMessage = (error: unknown): string => {
-  return toErrorMessageForDisplay(error);
-};
+const _rowActions = useDownloadListRowActions({
+  onError: (message: string): void => {
+    emit('error', message);
+  },
+});
 
 /**
  * @summary 一覧表示用に更新日時を整形する。
@@ -120,93 +78,49 @@ const _resolveRow = (slotItem: DownloadListSlotItem): DownloadListRow => {
 };
 
 /**
- * @summary ダウンロード対象一覧を生成する。
- * @param row 対象行を指定する。
- * @returns ダウンロード対象一覧を返す。
- */
-const _generateDownloadTargets = (row: DownloadListRow): Target[] => {
-  return row.items.map((item): Target => {
-    const path = item.path ?? '';
-    return {
-      path,
-      url: buildGitHubRawUrl(path),
-    };
-  });
-};
-
-/**
- * @summary GitHub 上のカテゴリフォルダーを別タブで開く。
- * @param row 対象行を指定する。
- */
-const _openGitHubDirectory = (row: DownloadListRow): void => {
-  const url = buildGitHubBlobUrl(row.directoryPath);
-  window.open(url, '_blank', 'noopener,noreferrer');
-};
-
-/**
- * @summary 報告ダイアログを開く。
- * @param row 対象行を指定する。
- */
-const _openCreateIssueDialog = (row: DownloadListRow): void => {
-  _createIssueDialogPath.value = row.directoryPath;
-  _createIssueDialogModel.value = true;
-};
-
-/**
- * @summary ファイル一覧ダイアログを開く。
- * @param row 対象行を指定する。
- */
-const _openDownloadFileDialog = (row: DownloadListRow): void => {
-  _selectedFileDialogRow.value = row;
-  _downloadFileDialogModel.value = true;
-};
-
-/**
- * @summary ファイル一覧ダイアログを閉じる。
- */
-const _closeDownloadFileDialog = (): void => {
-  _downloadFileDialogModel.value = false;
-  _selectedFileDialogRow.value = null;
-};
-
-/**
- * @summary ダウンロードを実行する。
- * @param row 対象行を指定する。
- * @returns Promise<void> を返す。
- */
-const _downloadRow = async (row: DownloadListRow): Promise<void> => {
-  _startBusy(row.name);
-  try {
-    const blob = await createZipFromTargets(_generateDownloadTargets(row));
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.download = `${row.name}.zip`;
-    document.body.appendChild(anchor);
-    anchor.click();
-    anchor.remove();
-    setTimeout((): void => URL.revokeObjectURL(url), 500);
-  } catch (error: unknown) {
-    console.error(error);
-    emit('error', _resolveErrorMessage(error));
-  } finally {
-    _endBusy(row.name);
-  }
-};
-
-/**
  * @summary CreateIssueDialog から受け取ったエラーを親へ通知する。
  * @param message エラーメッセージを指定する。
  */
 const _handleCreateIssueDialogError = (message: string): void => {
   emit('error', message);
 };
+
+/**
+ * @summary 報告ダイアログの表示状態更新を処理する。
+ * @param value 更新後の表示状態を指定する。
+ */
+const _handleCreateIssueDialogModelUpdate = (value: boolean): void => {
+  if (!value) {
+    _rowActions.closeCreateIssueDialog();
+  }
+};
+
+/**
+ * @summary ファイル一覧ダイアログの表示状態更新を処理する。
+ * @param value 更新後の表示状態を指定する。
+ */
+const _handleDownloadFileDialogModelUpdate = (value: boolean): void => {
+  if (!value) {
+    _rowActions.closeDownloadFileDialog();
+  }
+};
 </script>
 
 <template lang="pug">
 div
-  CreateIssueDialog(v-model="_createIssueDialogModel" :path="_createIssueDialogPath" @error="_handleCreateIssueDialogError")
-  DownloadFileDialog(v-model="_downloadFileDialogModel" :row="_selectedFileDialogRow" @close="_closeDownloadFileDialog")
+  CreateIssueDialog(
+    :model-value="_rowActions.createIssueDialogModel.value"
+    :path="_rowActions.createIssueDialogPath.value"
+    @update:model-value="_handleCreateIssueDialogModelUpdate"
+    @close="_rowActions.closeCreateIssueDialog"
+    @error="_handleCreateIssueDialogError"
+  )
+  DownloadFileDialog(
+    :model-value="_rowActions.downloadFileDialogModel.value"
+    :row="_rowActions.selectedFileDialogRow.value"
+    @update:model-value="_handleDownloadFileDialogModelUpdate"
+    @close="_rowActions.closeDownloadFileDialog"
+  )
 
   v-data-table(:headers="_headers" :items="rows" item-value="name" v-model:sort-by="_sortBy" hide-default-footer items-per-page="-1")
     template(v-slot:item.latestUpdatedAt="{ item }")
@@ -221,8 +135,8 @@ div
               size="small"
               variant="outlined"
               color="primary"
-              :disabled="_isBusy(_resolveRow(item).name)"
-              @click="_openDownloadFileDialog(_resolveRow(item))"
+              :disabled="_rowActions.isActionLocked(_resolveRow(item).name)"
+              @click="_rowActions.openDownloadFileDialog(_resolveRow(item))"
             ) ファイル一覧
           span ファイル一覧を表示する
         v-tooltip(location="top")
@@ -232,8 +146,8 @@ div
               size="small"
               variant="outlined"
               color="primary"
-              :disabled="_isBusy(_resolveRow(item).name)"
-              @click="_openGitHubDirectory(_resolveRow(item))"
+              :disabled="_rowActions.isActionLocked(_resolveRow(item).name)"
+              @click="_rowActions.openGitHubDirectory(_resolveRow(item))"
             ) フォルダを見る
           span GitHubでフォルダを開く
         v-tooltip(location="top")
@@ -242,8 +156,8 @@ div
               v-bind="tooltipProps"
               size="small"
               color="error"
-              :disabled="_isBusy(_resolveRow(item).name)"
-              @click="_openCreateIssueDialog(_resolveRow(item))"
+              :disabled="_rowActions.isActionLocked(_resolveRow(item).name)"
+              @click="_rowActions.openCreateIssueDialog(_resolveRow(item))"
             ) 報告
           span 問題を報告する
         v-tooltip(location="top")
@@ -252,9 +166,9 @@ div
               v-bind="tooltipProps"
               size="small"
               color="primary"
-              :disabled="_isBusy(_resolveRow(item).name)"
-              :loading="_isBusy(_resolveRow(item).name)"
-              @click="_downloadRow(_resolveRow(item))"
+              :disabled="_rowActions.isActionLocked(_resolveRow(item).name)"
+              :loading="_rowActions.isDownloading(_resolveRow(item).name)"
+              @click="_rowActions.downloadRow(_resolveRow(item))"
             ) DL
           span 翻訳ファイル一式を ZIP でダウンロードする
 
