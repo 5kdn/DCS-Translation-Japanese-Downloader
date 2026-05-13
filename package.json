@@ -7,7 +7,7 @@
   "license": "MIT",
   "pnpm": {
     "patchedDependencies": {
-      "@microsoft/kiota-abstractions@1.0.0-preview.99": "patches/@microsoft__kiota-abstractions@1.0.0-preview.99.patch"
+      "@microsoft/kiota-abstractions@1.0.0-preview.100": "patches/@microsoft__kiota-abstractions@1.0.0-preview.100.patch"
     }
   },
   "scripts": {
@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",
-    "@microsoft/kiota-abstractions": "1.0.0-preview.99",
+    "@microsoft/kiota-abstractions": "1.0.0-preview.100",
     "@microsoft/kiota-http-fetchlibrary": "1.0.0-preview.100",
     "@microsoft/kiota-serialization-form": "1.0.0-preview.100",
     "@microsoft/kiota-serialization-json": "1.0.0-preview.100",
