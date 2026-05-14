@@ -2,6 +2,111 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createApp, defineComponent, h, nextTick } from 'vue';
+import type { MizDictionaryEntry } from '@/features/mizTranslation/mizDictionaryModels';
+
+const sampleEntries: MizDictionaryEntry[] = [
+  {
+    key: 'DictKey_1',
+    sourceText: 'Alpha',
+    translatedText: '',
+    enabled: true,
+    isDictionaryKey: true,
+    isTranslatable: true,
+  },
+];
+
+vi.mock('@/components/MizTranslationTable.vue', () => {
+  return {
+    __esModule: true,
+    default: defineComponent({
+      name: 'MizTranslationTableStub',
+      props: {
+        entries: {
+          type: Array,
+          required: true,
+        },
+      },
+      emits: ['toggle-enabled', 'update-translation', 'error'],
+      setup(props, { emit }) {
+        return () =>
+          h('div', { 'data-testid': 'miz-table-stub' }, [
+            h('output', { 'data-testid': 'miz-table-entry-count' }, String(props.entries.length)),
+            h(
+              'button',
+              {
+                type: 'button',
+                onClick: () => emit('toggle-enabled', 'DictKey_1', false),
+              },
+              'toggle enabled',
+            ),
+            h(
+              'button',
+              {
+                type: 'button',
+                onClick: () => emit('update-translation', 'DictKey_1', '翻訳'),
+              },
+              'update translation',
+            ),
+            h(
+              'button',
+              {
+                type: 'button',
+                onClick: () => emit('error', 'copy error'),
+              },
+              'table error',
+            ),
+          ]);
+      },
+    }),
+  };
+});
+
+vi.mock('/src/components/MizTranslationTable.vue', () => {
+  return {
+    __esModule: true,
+    default: defineComponent({
+      name: 'MizTranslationTableStub',
+      props: {
+        entries: {
+          type: Array,
+          required: true,
+        },
+      },
+      emits: ['toggle-enabled', 'update-translation', 'error'],
+      setup(props, { emit }) {
+        return () =>
+          h('div', { 'data-testid': 'miz-table-stub' }, [
+            h('output', { 'data-testid': 'miz-table-entry-count' }, String(props.entries.length)),
+            h(
+              'button',
+              {
+                type: 'button',
+                onClick: () => emit('toggle-enabled', 'DictKey_1', false),
+              },
+              'toggle enabled',
+            ),
+            h(
+              'button',
+              {
+                type: 'button',
+                onClick: () => emit('update-translation', 'DictKey_1', '翻訳'),
+              },
+              'update translation',
+            ),
+            h(
+              'button',
+              {
+                type: 'button',
+                onClick: () => emit('error', 'copy error'),
+              },
+              'table error',
+            ),
+          ]);
+      },
+    }),
+  };
+});
+
 import MizTranslationDialog from '@/components/MizTranslationDialog.vue';
 
 /**
@@ -27,10 +132,19 @@ const flushComponent = async (): Promise<void> => {
   }
 };
 
-const mountComponent = async (props?: { modelValue?: boolean; loadedFileName?: string; isLoading?: boolean }) => {
+const mountComponent = async (props?: {
+  modelValue?: boolean;
+  loadedFileName?: string;
+  isLoading?: boolean;
+  entries?: MizDictionaryEntry[];
+  errorMessage?: string | null;
+}) => {
   const container = document.createElement('div');
   document.body.appendChild(container);
   const onUpdateModelValue = vi.fn();
+  const onToggleEnabled = vi.fn();
+  const onUpdateTranslation = vi.fn();
+  const onError = vi.fn();
 
   const app = createApp(
     defineComponent({
@@ -40,7 +154,12 @@ const mountComponent = async (props?: { modelValue?: boolean; loadedFileName?: s
             modelValue: props?.modelValue ?? true,
             loadedFileName: props?.loadedFileName ?? 'mission.miz',
             isLoading: props?.isLoading ?? false,
+            entries: props?.entries ?? sampleEntries,
+            errorMessage: props?.errorMessage ?? null,
             'onUpdate:modelValue': onUpdateModelValue,
+            onToggleEnabled,
+            onUpdateTranslation,
+            onError,
           });
       },
     }),
@@ -112,7 +231,7 @@ const mountComponent = async (props?: { modelValue?: boolean; loadedFileName?: s
   app.mount(container);
   await flushComponent();
 
-  return { app, container, onUpdateModelValue };
+  return { app, container, onUpdateModelValue, onToggleEnabled, onUpdateTranslation, onError };
 };
 
 describe('MizTranslationDialog', () => {
@@ -124,12 +243,15 @@ describe('MizTranslationDialog', () => {
     document.body.innerHTML = '';
   });
 
-  it('表示時に読込ファイル名とプレースホルダーを表示する', async () => {
+  it('表示時に読込ファイル名とテーブルを表示する', async () => {
     const { app, container } = await mountComponent({ modelValue: true, loadedFileName: 'briefing.miz', isLoading: false });
 
     expect(container.textContent).toContain('MIZ 翻訳');
     expect(container.querySelector('[data-testid="miz-dialog-file-name"]')?.textContent).toBe('briefing.miz');
-    expect(container.querySelector('[data-testid="miz-dialog-placeholder"]')?.textContent).toContain('Not Implemented');
+    expect(container.querySelector('[data-testid="miz-dialog-information"]')?.textContent).toContain(
+      '原文と key は読み取り専用',
+    );
+    expect(container.querySelector('[data-testid="miz-table-entry-count"]')?.textContent).toBe('1');
 
     app.unmount();
   });
@@ -138,7 +260,44 @@ describe('MizTranslationDialog', () => {
     const { app, container } = await mountComponent({ modelValue: true, isLoading: true });
 
     expect(container.querySelector('[data-testid="miz-dialog-loading"]')?.textContent).toContain('読み込み中');
-    expect(container.querySelector('[data-testid="miz-dialog-placeholder"]')).toBeNull();
+    expect(container.querySelector('[data-testid="miz-table-stub"]')).toBeNull();
+    expect(
+      (container.querySelector('button[aria-label="MIZ 翻訳ダイアログを閉じる"]') as HTMLButtonElement | null)?.disabled,
+    ).toBe(true);
+
+    app.unmount();
+  });
+
+  it('errorMessage があるときはエラー表示を描画する', async () => {
+    const { app, container } = await mountComponent({
+      modelValue: true,
+      errorMessage: 'dictionary の読み込みに失敗しました。',
+    });
+
+    expect(container.querySelector('[data-testid="miz-dialog-error"]')?.textContent).toContain(
+      'dictionary の読み込みに失敗しました。',
+    );
+    expect(container.querySelector('[data-testid="miz-dialog-information"]')).not.toBeNull();
+
+    app.unmount();
+  });
+
+  it('テーブルイベントを親へ中継する', async () => {
+    const { app, container, onToggleEnabled, onUpdateTranslation, onError } = await mountComponent();
+
+    const buttons = [...container.querySelectorAll('button')];
+    buttons
+      .find((button) => button.textContent === 'toggle enabled')
+      ?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    buttons
+      .find((button) => button.textContent === 'update translation')
+      ?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    buttons.find((button) => button.textContent === 'table error')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flushComponent();
+
+    expect(onToggleEnabled).toHaveBeenCalledWith('DictKey_1', false);
+    expect(onUpdateTranslation).toHaveBeenCalledWith('DictKey_1', '翻訳');
+    expect(onError).toHaveBeenCalledWith('copy error');
 
     app.unmount();
   });

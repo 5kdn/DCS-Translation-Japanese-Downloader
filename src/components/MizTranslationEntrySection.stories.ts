@@ -37,18 +37,6 @@ export const Default: Story = {
   },
 };
 
-export const FileSelected: Story = {
-  play: async ({ canvasElement }): Promise<void> => {
-    const canvas = within(canvasElement);
-    const input = canvasElement.querySelector('input[type="file"]');
-    if (!(input instanceof HTMLInputElement)) {
-      throw new Error('MIZ file input の取得に失敗した。');
-    }
-    await expect(input).toBeInTheDocument();
-    await expect(canvas.getByText('MIZ ファイルをドロップする')).toBeInTheDocument();
-  },
-};
-
 export const ErrorState: Story = {
   args: {
     errorMessage: 'MIZ 内に l10n/DEFAULT/dictionary が見つかりません。',

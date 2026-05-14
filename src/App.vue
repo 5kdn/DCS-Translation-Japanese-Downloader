@@ -32,11 +32,14 @@ const {
   isLoading: _mizIsLoading,
   errorMessage: _mizErrorMessage,
   loadedFileName: _mizLoadedFileName,
+  filteredEntries: _mizFilteredEntries,
   clearErrorMessage: _clearMizErrorMessage,
   setLoading: _setMizLoading,
   loadMizResult: _loadMizResult,
   setErrorMessage: _setMizErrorMessage,
   closeDialog: _closeMizDialog,
+  setEntryEnabled: _setMizEntryEnabled,
+  setEntryTranslatedText: _setMizEntryTranslatedText,
 } = useMizTranslationState();
 
 const _activeCategoryKey = computed({
@@ -159,6 +162,32 @@ const _handleMizErrorClear = (): void => {
 };
 
 /**
+ * @summary MIZ 翻訳行の有効状態変更を反映する。
+ * @param key 更新対象 key を指定する。
+ * @param value 更新値を指定する。
+ */
+const _handleMizEntryToggleEnabled = (key: string, value: boolean): void => {
+  _setMizEntryEnabled(key, value);
+};
+
+/**
+ * @summary MIZ 翻訳行の翻訳文変更を反映する。
+ * @param key 更新対象 key を指定する。
+ * @param value 翻訳文を指定する。
+ */
+const _handleMizEntryTranslationUpdate = (key: string, value: string): void => {
+  _setMizEntryTranslatedText(key, value);
+};
+
+/**
+ * @summary MIZ 翻訳ダイアログ内エラーを表示する。
+ * @param message 表示用メッセージを指定する。
+ */
+const _handleMizDialogError = (message: string): void => {
+  _setMizErrorMessage(message);
+};
+
+/**
  * @summary MIZ 翻訳ダイアログの開閉要求を処理する。
  * @param value 更新後のダイアログ表示状態を指定する。
  */
@@ -278,7 +307,12 @@ v-app
         :model-value="_mizIsDialogOpen"
         :loaded-file-name="_mizLoadedFileName"
         :is-loading="_mizIsLoading"
+        :entries="_mizFilteredEntries"
+        :error-message="_mizErrorMessage"
         @update:modelValue="_handleMizDialogModelUpdate"
+        @toggle-enabled="_handleMizEntryToggleEnabled"
+        @update-translation="_handleMizEntryTranslationUpdate"
+        @error="_handleMizDialogError"
       )
 
   Footer

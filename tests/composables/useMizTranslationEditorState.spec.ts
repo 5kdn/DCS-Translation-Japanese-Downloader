@@ -29,6 +29,19 @@ const createResult = (entries: MizDictionaryEntry[]): MizDictionaryEntriesResult
 };
 
 describe('useMizTranslationEditorState', () => {
+  it('有効状態と翻訳文を個別更新できる', () => {
+    const state = useMizTranslationEditorState();
+    state.replaceEntries(createResult([createEntry({ key: 'DictKey_1' }), createEntry({ key: 'DictKey_2', enabled: false })]));
+
+    state.setEntryEnabled('DictKey_2', true);
+    state.setEntryTranslatedText('DictKey_1', '翻訳1');
+
+    expect(state.entries.value).toEqual([
+      createEntry({ key: 'DictKey_1', translatedText: '翻訳1' }),
+      createEntry({ key: 'DictKey_2', enabled: true }),
+    ]);
+  });
+
   it('dictionary 読み込み結果で一致 key の翻訳だけを置き換え、enabled を維持する', () => {
     const state = useMizTranslationEditorState();
     state.replaceEntries(

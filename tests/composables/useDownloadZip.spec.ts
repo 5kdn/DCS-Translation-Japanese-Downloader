@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { Target } from '@/composables/useDownloadZip';
 import { useDownloadZip } from '@/composables/useDownloadZip';
-import type { DownloadFilePathResponse } from '@/lib/client';
 import { fetchArrayBufferWithTimeout } from '@/lib/httpClient';
 
 type MockZip = {
@@ -40,7 +40,7 @@ describe('useDownloadZip', () => {
     fetchArrayBufferWithTimeoutMock.mockResolvedValue(new ArrayBuffer(2));
 
     const { createZipFromTargets } = useDownloadZip({ maxConcurrentDownloads: 2 });
-    const targets: DownloadFilePathResponse = [
+    const targets: Target[] = [
       { url: 'https://example.com/a', path: 'dir/a.txt' },
       { url: 'https://example.com/b', path: 'dir/b.txt' },
     ];
@@ -58,7 +58,7 @@ describe('useDownloadZip', () => {
 
   it('URLが不正な場合は例外を送出する', async () => {
     const { createZipFromTargets } = useDownloadZip();
-    const targets = [{ url: '', path: 'dir/a.txt' }] as DownloadFilePathResponse;
+    const targets: Target[] = [{ url: '', path: 'dir/a.txt' }];
 
     await expect(createZipFromTargets(targets)).rejects.toThrow('ダウンロードURLが不正');
     expect(fetchArrayBufferWithTimeoutMock).not.toHaveBeenCalled();
@@ -66,7 +66,7 @@ describe('useDownloadZip', () => {
 
   it('ZIP内パスが不正な場合は例外を送出する', async () => {
     const { createZipFromTargets } = useDownloadZip();
-    const targets = [{ url: 'https://example.com/a', path: '' }] as DownloadFilePathResponse;
+    const targets: Target[] = [{ url: 'https://example.com/a', path: '' }];
 
     await expect(createZipFromTargets(targets)).rejects.toThrow('ZIP内パスが不正');
     expect(fetchArrayBufferWithTimeoutMock).not.toHaveBeenCalled();

@@ -3,6 +3,17 @@ import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { defineComponent, ref } from 'vue';
 import MizTranslationDialog from './MizTranslationDialog.vue';
 
+const sampleEntries = [
+  {
+    key: 'DictKey_1',
+    sourceText: 'Alpha\nBravo',
+    translatedText: '',
+    enabled: true,
+    isDictionaryKey: true,
+    isTranslatable: true,
+  },
+];
+
 const meta = {
   title: 'MizTranslation/MizTranslationDialog',
   component: MizTranslationDialog,
@@ -11,6 +22,8 @@ const meta = {
     modelValue: true,
     loadedFileName: 'briefing.miz',
     isLoading: false,
+    entries: sampleEntries,
+    errorMessage: null,
   },
   render: (args) =>
     defineComponent({
@@ -29,6 +42,8 @@ const meta = {
             :model-value="isOpen"
             :loaded-file-name="args.loadedFileName"
             :is-loading="args.isLoading"
+            :entries="args.entries"
+            :error-message="args.errorMessage"
             @update:modelValue="isOpen = $event"
           />
           <output data-testid="miz-dialog-open-state">{{ isOpen ? 'open' : 'closed' }}</output>
@@ -45,7 +60,7 @@ export const Default: Story = {
     const dialogScope = within(canvasElement.ownerDocument.body);
     await expect(dialogScope.getByText('MIZ 翻訳')).toBeInTheDocument();
     await expect(dialogScope.getByTestId('miz-dialog-file-name')).toHaveTextContent('briefing.miz');
-    await expect(dialogScope.getByText('Not Implemented')).toBeInTheDocument();
+    await expect(dialogScope.getByTestId('miz-dialog-information')).toBeInTheDocument();
   },
 };
 
@@ -56,6 +71,17 @@ export const Loading: Story = {
   play: async ({ canvasElement }): Promise<void> => {
     const dialogScope = within(canvasElement.ownerDocument.body);
     await expect(dialogScope.getByTestId('miz-dialog-loading')).toHaveTextContent('dictionary を読み込み中です。');
+  },
+};
+
+export const ErrorState: Story = {
+  args: {
+    errorMessage: 'dictionary の読み込みに失敗しました。',
+  },
+  play: async ({ canvasElement }): Promise<void> => {
+    const dialogScope = within(canvasElement.ownerDocument.body);
+    await expect(dialogScope.getByTestId('miz-dialog-error')).toHaveTextContent('dictionary の読み込みに失敗しました。');
+    await expect(dialogScope.getByTestId('miz-dialog-information')).toBeInTheDocument();
   },
 };
 
