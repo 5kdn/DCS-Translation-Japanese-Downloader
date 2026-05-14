@@ -9,6 +9,7 @@
     "skipLibCheck": true
   },
   "include": [
+    "./**/*.ts",
     "./lib/**/*.ts",
     "../vitest.shims.d.ts",
     "../src/vite-env.d.ts"
