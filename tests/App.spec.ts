@@ -149,13 +149,35 @@ const mizTranslationDialogStubModule = {
         type: Array,
         required: true,
       },
+      filter: {
+        type: Object,
+        required: true,
+      },
+      visibleEntryCount: {
+        type: Number,
+        required: true,
+      },
+      totalEntryCount: {
+        type: Number,
+        required: true,
+      },
       errorMessage: {
         type: String,
         required: false,
         default: null,
       },
     },
-    emits: ['update:modelValue', 'toggle-enabled', 'update-translation', 'error'],
+    emits: [
+      'update:modelValue',
+      'update:show-enabled',
+      'update:show-disabled',
+      'update:show-only-untranslated',
+      'update:hide-non-translatable',
+      'update:hide-empty-source-text',
+      'toggle-enabled',
+      'update-translation',
+      'error',
+    ],
     setup(props, { emit }) {
       return () =>
         props.modelValue
@@ -163,6 +185,8 @@ const mizTranslationDialogStubModule = {
               h('output', { 'data-testid': 'miz-dialog-file-name' }, props.loadedFileName),
               h('output', { 'data-testid': 'miz-dialog-loading' }, String(props.isLoading)),
               h('output', { 'data-testid': 'miz-dialog-entry-count' }, String((props.entries as Array<unknown>).length)),
+              h('output', { 'data-testid': 'miz-dialog-visible-entry-count' }, String(props.visibleEntryCount)),
+              h('output', { 'data-testid': 'miz-dialog-total-entry-count' }, String(props.totalEntryCount)),
               h(
                 'output',
                 { 'data-testid': 'miz-dialog-entry-state' },
@@ -184,6 +208,14 @@ const mizTranslationDialogStubModule = {
                   onClick: () => emit('update:modelValue', false),
                 },
                 'close miz dialog',
+              ),
+              h(
+                'button',
+                {
+                  type: 'button',
+                  onClick: () => emit('update:show-only-untranslated', true),
+                },
+                'filter untranslated only',
               ),
               h(
                 'button',
@@ -301,6 +333,82 @@ const flushApp = async (): Promise<void> => {
   }
 };
 
+/**
+ * @summary 子要素をそのまま描画する簡易ラッパーを生成する。
+ * @param name コンポーネント名を指定する。
+ * @returns ラッパーコンポーネントを返す。
+ */
+const createWrapperComponent = (name: string) =>
+  defineComponent({
+    name,
+    setup(_, { slots, attrs }) {
+      return () => h('div', attrs, slots.default?.());
+    },
+  });
+
+/**
+ * @summary App 描画に必要な Vuetify シェルをテスト用に登録する。
+ * @param app 登録先のアプリケーションを指定する。
+ */
+const registerAppShellComponents = (app: ReturnType<typeof createApp>): void => {
+  app.component('v-app', createWrapperComponent('VAppStub'));
+  app.component('v-app-bar', createWrapperComponent('VAppBarStub'));
+  app.component('v-app-bar-title', createWrapperComponent('VAppBarTitleStub'));
+  app.component('v-main', createWrapperComponent('VMainStub'));
+  app.component('v-responsive', createWrapperComponent('VResponsiveStub'));
+  app.component('v-container', createWrapperComponent('VContainerStub'));
+  app.component('v-expansion-panels', createWrapperComponent('VExpansionPanelsStub'));
+  app.component('v-expansion-panel', createWrapperComponent('VExpansionPanelStub'));
+  app.component('v-expansion-panel-title', createWrapperComponent('VExpansionPanelTitleStub'));
+  app.component('v-expansion-panel-text', createWrapperComponent('VExpansionPanelTextStub'));
+  app.component('v-divider', createWrapperComponent('VDividerStub'));
+  app.component(
+    'v-icon',
+    defineComponent({
+      name: 'VIconStub',
+      setup(_, { attrs }) {
+        return () => h('i', attrs);
+      },
+    }),
+  );
+  app.component(
+    'v-alert',
+    defineComponent({
+      name: 'VAlertStub',
+      props: {
+        text: {
+          type: String,
+          required: false,
+          default: '',
+        },
+      },
+      setup(props, { attrs, slots }) {
+        return () => h('div', attrs, props.text || slots.default?.());
+      },
+    }),
+  );
+};
+
+/**
+ * @summary 実アプリ相当のプラグインを登録した App をマウントする。
+ * @returns アプリケーション本体と描画先コンテナを返す。
+ */
+const mountApp = async (): Promise<{
+  app: ReturnType<typeof createApp>;
+  container: HTMLDivElement;
+}> => {
+  const container = document.createElement('div');
+  document.body.appendChild(container);
+
+  const app = createApp(App);
+  registerAppShellComponents(app);
+  app.mount(container);
+
+  await flushApp();
+
+  return { app, container };
+};
+
 describe('App', () => {
   /**
    * @summary ダイアログへ渡された翻訳行状態を取得する。
@@ -352,13 +460,7 @@ describe('App', () => {
   });
 
   it('DownloadCategoryTabs へ配列の rows を渡して描画する', async () => {
-    const container = document.createElement('div');
-    document.body.appendChild(container);
-
-    const app = createApp(App);
-    app.mount(container);
-
-    await flushApp();
+    const { app, container } = await mountApp();
 
     const tabsElement = container.querySelector('[data-testid="download-category-tabs-stub"]');
     const rowsIsArrayElement = container.querySelector('[data-testid="rows-is-array"]');
@@ -374,13 +476,7 @@ describe('App', () => {
   });
 
   it('MIZ 導線を Upload より前に描画する', async () => {
-    const container = document.createElement('div');
-    document.body.appendChild(container);
-
-    const app = createApp(App);
-    app.mount(container);
-
-    await flushApp();
+    const { app, container } = await mountApp();
 
     const mizEntry = container.querySelector('[data-testid="miz-entry-section-stub"]');
     const uploadDialog = container.querySelector('[data-testid="upload-dialog-stub"]');
@@ -393,13 +489,7 @@ describe('App', () => {
   });
 
   it('.miz 選択成功で dictionary 読込後にダイアログを開く', async () => {
-    const container = document.createElement('div');
-    document.body.appendChild(container);
-
-    const app = createApp(App);
-    app.mount(container);
-
-    await flushApp();
+    const { app, container } = await mountApp();
 
     const selectButton = [...container.querySelectorAll('button')].find((element) => element.textContent === 'select miz');
     selectButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
@@ -410,20 +500,15 @@ describe('App', () => {
     expect(container.querySelector('[data-testid="miz-dialog-stub"]')).not.toBeNull();
     expect(container.querySelector('[data-testid="miz-dialog-file-name"]')?.textContent).toBe('mission.miz');
     expect(container.querySelector('[data-testid="miz-dialog-entry-count"]')?.textContent).toBe('1');
+    expect(container.querySelector('[data-testid="miz-dialog-visible-entry-count"]')?.textContent).toBe('1');
+    expect(container.querySelector('[data-testid="miz-dialog-total-entry-count"]')?.textContent).toBe('1');
 
     app.unmount();
   });
 
   it('MIZ 読込失敗時は専用エラーを表示してダイアログを開かない', async () => {
     readMizDictionaryEntriesMock.mockRejectedValueOnce(new Error('broken archive'));
-
-    const container = document.createElement('div');
-    document.body.appendChild(container);
-
-    const app = createApp(App);
-    app.mount(container);
-
-    await flushApp();
+    const { app, container } = await mountApp();
 
     const selectButton = [...container.querySelectorAll('button')].find((element) => element.textContent === 'select miz');
     selectButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
@@ -436,13 +521,7 @@ describe('App', () => {
   });
 
   it('ダイアログ内 error を MIZ エラー表示へ反映する', async () => {
-    const container = document.createElement('div');
-    document.body.appendChild(container);
-
-    const app = createApp(App);
-    app.mount(container);
-
-    await flushApp();
+    const { app, container } = await mountApp();
 
     const selectButton = [...container.querySelectorAll('button')].find((element) => element.textContent === 'select miz');
     selectButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
@@ -460,13 +539,7 @@ describe('App', () => {
   });
 
   it('ダイアログの toggle-enabled を親状態へ反映する', async () => {
-    const container = document.createElement('div');
-    document.body.appendChild(container);
-
-    const app = createApp(App);
-    app.mount(container);
-
-    await flushApp();
+    const { app, container } = await mountApp();
 
     const selectButton = [...container.querySelectorAll('button')].find((element) => element.textContent === 'select miz');
     selectButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
@@ -488,13 +561,7 @@ describe('App', () => {
   });
 
   it('ダイアログの update-translation を親状態へ反映する', async () => {
-    const container = document.createElement('div');
-    document.body.appendChild(container);
-
-    const app = createApp(App);
-    app.mount(container);
-
-    await flushApp();
+    const { app, container } = await mountApp();
 
     const selectButton = [...container.querySelectorAll('button')].find((element) => element.textContent === 'select miz');
     selectButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
@@ -515,14 +582,59 @@ describe('App', () => {
     app.unmount();
   });
 
-  it('ダイアログ close で表示を閉じる', async () => {
-    const container = document.createElement('div');
-    document.body.appendChild(container);
+  it('ダイアログのフィルター更新を親状態へ反映する', async () => {
+    readMizDictionaryEntriesMock.mockResolvedValueOnce({
+      entries: [
+        {
+          key: 'DictKey_1',
+          sourceText: 'Alpha',
+          translatedText: '',
+          enabled: true,
+          isDictionaryKey: true,
+          isTranslatable: true,
+        },
+        {
+          key: 'DictKey_2',
+          sourceText: 'Bravo',
+          translatedText: '翻訳済み',
+          enabled: true,
+          isDictionaryKey: true,
+          isTranslatable: true,
+        },
+      ],
+      source: 'dictionary = {}',
+      fileName: 'mission.miz',
+      document: {
+        source: 'dictionary = {}',
+        entries: [],
+      },
+    });
 
-    const app = createApp(App);
-    app.mount(container);
+    const { app, container } = await mountApp();
 
+    const selectButton = [...container.querySelectorAll('button')].find((element) => element.textContent === 'select miz');
+    selectButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     await flushApp();
+
+    expect(container.querySelector('[data-testid="miz-dialog-entry-count"]')?.textContent).toBe('2');
+    expect(parseDialogEntryState(container).map((entry) => entry.key)).toEqual(['DictKey_1', 'DictKey_2']);
+
+    const filterButton = [...container.querySelectorAll('button')].find(
+      (element) => element.textContent === 'filter untranslated only',
+    );
+    filterButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flushApp();
+
+    expect(container.querySelector('[data-testid="miz-dialog-entry-count"]')?.textContent).toBe('1');
+    expect(container.querySelector('[data-testid="miz-dialog-visible-entry-count"]')?.textContent).toBe('1');
+    expect(container.querySelector('[data-testid="miz-dialog-total-entry-count"]')?.textContent).toBe('2');
+    expect(parseDialogEntryState(container).map((entry) => entry.key)).toEqual(['DictKey_1']);
+
+    app.unmount();
+  });
+
+  it('ダイアログ close で表示を閉じる', async () => {
+    const { app, container } = await mountApp();
 
     const selectButton = [...container.querySelectorAll('button')].find((element) => element.textContent === 'select miz');
     selectButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));

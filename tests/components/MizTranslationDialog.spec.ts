@@ -2,7 +2,7 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createApp, defineComponent, h, nextTick } from 'vue';
-import type { MizDictionaryEntry } from '@/features/mizTranslation/mizDictionaryModels';
+import type { MizDictionaryEntry, MizDictionaryFilter } from '@/features/mizTranslation/mizDictionaryModels';
 
 const sampleEntries: MizDictionaryEntry[] = [
   {
@@ -14,6 +14,14 @@ const sampleEntries: MizDictionaryEntry[] = [
     isTranslatable: true,
   },
 ];
+
+const sampleFilter: MizDictionaryFilter = {
+  showEnabled: true,
+  showDisabled: true,
+  showOnlyUntranslated: false,
+  hideNonTranslatable: true,
+  hideEmptySourceText: true,
+};
 
 vi.mock('@/components/MizTranslationTable.vue', () => {
   return {
@@ -107,6 +115,104 @@ vi.mock('/src/components/MizTranslationTable.vue', () => {
   };
 });
 
+vi.mock('@/components/MizTranslationFilterPanel.vue', () => {
+  return {
+    __esModule: true,
+    default: defineComponent({
+      name: 'MizTranslationFilterPanelStub',
+      props: {
+        visibleEntryCount: {
+          type: Number,
+          required: true,
+        },
+        totalEntryCount: {
+          type: Number,
+          required: true,
+        },
+      },
+      emits: [
+        'update:show-enabled',
+        'update:show-disabled',
+        'update:show-only-untranslated',
+        'update:hide-non-translatable',
+        'update:hide-empty-source-text',
+      ],
+      setup(props, { emit }) {
+        return () =>
+          h('div', { 'data-testid': 'miz-filter-stub' }, [
+            h('output', { 'data-testid': 'miz-filter-count-stub' }, `${props.visibleEntryCount}/${props.totalEntryCount}`),
+            h('button', { type: 'button', onClick: () => emit('update:show-enabled', false) }, 'update show enabled'),
+            h('button', { type: 'button', onClick: () => emit('update:show-disabled', false) }, 'update show disabled'),
+            h(
+              'button',
+              { type: 'button', onClick: () => emit('update:show-only-untranslated', true) },
+              'update show untranslated',
+            ),
+            h(
+              'button',
+              { type: 'button', onClick: () => emit('update:hide-non-translatable', false) },
+              'update hide non translatable',
+            ),
+            h(
+              'button',
+              { type: 'button', onClick: () => emit('update:hide-empty-source-text', false) },
+              'update hide empty source',
+            ),
+          ]);
+      },
+    }),
+  };
+});
+
+vi.mock('/src/components/MizTranslationFilterPanel.vue', () => {
+  return {
+    __esModule: true,
+    default: defineComponent({
+      name: 'MizTranslationFilterPanelStub',
+      props: {
+        visibleEntryCount: {
+          type: Number,
+          required: true,
+        },
+        totalEntryCount: {
+          type: Number,
+          required: true,
+        },
+      },
+      emits: [
+        'update:show-enabled',
+        'update:show-disabled',
+        'update:show-only-untranslated',
+        'update:hide-non-translatable',
+        'update:hide-empty-source-text',
+      ],
+      setup(props, { emit }) {
+        return () =>
+          h('div', { 'data-testid': 'miz-filter-stub' }, [
+            h('output', { 'data-testid': 'miz-filter-count-stub' }, `${props.visibleEntryCount}/${props.totalEntryCount}`),
+            h('button', { type: 'button', onClick: () => emit('update:show-enabled', false) }, 'update show enabled'),
+            h('button', { type: 'button', onClick: () => emit('update:show-disabled', false) }, 'update show disabled'),
+            h(
+              'button',
+              { type: 'button', onClick: () => emit('update:show-only-untranslated', true) },
+              'update show untranslated',
+            ),
+            h(
+              'button',
+              { type: 'button', onClick: () => emit('update:hide-non-translatable', false) },
+              'update hide non translatable',
+            ),
+            h(
+              'button',
+              { type: 'button', onClick: () => emit('update:hide-empty-source-text', false) },
+              'update hide empty source',
+            ),
+          ]);
+      },
+    }),
+  };
+});
+
 import MizTranslationDialog from '@/components/MizTranslationDialog.vue';
 
 /**
@@ -126,9 +232,12 @@ const createWrapperComponent = (name: string) =>
  * @summary 非同期描画の完了を待機する。
  */
 const flushComponent = async (): Promise<void> => {
-  for (const _index of [0, 1, 2]) {
+  for (const _index of [0, 1, 2, 3]) {
     await Promise.resolve();
     await nextTick();
+    await new Promise((resolve) => {
+      setTimeout(resolve, 0);
+    });
   }
 };
 
@@ -138,6 +247,9 @@ const mountComponent = async (props?: {
   isLoading?: boolean;
   entries?: MizDictionaryEntry[];
   errorMessage?: string | null;
+  filter?: MizDictionaryFilter;
+  visibleEntryCount?: number;
+  totalEntryCount?: number;
 }) => {
   const container = document.createElement('div');
   document.body.appendChild(container);
@@ -145,6 +257,11 @@ const mountComponent = async (props?: {
   const onToggleEnabled = vi.fn();
   const onUpdateTranslation = vi.fn();
   const onError = vi.fn();
+  const onShowEnabled = vi.fn();
+  const onShowDisabled = vi.fn();
+  const onShowOnlyUntranslated = vi.fn();
+  const onHideNonTranslatable = vi.fn();
+  const onHideEmptySourceText = vi.fn();
 
   const app = createApp(
     defineComponent({
@@ -156,7 +273,15 @@ const mountComponent = async (props?: {
             isLoading: props?.isLoading ?? false,
             entries: props?.entries ?? sampleEntries,
             errorMessage: props?.errorMessage ?? null,
+            filter: props?.filter ?? sampleFilter,
+            visibleEntryCount: props?.visibleEntryCount ?? 1,
+            totalEntryCount: props?.totalEntryCount ?? 1,
             'onUpdate:modelValue': onUpdateModelValue,
+            'onUpdate:show-enabled': onShowEnabled,
+            'onUpdate:show-disabled': onShowDisabled,
+            'onUpdate:show-only-untranslated': onShowOnlyUntranslated,
+            'onUpdate:hide-non-translatable': onHideNonTranslatable,
+            'onUpdate:hide-empty-source-text': onHideEmptySourceText,
             onToggleEnabled,
             onUpdateTranslation,
             onError,
@@ -231,7 +356,19 @@ const mountComponent = async (props?: {
   app.mount(container);
   await flushComponent();
 
-  return { app, container, onUpdateModelValue, onToggleEnabled, onUpdateTranslation, onError };
+  return {
+    app,
+    container,
+    onUpdateModelValue,
+    onShowEnabled,
+    onShowDisabled,
+    onShowOnlyUntranslated,
+    onHideNonTranslatable,
+    onHideEmptySourceText,
+    onToggleEnabled,
+    onUpdateTranslation,
+    onError,
+  };
 };
 
 describe('MizTranslationDialog', () => {
@@ -251,6 +388,9 @@ describe('MizTranslationDialog', () => {
     expect(container.querySelector('[data-testid="miz-dialog-information"]')?.textContent).toContain(
       '原文と key は読み取り専用',
     );
+    expect(container.textContent).toContain('有効にチェックが入っている項目だけが翻訳した dictionary ファイルに追加されます。');
+    expect(container.textContent).toContain('dictionary ファイルを直接編集するときのような \\ エスケープは不要です。');
+    expect(container.textContent).toContain('Lua コードが翻訳対象となっている可能性があります。');
     expect(container.querySelector('[data-testid="miz-table-entry-count"]')?.textContent).toBe('1');
 
     app.unmount();
@@ -283,9 +423,35 @@ describe('MizTranslationDialog', () => {
   });
 
   it('テーブルイベントを親へ中継する', async () => {
-    const { app, container, onToggleEnabled, onUpdateTranslation, onError } = await mountComponent();
+    const {
+      app,
+      container,
+      onShowEnabled,
+      onShowDisabled,
+      onShowOnlyUntranslated,
+      onHideNonTranslatable,
+      onHideEmptySourceText,
+      onToggleEnabled,
+      onUpdateTranslation,
+      onError,
+    } = await mountComponent();
 
     const buttons = [...container.querySelectorAll('button')];
+    buttons
+      .find((button) => button.textContent === 'update show enabled')
+      ?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    buttons
+      .find((button) => button.textContent === 'update show disabled')
+      ?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    buttons
+      .find((button) => button.textContent === 'update show untranslated')
+      ?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    buttons
+      .find((button) => button.textContent === 'update hide non translatable')
+      ?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    buttons
+      .find((button) => button.textContent === 'update hide empty source')
+      ?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     buttons
       .find((button) => button.textContent === 'toggle enabled')
       ?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
@@ -295,6 +461,11 @@ describe('MizTranslationDialog', () => {
     buttons.find((button) => button.textContent === 'table error')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     await flushComponent();
 
+    expect(onShowEnabled).toHaveBeenCalledWith(false);
+    expect(onShowDisabled).toHaveBeenCalledWith(false);
+    expect(onShowOnlyUntranslated).toHaveBeenCalledWith(true);
+    expect(onHideNonTranslatable).toHaveBeenCalledWith(false);
+    expect(onHideEmptySourceText).toHaveBeenCalledWith(false);
     expect(onToggleEnabled).toHaveBeenCalledWith('DictKey_1', false);
     expect(onUpdateTranslation).toHaveBeenCalledWith('DictKey_1', '翻訳');
     expect(onError).toHaveBeenCalledWith('copy error');

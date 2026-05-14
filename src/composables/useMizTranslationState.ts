@@ -5,6 +5,7 @@ import { useMizTranslationDirtyState } from '@/composables/useMizTranslationDirt
 import { useMizTranslationEditorState } from '@/composables/useMizTranslationEditorState';
 import { useMizTranslationFilterState } from '@/composables/useMizTranslationFilterState';
 import type { MizDictionaryEntriesResult } from '@/features/mizTranslation/mizArchiveModels';
+import { sortMizDictionaryEntries } from '@/features/mizTranslation/mizDictionarySort';
 import { applyMizDictionaryFilter } from '@/features/mizTranslation/mizDictionaryState';
 
 /**
@@ -18,7 +19,15 @@ export const useMizTranslationState = () => {
   const dirtyState = useMizTranslationDirtyState(editorState.entries);
 
   const filteredEntries = computed(() => {
-    return applyMizDictionaryFilter(editorState.entries.value, filterState.filter.value);
+    return sortMizDictionaryEntries(applyMizDictionaryFilter(editorState.entries.value, filterState.filter.value));
+  });
+
+  const visibleEntryCount = computed((): number => {
+    return filteredEntries.value.length;
+  });
+
+  const totalEntryCount = computed((): number => {
+    return editorState.entries.value.length;
   });
 
   const needsCloseConfirmation = computed((): boolean => {
@@ -66,6 +75,8 @@ export const useMizTranslationState = () => {
     ...dirtyState,
     ...beforeUnloadGuard,
     filteredEntries,
+    visibleEntryCount,
+    totalEntryCount,
     needsCloseConfirmation,
     canCloseWithoutConfirm,
     loadMizResult,

@@ -92,6 +92,7 @@ const mountComponent = async (entries: MizDictionaryEntry[] = sampleEntries) => 
                 (
                   props.headers as Array<{
                     key: string;
+                    sortable: boolean;
                     width?: string;
                     cellProps?: { class: string };
                     headerProps?: { class: string };
@@ -99,6 +100,7 @@ const mountComponent = async (entries: MizDictionaryEntry[] = sampleEntries) => 
                 ).map((header) => {
                   return {
                     key: header.key,
+                    sortable: header.sortable,
                     width: header.width ?? null,
                     cellClass: header.cellProps?.class ?? null,
                     headerClass: header.headerProps?.class ?? null,
@@ -106,12 +108,12 @@ const mountComponent = async (entries: MizDictionaryEntry[] = sampleEntries) => 
                 }),
               ),
             ),
-            ...(props.items as MizDictionaryEntry[]).map((item) =>
-              h('div', { 'data-testid': `miz-table-row-${item.key}` }, [
-                h('div', slots['item.enabled']?.({ item: { raw: item } })),
-                h('div', slots['item.key']?.({ item: { raw: item } })),
-                h('div', slots['item.sourceText']?.({ item: { raw: item } })),
-                h('div', slots['item.translatedText']?.({ item: { raw: item } })),
+            ...(props.items as Array<{ entry: MizDictionaryEntry; keySortValue: string }>).map((item) =>
+              h('div', { 'data-testid': `miz-table-row-${item.entry.key}` }, [
+                h('div', slots['item.enabledSortValue']?.({ item: { raw: item } })),
+                h('div', slots['item.keySortValue']?.({ item: { raw: item } })),
+                h('div', slots['item.sourceTextSortValue']?.({ item: { raw: item } })),
+                h('div', slots['item.translatedTextSortValue']?.({ item: { raw: item } })),
               ]),
             ),
             props.items.length === 0 ? slots['no-data']?.() : null,
@@ -210,6 +212,7 @@ describe('MizTranslationTable', () => {
     container: HTMLElement,
   ): Array<{
     key: string;
+    sortable: boolean;
     width: string | null;
     cellClass: string | null;
     headerClass: string | null;
@@ -217,10 +220,22 @@ describe('MizTranslationTable', () => {
     const raw = container.querySelector('[data-testid="miz-table-header-metadata"]')?.textContent ?? '[]';
     return JSON.parse(raw) as Array<{
       key: string;
+      sortable: boolean;
       width: string | null;
       cellClass: string | null;
       headerClass: string | null;
     }>;
+  };
+
+  /**
+   * @summary 描画されたテーブル行 key の順序を取得する。
+   * @param container 描画済みコンテナを指定する。
+   * @returns 表示順の key 一覧を返す。
+   */
+  const parseRenderedRowKeys = (container: HTMLElement): string[] => {
+    return [...container.querySelectorAll('[data-testid^="miz-table-row-"]')].map((row) => {
+      return row.getAttribute('data-testid')?.replace('miz-table-row-', '') ?? '';
+    });
   };
 
   beforeEach(() => {
@@ -252,10 +267,10 @@ describe('MizTranslationTable', () => {
   it('有効と key 列の固定幅を除去し、原文と翻訳へ同一列クラスを付与する', async () => {
     const { app, container } = await mountComponent();
     const headers = parseHeaderMetadata(container);
-    const enabledHeader = headers.find((header) => header.key === 'enabled');
-    const keyHeader = headers.find((header) => header.key === 'key');
-    const sourceHeader = headers.find((header) => header.key === 'sourceText');
-    const translatedHeader = headers.find((header) => header.key === 'translatedText');
+    const enabledHeader = headers.find((header) => header.key === 'enabledSortValue');
+    const keyHeader = headers.find((header) => header.key === 'keySortValue');
+    const sourceHeader = headers.find((header) => header.key === 'sourceTextSortValue');
+    const translatedHeader = headers.find((header) => header.key === 'translatedTextSortValue');
 
     expect(enabledHeader?.width).toBeNull();
     expect(enabledHeader?.cellClass).toBe('miz-translation-table__enabled-column');
@@ -265,10 +280,36 @@ describe('MizTranslationTable', () => {
     expect(keyHeader?.headerClass).toBe('miz-translation-table__key-column');
     expect(sourceHeader?.cellClass).toBe('miz-translation-table__balanced-column');
     expect(sourceHeader?.headerClass).toBe('miz-translation-table__balanced-column');
+    expect(sourceHeader?.sortable).toBe(true);
     expect(translatedHeader?.cellClass).toBe('miz-translation-table__balanced-column');
     expect(translatedHeader?.headerClass).toBe('miz-translation-table__balanced-column');
+    expect(translatedHeader?.sortable).toBe(true);
     expect(keyHeader?.cellClass).toBe('miz-translation-table__key-column');
     expect(keyHeader?.headerClass).toBe('miz-translation-table__key-column');
+
+    app.unmount();
+  });
+
+  it('固定先頭グループを優先しつつ通常 key は昇順で描画する', async () => {
+    const { app, container } = await mountComponent([
+      {
+        ...sampleEntries[0],
+        key: 'DictKey_20',
+        sourceText: 'Zulu',
+      },
+      {
+        ...sampleEntries[0],
+        key: 'DictKey_sortie_2',
+        sourceText: 'Sortie',
+      },
+      {
+        ...sampleEntries[0],
+        key: 'DictKey_10',
+        sourceText: 'Alpha',
+      },
+    ]);
+
+    expect(parseRenderedRowKeys(container)).toEqual(['DictKey_sortie_2', 'DictKey_10', 'DictKey_20']);
 
     app.unmount();
   });

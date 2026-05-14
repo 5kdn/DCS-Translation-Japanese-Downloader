@@ -14,6 +14,14 @@ const sampleEntries = [
   },
 ];
 
+const sampleFilter = {
+  showEnabled: true,
+  showDisabled: true,
+  showOnlyUntranslated: false,
+  hideNonTranslatable: true,
+  hideEmptySourceText: true,
+};
+
 const meta = {
   title: 'MizTranslation/MizTranslationDialog',
   component: MizTranslationDialog,
@@ -24,6 +32,9 @@ const meta = {
     isLoading: false,
     entries: sampleEntries,
     errorMessage: null,
+    filter: sampleFilter,
+    visibleEntryCount: sampleEntries.length,
+    totalEntryCount: sampleEntries.length,
   },
   render: (args) =>
     defineComponent({
@@ -44,6 +55,9 @@ const meta = {
             :is-loading="args.isLoading"
             :entries="args.entries"
             :error-message="args.errorMessage"
+            :filter="args.filter"
+            :visible-entry-count="args.visibleEntryCount"
+            :total-entry-count="args.totalEntryCount"
             @update:modelValue="isOpen = $event"
           />
           <output data-testid="miz-dialog-open-state">{{ isOpen ? 'open' : 'closed' }}</output>
@@ -61,6 +75,15 @@ export const Default: Story = {
     await expect(dialogScope.getByText('MIZ 翻訳')).toBeInTheDocument();
     await expect(dialogScope.getByTestId('miz-dialog-file-name')).toHaveTextContent('briefing.miz');
     await expect(dialogScope.getByTestId('miz-dialog-information')).toBeInTheDocument();
+    await expect(dialogScope.getByTestId('miz-dialog-information')).toHaveTextContent(
+      '有効にチェックが入っている項目だけが翻訳した dictionary ファイルに追加されます。',
+    );
+    await expect(dialogScope.getByTestId('miz-dialog-information')).toHaveTextContent(
+      'dictionary ファイルを直接編集するときのような \\ エスケープは不要です。',
+    );
+    await expect(dialogScope.getByTestId('miz-dialog-information')).toHaveTextContent(
+      'Lua コードが翻訳対象となっている可能性があります。',
+    );
   },
 };
 

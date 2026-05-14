@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { MizDictionaryEntry, MizDictionaryFilter } from '@/features/mizTranslation/mizDictionaryModels';
+import { getMizDictionaryFixedGroupRank, sortMizDictionaryEntries } from '@/features/mizTranslation/mizDictionarySort';
 import { applyMizDictionaryFilter, hasMizDictionaryChanges } from '@/features/mizTranslation/mizDictionaryState';
 
 const createEntry = (overrides: Partial<MizDictionaryEntry> = {}): MizDictionaryEntry => {
@@ -60,5 +61,32 @@ describe('mizDictionaryState', () => {
         baselineEntries,
       ),
     ).toBe(true);
+  });
+
+  it('固定先頭 5 グループの優先順を常に維持する', () => {
+    const entries = [
+      createEntry({ key: 'DictKey_30' }),
+      createEntry({ key: 'DictKey_descriptionRedTask_4' }),
+      createEntry({ key: 'DictKey_sortie_2' }),
+      createEntry({ key: 'DictKey_descriptionText_3' }),
+      createEntry({ key: 'DictKey_descriptionNeutralsTask_5' }),
+      createEntry({ key: 'DictKey_descriptionBlueTask_1' }),
+    ];
+
+    expect(sortMizDictionaryEntries(entries).map((entry) => entry.key)).toEqual([
+      'DictKey_sortie_2',
+      'DictKey_descriptionText_3',
+      'DictKey_descriptionBlueTask_1',
+      'DictKey_descriptionRedTask_4',
+      'DictKey_descriptionNeutralsTask_5',
+      'DictKey_30',
+    ]);
+  });
+
+  it('固定先頭グループ以外は key 昇順で並べる', () => {
+    const entries = [createEntry({ key: 'DictKey_20' }), createEntry({ key: 'DictKey_3' }), createEntry({ key: 'AAA' })];
+
+    expect(sortMizDictionaryEntries(entries).map((entry) => entry.key)).toEqual(['AAA', 'DictKey_20', 'DictKey_3']);
+    expect(getMizDictionaryFixedGroupRank('DictKey_GroupName_3')).toBeNull();
   });
 });

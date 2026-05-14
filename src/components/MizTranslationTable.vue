@@ -2,14 +2,26 @@
 import { computed, ref } from 'vue';
 import { copyText } from '@/composables/useClipboard';
 import type { MizDictionaryEntry } from '@/features/mizTranslation/mizDictionaryModels';
+import { sortMizDictionaryEntries } from '@/features/mizTranslation/mizDictionarySort';
 
+/**
+ * @summary MIZ 翻訳テーブル props を表す。
+ */
 type MizTranslationTableProps = {
   entries: MizDictionaryEntry[];
 };
 
+/**
+ * @summary MIZ 翻訳テーブルのソート用列 key を表す。
+ */
+type MizTranslationTableColumnKey = 'enabledSortValue' | 'keySortValue' | 'sourceTextSortValue' | 'translatedTextSortValue';
+
+/**
+ * @summary MIZ 翻訳テーブル header 定義を表す。
+ */
 type MizTranslationTableHeader = {
   title: string;
-  key: 'enabled' | 'key' | 'sourceText' | 'translatedText';
+  key: MizTranslationTableColumnKey;
   sortable: boolean;
   align?: 'start' | 'center' | 'end';
   width?: string;
@@ -21,7 +33,21 @@ type MizTranslationTableHeader = {
   };
 };
 
-type MizTranslationTableSlotItem = MizDictionaryEntry | { raw: MizDictionaryEntry };
+/**
+ * @summary MIZ 翻訳テーブルへ渡す描画用行データを表す。
+ */
+type MizTranslationTableRow = {
+  entry: MizDictionaryEntry;
+  enabledSortValue: string;
+  keySortValue: string;
+  sourceTextSortValue: string;
+  translatedTextSortValue: string;
+};
+
+/**
+ * @summary Vuetify の item slot から受け取る行データの型を表す。
+ */
+type MizTranslationTableSlotItem = MizTranslationTableRow | { raw: MizTranslationTableRow };
 
 const _props = defineProps<MizTranslationTableProps>();
 
@@ -33,11 +59,23 @@ const emit = defineEmits<{
 
 const _hoveredKey = ref<string | null>(null);
 
+const _tableRows = computed<MizTranslationTableRow[]>(() => {
+  return sortMizDictionaryEntries(_props.entries).map((entry: MizDictionaryEntry): MizTranslationTableRow => {
+    return {
+      entry,
+      enabledSortValue: entry.key,
+      keySortValue: entry.key,
+      sourceTextSortValue: entry.key,
+      translatedTextSortValue: entry.key,
+    };
+  });
+});
+
 const _headers = computed<MizTranslationTableHeader[]>(() => {
   return [
     {
       title: '有効',
-      key: 'enabled',
+      key: 'enabledSortValue',
       sortable: true,
       align: 'center',
       cellProps: {
@@ -49,7 +87,7 @@ const _headers = computed<MizTranslationTableHeader[]>(() => {
     },
     {
       title: 'key',
-      key: 'key',
+      key: 'keySortValue',
       sortable: true,
       align: 'start',
       cellProps: {
@@ -61,8 +99,8 @@ const _headers = computed<MizTranslationTableHeader[]>(() => {
     },
     {
       title: '原文',
-      key: 'sourceText',
-      sortable: false,
+      key: 'sourceTextSortValue',
+      sortable: true,
       align: 'start',
       cellProps: {
         class: 'miz-translation-table__balanced-column',
@@ -73,8 +111,8 @@ const _headers = computed<MizTranslationTableHeader[]>(() => {
     },
     {
       title: '翻訳',
-      key: 'translatedText',
-      sortable: false,
+      key: 'translatedTextSortValue',
+      sortable: true,
       align: 'start',
       cellProps: {
         class: 'miz-translation-table__balanced-column',
@@ -93,10 +131,10 @@ const _headers = computed<MizTranslationTableHeader[]>(() => {
  */
 const _resolveEntry = (slotItem: MizTranslationTableSlotItem): MizDictionaryEntry => {
   if ('raw' in slotItem) {
-    return slotItem.raw;
+    return slotItem.raw.entry;
   }
 
-  return slotItem;
+  return slotItem.entry;
 };
 
 /**
@@ -163,12 +201,12 @@ const _handleCopyClick = async (sourceText: string): Promise<void> => {
 <template lang="pug">
 v-data-table.miz-translation-table(
   :headers="_headers"
-  :items="_props.entries"
-  item-value="key"
+  :items="_tableRows"
+  item-value="keySortValue"
   hide-default-footer
   items-per-page="-1"
 )
-  template(v-slot:item.enabled="{ item }")
+  template(v-slot:item.enabledSortValue="{ item }")
     v-checkbox(
       :model-value="_resolveEntry(item).enabled"
       hide-details
@@ -178,11 +216,11 @@ v-data-table.miz-translation-table(
       @update:model-value="_handleEnabledChange(_resolveEntry(item).key, $event)"
     )
 
-  template(v-slot:item.key="{ item }")
+  template(v-slot:item.keySortValue="{ item }")
     .key-cell
       code.text-body-2.key-cell-text(data-testid="miz-entry-key") {{ _resolveEntry(item).key }}
 
-  template(v-slot:item.sourceText="{ item }")
+  template(v-slot:item.sourceTextSortValue="{ item }")
     .source-cell(
       :data-testid="`miz-entry-source-${_resolveEntry(item).key}`"
       @mouseenter="_setHoveredKey(_resolveEntry(item).key)"
@@ -209,7 +247,7 @@ v-data-table.miz-translation-table(
         @click="_handleCopyClick(_resolveEntry(item).sourceText)"
       )
 
-  template(v-slot:item.translatedText="{ item }")
+  template(v-slot:item.translatedTextSortValue="{ item }")
     v-textarea.translation-field(
       :model-value="_resolveEntry(item).translatedText"
       variant="outlined"
@@ -243,39 +281,7 @@ v-data-table.miz-translation-table(
   :deep(.miz-translation-table__balanced-column) {
     width: 50%;
   }
-}
 
-.source-cell {
-  position: relative;
-  min-height: 3rem;
-  width: 100%;
-}
-
-.key-cell {
-  display: flex;
-  align-items: center;
-  min-height: 2.5rem;
-}
-
-.key-cell-text {
-  display: block;
-  max-width: none;
-  white-space: nowrap;
-  word-break: normal;
-}
-
-.copy-button {
-  position: absolute;
-  top: 0;
-  right: 0;
-  visibility: hidden;
-
-  &--visible {
-    visibility: visible;
-  }
-}
-
-.miz-translation-table {
   :deep(.translation-field .v-field__field) {
     align-items: flex-start;
   }
@@ -295,6 +301,37 @@ v-data-table.miz-translation-table(
 
   :deep(.translation-field--source .v-field__outline) {
     --v-field-border-opacity: 0;
+  }
+}
+
+.source-cell {
+  position: relative;
+  min-height: 3rem;
+  width: 100%;
+}
+
+.copy-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 1;
+  visibility: hidden;
+
+  &--visible {
+    visibility: visible;
+  }
+}
+
+.key-cell {
+  display: flex;
+  align-items: center;
+  min-height: 2.5rem;
+
+  &-text {
+    display: block;
+    max-width: none;
+    white-space: nowrap;
+    word-break: normal;
   }
 }
 </style>

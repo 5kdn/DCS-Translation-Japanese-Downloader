@@ -45,6 +45,20 @@ const _displayErrorMessage = computed((): string | null => {
 });
 
 /**
+ * @summary エラー alert の表示要否を返す。
+ */
+const _hasDisplayErrorMessage = computed((): boolean => {
+  return _displayErrorMessage.value !== null;
+});
+
+/**
+ * @summary エラー alert へ渡す文言を返す。
+ */
+const _displayErrorAlertText = computed((): string | undefined => {
+  return _displayErrorMessage.value ?? undefined;
+});
+
+/**
  * @summary エラー表示を初期化する。
  */
 const _clearErrors = (): void => {
@@ -129,10 +143,10 @@ div.miz-translation-panel
   p.text-body-1.text-medium-emphasis.mb-4 MIZ ファイルから `l10n/DEFAULT/dictionary` を読み込み、翻訳編集ダイアログを開きます。
 
   v-alert.mb-4(
-    v-if="_displayErrorMessage"
+    v-if="_hasDisplayErrorMessage"
     type="error"
     variant="tonal"
-    :text="_displayErrorMessage"
+    :text="_displayErrorAlertText"
     data-testid="miz-entry-error"
   )
 

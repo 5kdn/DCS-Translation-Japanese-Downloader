@@ -40,6 +40,8 @@ describe('useMizTranslationState', () => {
     expect(state.loadedFileName.value).toBe('sample.miz');
     expect(state.entries.value).toHaveLength(2);
     expect(state.filteredEntries.value.map((entry) => entry.key)).toEqual(['DictKey_1']);
+    expect(state.visibleEntryCount.value).toBe(1);
+    expect(state.totalEntryCount.value).toBe(2);
     expect(state.filter.value).toEqual({
       showEnabled: true,
       showDisabled: true,
@@ -68,6 +70,57 @@ describe('useMizTranslationState', () => {
     expect(state.canCloseWithoutConfirm.value).toBe(true);
   });
 
+  it('loadMizResult 後の filteredEntries は固定先頭 5 グループ優先順を維持する', async () => {
+    const mizFile = await createMizFile([
+      {
+        path: 'l10n/DEFAULT/dictionary',
+        content: `dictionary = {
+  ["DictKey_20"] = "Zulu",
+  ["DictKey_descriptionText_3"] = "Description",
+  ["DictKey_sortie_2"] = "Sortie",
+  ["DictKey_10"] = "Alpha",
+}`,
+      },
+    ]);
+    const result = await readMizDictionaryEntries(mizFile);
+    const state = useMizTranslationState();
+
+    state.loadMizResult(result);
+
+    expect(state.filteredEntries.value.map((entry) => entry.key)).toEqual([
+      'DictKey_sortie_2',
+      'DictKey_descriptionText_3',
+      'DictKey_10',
+      'DictKey_20',
+    ]);
+  });
+
+  it('visibleEntryCount はフィルター変更に追従する', async () => {
+    const mizFile = await createMizFile([
+      {
+        path: 'l10n/DEFAULT/dictionary',
+        content: `dictionary = {
+  ["DictKey_1"] = "Alpha",
+  ["DictKey_2"] = "Bravo",
+}`,
+      },
+    ]);
+    const result = await readMizDictionaryEntries(mizFile);
+    const state = useMizTranslationState();
+
+    state.loadMizResult(result);
+    state.setEntryTranslatedText('DictKey_2', '翻訳済み');
+
+    expect(state.totalEntryCount.value).toBe(2);
+    expect(state.visibleEntryCount.value).toBe(2);
+
+    state.setShowOnlyUntranslated(true);
+
+    expect(state.filteredEntries.value.map((entry) => entry.key)).toEqual(['DictKey_1']);
+    expect(state.visibleEntryCount.value).toBe(1);
+    expect(state.totalEntryCount.value).toBe(2);
+  });
+
   it('resetAll で state を初期値へ戻す', async () => {
     const mizFile = await createMizFile([
       { path: 'l10n/DEFAULT/dictionary', content: 'dictionary = {\n  ["DictKey_1"] = "Alpha",\n}' },
@@ -89,6 +142,8 @@ describe('useMizTranslationState', () => {
     expect(state.loadedFileName.value).toBe('');
     expect(state.entries.value).toEqual([]);
     expect(state.hasUnsavedChanges.value).toBe(false);
+    expect(state.visibleEntryCount.value).toBe(0);
+    expect(state.totalEntryCount.value).toBe(0);
     expect(state.filter.value).toEqual({
       showEnabled: true,
       showDisabled: true,

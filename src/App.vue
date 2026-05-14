@@ -32,7 +32,10 @@ const {
   isLoading: _mizIsLoading,
   errorMessage: _mizErrorMessage,
   loadedFileName: _mizLoadedFileName,
+  filter: _mizFilter,
   filteredEntries: _mizFilteredEntries,
+  visibleEntryCount: _mizVisibleEntryCount,
+  totalEntryCount: _mizTotalEntryCount,
   clearErrorMessage: _clearMizErrorMessage,
   setLoading: _setMizLoading,
   loadMizResult: _loadMizResult,
@@ -40,6 +43,11 @@ const {
   closeDialog: _closeMizDialog,
   setEntryEnabled: _setMizEntryEnabled,
   setEntryTranslatedText: _setMizEntryTranslatedText,
+  setShowEnabled: _setMizShowEnabled,
+  setShowDisabled: _setMizShowDisabled,
+  setShowOnlyUntranslated: _setMizShowOnlyUntranslated,
+  setHideNonTranslatable: _setMizHideNonTranslatable,
+  setHideEmptySourceText: _setMizHideEmptySourceText,
 } = useMizTranslationState();
 
 const _activeCategoryKey = computed({
@@ -65,6 +73,8 @@ const _updatedAfter = computed({
 
 const _searchCandidates = computed(() => _downloadListState.searchCandidates.value);
 const _visibleRows = computed(() => _downloadListState.visibleRows.value);
+const _hasErrorMessage = computed(() => errorMessage.value !== null);
+const _errorAlertText = computed(() => errorMessage.value ?? undefined);
 
 /**
  * @summary 例外を画面表示向けメッセージへ変換する。
@@ -180,6 +190,46 @@ const _handleMizEntryTranslationUpdate = (key: string, value: string): void => {
 };
 
 /**
+ * @summary MIZ フィルターの有効表示状態を更新する。
+ * @param value 更新値を指定する。
+ */
+const _handleMizShowEnabledUpdate = (value: boolean): void => {
+  _setMizShowEnabled(value);
+};
+
+/**
+ * @summary MIZ フィルターの無効表示状態を更新する。
+ * @param value 更新値を指定する。
+ */
+const _handleMizShowDisabledUpdate = (value: boolean): void => {
+  _setMizShowDisabled(value);
+};
+
+/**
+ * @summary MIZ フィルターの未翻訳のみ表示状態を更新する。
+ * @param value 更新値を指定する。
+ */
+const _handleMizShowOnlyUntranslatedUpdate = (value: boolean): void => {
+  _setMizShowOnlyUntranslated(value);
+};
+
+/**
+ * @summary MIZ フィルターの対象外非表示状態を更新する。
+ * @param value 更新値を指定する。
+ */
+const _handleMizHideNonTranslatableUpdate = (value: boolean): void => {
+  _setMizHideNonTranslatable(value);
+};
+
+/**
+ * @summary MIZ フィルターの空欄非表示状態を更新する。
+ * @param value 更新値を指定する。
+ */
+const _handleMizHideEmptySourceTextUpdate = (value: boolean): void => {
+  _setMizHideEmptySourceText(value);
+};
+
+/**
  * @summary MIZ 翻訳ダイアログ内エラーを表示する。
  * @param message 表示用メッセージを指定する。
  */
@@ -280,7 +330,15 @@ v-app
 
         v-container#alert-area.alert-area
           v-alert(type="info" variant="tonal" v-if="isLoadingTree") 読み込み中です...
-          v-alert(type="error" variant="tonal" :text="errorMessage" v-if="errorMessage" class="my-4" closable @click:close="_handleAlertClose")
+          v-alert(
+            type="error"
+            variant="tonal"
+            :text="_errorAlertText"
+            v-if="_hasErrorMessage"
+            class="my-4"
+            closable
+            @click:close="_handleAlertClose"
+          )
 
       v-container#upload-area
         MizTranslationEntrySection(
@@ -307,9 +365,17 @@ v-app
         :model-value="_mizIsDialogOpen"
         :loaded-file-name="_mizLoadedFileName"
         :is-loading="_mizIsLoading"
+        :filter="_mizFilter"
         :entries="_mizFilteredEntries"
+        :visible-entry-count="_mizVisibleEntryCount"
+        :total-entry-count="_mizTotalEntryCount"
         :error-message="_mizErrorMessage"
         @update:modelValue="_handleMizDialogModelUpdate"
+        @update:show-enabled="_handleMizShowEnabledUpdate"
+        @update:show-disabled="_handleMizShowDisabledUpdate"
+        @update:show-only-untranslated="_handleMizShowOnlyUntranslatedUpdate"
+        @update:hide-non-translatable="_handleMizHideNonTranslatableUpdate"
+        @update:hide-empty-source-text="_handleMizHideEmptySourceTextUpdate"
         @toggle-enabled="_handleMizEntryToggleEnabled"
         @update-translation="_handleMizEntryTranslationUpdate"
         @error="_handleMizDialogError"
