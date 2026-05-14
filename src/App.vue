@@ -3,7 +3,9 @@ import { computed, defineAsyncComponent, onMounted, ref } from 'vue';
 // biome-ignore lint/correctness/noUnusedImports: used in Vue template
 import associate_miz_with_zip from '@/assets/associate_miz_with_zip.reg.txt?raw';
 import { useDownloadListState } from '@/composables/useDownloadListState';
+import { useMizTranslationState } from '@/composables/useMizTranslationState';
 import { toErrorMessageForDisplay } from '@/errors/errorMessage';
+import { readMizDictionaryEntries } from '@/features/mizTranslation/mizTranslationService';
 import type { UploadDialogSubmitPayload } from '@/features/upload/uploadDialogSubmit';
 import type { CreatePrResponse } from '@/lib/client';
 import { fetchCreatePr, fetchTree, healthCheck } from '@/lib/client';
@@ -14,6 +16,8 @@ defineOptions({
     DownloadCategoryTabs: defineAsyncComponent(() => import('./components/DownloadCategoryTabs.vue')),
     Footer: defineAsyncComponent(() => import('./components/Footer.vue')),
     IssueViewer: defineAsyncComponent(() => import('./components/IssueViewer.vue')),
+    MizTranslationDialog: defineAsyncComponent(() => import('./components/MizTranslationDialog.vue')),
+    MizTranslationEntrySection: defineAsyncComponent(() => import('./components/MizTranslationEntrySection.vue')),
     Button: defineAsyncComponent(() => import('./components/common/Button.vue')),
     UploadDialog: defineAsyncComponent(() => import('./components/UploadDialog.vue')),
   },
@@ -23,6 +27,17 @@ const isLoadingTree = ref(false);
 const errorMessage = ref<string | null>(null);
 const treeItems = ref<TreeItem[]>([]);
 const _downloadListState = useDownloadListState(treeItems);
+const {
+  isDialogOpen: _mizIsDialogOpen,
+  isLoading: _mizIsLoading,
+  errorMessage: _mizErrorMessage,
+  loadedFileName: _mizLoadedFileName,
+  clearErrorMessage: _clearMizErrorMessage,
+  setLoading: _setMizLoading,
+  loadMizResult: _loadMizResult,
+  setErrorMessage: _setMizErrorMessage,
+  closeDialog: _closeMizDialog,
+} = useMizTranslationState();
 
 const _activeCategoryKey = computed({
   get: () => _downloadListState.activeCategoryKey.value,
@@ -120,6 +135,39 @@ const _handleUploadSubmit = async (payload: UploadDialogSubmitPayload): Promise<
 };
 
 /**
+ * @summary MIZ ファイル選択後の dictionary 読込を処理する。
+ * @param file 読込対象の MIZ ファイルを指定する。
+ */
+const _handleMizFileSelected = async (file: File): Promise<void> => {
+  _clearMizErrorMessage();
+  _setMizLoading(true);
+
+  try {
+    const result = await readMizDictionaryEntries(file);
+    _loadMizResult(result);
+  } catch (error: unknown) {
+    _setMizLoading(false);
+    _setMizErrorMessage(toErrorMessage(error));
+  }
+};
+
+/**
+ * @summary MIZ 読込エラー表示を初期化する。
+ */
+const _handleMizErrorClear = (): void => {
+  _clearMizErrorMessage();
+};
+
+/**
+ * @summary MIZ 翻訳ダイアログの開閉要求を処理する。
+ * @param value 更新後のダイアログ表示状態を指定する。
+ */
+const _handleMizDialogModelUpdate = (value: boolean): void => {
+  if (value) return;
+  _closeMizDialog();
+};
+
+/**
  * @summary デスクトップアプリのダウンロードページへ別タブで遷移する。
  */
 const _browseToDesktopAppDownloadPage = (): void => {
@@ -206,6 +254,13 @@ v-app
           v-alert(type="error" variant="tonal" :text="errorMessage" v-if="errorMessage" class="my-4" closable @click:close="_handleAlertClose")
 
       v-container#upload-area
+        MizTranslationEntrySection(
+          :is-loading="_mizIsLoading"
+          :error-message="_mizErrorMessage"
+          @select-miz="_handleMizFileSelected"
+          @clear-error="_handleMizErrorClear"
+        )
+
         UploadDialog(:on-submit="_handleUploadSubmit" :tree-items="treeItems")
 
       v-container#download-area
@@ -218,6 +273,13 @@ v-app
           :rows="_visibleRows"
           @error="_handleDownloadError"
         )
+
+      MizTranslationDialog(
+        :model-value="_mizIsDialogOpen"
+        :loaded-file-name="_mizLoadedFileName"
+        :is-loading="_mizIsLoading"
+        @update:modelValue="_handleMizDialogModelUpdate"
+      )
 
   Footer
 </template>
