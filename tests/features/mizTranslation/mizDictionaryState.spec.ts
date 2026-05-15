@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import type { MizDictionaryEntry, MizDictionaryFilter } from '@/features/mizTranslation/mizDictionaryModels';
-import { getMizDictionaryFixedGroupRank, sortMizDictionaryEntries } from '@/features/mizTranslation/mizDictionarySort';
+import {
+  getMizDictionaryFixedGroupRank,
+  sortMizDictionaryEntries,
+  sortMizDictionaryEntriesForTable,
+} from '@/features/mizTranslation/mizDictionarySort';
 import { applyMizDictionaryFilter, hasMizDictionaryChanges } from '@/features/mizTranslation/mizDictionaryState';
 
 const createEntry = (overrides: Partial<MizDictionaryEntry> = {}): MizDictionaryEntry => {
@@ -107,5 +111,43 @@ describe('mizDictionaryState', () => {
 
     expect(sortMizDictionaryEntries(entries).map((entry) => entry.key)).toEqual(['AAA', 'DictKey_20', 'DictKey_3']);
     expect(getMizDictionaryFixedGroupRank('DictKey_GroupName_3')).toBeNull();
+  });
+
+  it('テーブル降順ソート時も固定先頭 5 グループ自体は反転させない', () => {
+    const entries = [
+      createEntry({ key: 'DictKey_30', translatedText: 'A' }),
+      createEntry({ key: 'DictKey_descriptionRedTask_4', translatedText: 'B' }),
+      createEntry({ key: 'DictKey_sortie_2', translatedText: 'C' }),
+      createEntry({ key: 'DictKey_descriptionText_3', translatedText: 'D' }),
+      createEntry({ key: 'DictKey_descriptionNeutralsTask_5', translatedText: 'E' }),
+      createEntry({ key: 'DictKey_descriptionBlueTask_1', translatedText: 'F' }),
+      createEntry({ key: 'DictKey_10', translatedText: 'Z' }),
+    ];
+
+    expect(sortMizDictionaryEntriesForTable(entries, 'translatedText', 'desc').map((entry) => entry.key)).toEqual([
+      'DictKey_sortie_2',
+      'DictKey_descriptionText_3',
+      'DictKey_descriptionBlueTask_1',
+      'DictKey_descriptionRedTask_4',
+      'DictKey_descriptionNeutralsTask_5',
+      'DictKey_10',
+      'DictKey_30',
+    ]);
+  });
+
+  it('テーブル昇順ソート時は固定グループ後続を対象列で整列し、同値時は key 昇順にする', () => {
+    const entries = [
+      createEntry({ key: 'DictKey_30', sourceText: 'Zulu' }),
+      createEntry({ key: 'DictKey_10', sourceText: 'Alpha' }),
+      createEntry({ key: 'DictKey_20', sourceText: 'Alpha' }),
+      createEntry({ key: 'DictKey_sortie_2', sourceText: 'Bravo' }),
+    ];
+
+    expect(sortMizDictionaryEntriesForTable(entries, 'sourceText', 'asc').map((entry) => entry.key)).toEqual([
+      'DictKey_sortie_2',
+      'DictKey_10',
+      'DictKey_20',
+      'DictKey_30',
+    ]);
   });
 });

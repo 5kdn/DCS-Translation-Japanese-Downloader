@@ -2,7 +2,12 @@
 import { computed, ref } from 'vue';
 import { copyText } from '@/composables/useClipboard';
 import type { MizDictionaryEntry } from '@/features/mizTranslation/mizDictionaryModels';
-import { sortMizDictionaryEntries } from '@/features/mizTranslation/mizDictionarySort';
+import {
+  type MizDictionarySortKey,
+  type MizDictionarySortOrder,
+  sortMizDictionaryEntries,
+  sortMizDictionaryEntriesForTable,
+} from '@/features/mizTranslation/mizDictionarySort';
 
 /**
  * @summary MIZ 翻訳テーブル props を表す。
@@ -49,6 +54,14 @@ type MizTranslationTableRow = {
  */
 type MizTranslationTableSlotItem = MizTranslationTableRow | { raw: MizTranslationTableRow };
 
+/**
+ * @summary Vuetify が通知するソート状態 1 件分を表す。
+ */
+type MizTranslationTableSortItem = {
+  key: MizTranslationTableColumnKey;
+  order?: MizDictionarySortOrder | false;
+};
+
 const _props = defineProps<MizTranslationTableProps>();
 
 const emit = defineEmits<{
@@ -58,15 +71,30 @@ const emit = defineEmits<{
 }>();
 
 const _hoveredKey = ref<string | null>(null);
+const _sortBy = ref<MizTranslationTableSortItem[]>([]);
 
 const _tableRows = computed<MizTranslationTableRow[]>(() => {
-  return sortMizDictionaryEntries(_props.entries).map((entry: MizDictionaryEntry): MizTranslationTableRow => {
+  const activeSort = _sortBy.value[0];
+  const sortKey = resolveDictionarySortKey(activeSort?.key);
+  const sortOrder = activeSort?.order === 'asc' || activeSort?.order === 'desc' ? activeSort.order : undefined;
+  const sortedEntries =
+    sortKey === undefined || sortOrder === undefined
+      ? sortMizDictionaryEntries(_props.entries)
+      : sortMizDictionaryEntriesForTable(_props.entries, sortKey, sortOrder);
+  const activeSortRanks = new Map<string, string>(
+    sortedEntries.map((entry, index) => {
+      return [entry.key, buildInternalSortRank(index, sortedEntries.length, sortOrder)];
+    }),
+  );
+
+  return sortedEntries.map((entry: MizDictionaryEntry): MizTranslationTableRow => {
+    const activeSortRank = activeSortRanks.get(entry.key) ?? entry.key;
     return {
       entry,
-      enabledSortValue: entry.key,
-      keySortValue: entry.key,
-      sourceTextSortValue: entry.key,
-      translatedTextSortValue: entry.key,
+      enabledSortValue: activeSort?.key === 'enabledSortValue' ? activeSortRank : entry.key,
+      keySortValue: activeSort?.key === 'keySortValue' ? activeSortRank : entry.key,
+      sourceTextSortValue: activeSort?.key === 'sourceTextSortValue' ? activeSortRank : entry.key,
+      translatedTextSortValue: activeSort?.key === 'translatedTextSortValue' ? activeSortRank : entry.key,
     };
   });
 });
@@ -196,12 +224,45 @@ const _handleCopyClick = async (sourceText: string): Promise<void> => {
     emit('error', 'クリップボードへコピーできませんでした。');
   }
 };
+
+/**
+ * @summary テーブル列 key を純粋ロジック用ソートキーへ変換する。
+ * @param columnKey テーブル列 key を指定する。
+ * @returns 対応するソートキーを返す。
+ */
+const resolveDictionarySortKey = (columnKey?: MizTranslationTableColumnKey): MizDictionarySortKey | undefined => {
+  switch (columnKey) {
+    case 'enabledSortValue':
+      return 'enabled';
+    case 'keySortValue':
+      return 'key';
+    case 'sourceTextSortValue':
+      return 'sourceText';
+    case 'translatedTextSortValue':
+      return 'translatedText';
+    default:
+      return undefined;
+  }
+};
+
+/**
+ * @summary Vuetify 内部ソートへ渡す rank 文字列を生成する。
+ * @param index 表示順 index を指定する。
+ * @param total 全件数を指定する。
+ * @param sortOrder 現在のソート順を指定する。
+ * @returns 内部ソート用のゼロ埋め文字列を返す。
+ */
+const buildInternalSortRank = (index: number, total: number, sortOrder?: MizDictionarySortOrder): string => {
+  const rank = sortOrder === 'desc' ? total - index : index + 1;
+  return String(rank).padStart(String(total).length + 1, '0');
+};
 </script>
 
 <template lang="pug">
 v-data-table.miz-translation-table(
   :headers="_headers"
   :items="_tableRows"
+  v-model:sort-by="_sortBy"
   item-value="keySortValue"
   hide-default-footer
   items-per-page="-1"
