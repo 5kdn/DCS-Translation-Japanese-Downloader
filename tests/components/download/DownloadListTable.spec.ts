@@ -2,7 +2,7 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createApp, defineComponent, h, nextTick } from 'vue';
-import DownloadListTable from '@/components/DownloadListTable.vue';
+import DownloadListTable from '@/components/download/DownloadListTable.vue';
 import type { TreeItem } from '@/types/type';
 
 const { createZipFromTargetsMock, buildGitHubBlobUrlMock, buildGitHubRawUrlMock } = vi.hoisted(() => {
@@ -99,11 +99,11 @@ vi.mock('/src/components/CreateIssueDialog.vue', () => {
   return createIssueDialogStubModule;
 });
 
-vi.mock('@/components/DownloadFileDialog.vue', () => {
+vi.mock('@/components/download/DownloadFileDialog.vue', () => {
   return downloadFileDialogStubModule;
 });
 
-vi.mock('/src/components/DownloadFileDialog.vue', () => {
+vi.mock('/src/components/download/DownloadFileDialog.vue', () => {
   return downloadFileDialogStubModule;
 });
 

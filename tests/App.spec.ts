@@ -129,11 +129,11 @@ const mizTranslationEntrySectionStubModule = {
   }),
 };
 
-vi.mock('@/components/MizTranslationEntrySection.vue', () => {
+vi.mock('@/components/mizTranslation/MizTranslationEntrySection.vue', () => {
   return mizTranslationEntrySectionStubModule;
 });
 
-vi.mock('/src/components/MizTranslationEntrySection.vue', () => {
+vi.mock('/src/components/mizTranslation/MizTranslationEntrySection.vue', () => {
   return mizTranslationEntrySectionStubModule;
 });
 
@@ -274,11 +274,11 @@ const mizTranslationDialogStubModule = {
   }),
 };
 
-vi.mock('@/components/MizTranslationDialog.vue', () => {
+vi.mock('@/components/mizTranslation/MizTranslationDialog.vue', () => {
   return mizTranslationDialogStubModule;
 });
 
-vi.mock('/src/components/MizTranslationDialog.vue', () => {
+vi.mock('/src/components/mizTranslation/MizTranslationDialog.vue', () => {
   return mizTranslationDialogStubModule;
 });
 
@@ -319,11 +319,11 @@ const mizTranslationCloseConfirmDialogStubModule = {
   }),
 };
 
-vi.mock('@/components/MizTranslationCloseConfirmDialog.vue', () => {
+vi.mock('@/components/mizTranslation/MizTranslationCloseConfirmDialog.vue', () => {
   return mizTranslationCloseConfirmDialogStubModule;
 });
 
-vi.mock('/src/components/MizTranslationCloseConfirmDialog.vue', () => {
+vi.mock('/src/components/mizTranslation/MizTranslationCloseConfirmDialog.vue', () => {
   return mizTranslationCloseConfirmDialogStubModule;
 });
 
@@ -364,31 +364,31 @@ const downloadCategoryTabsMockModule = {
   }),
 };
 
-vi.mock('@/components/DownloadCategoryTabs.vue', () => {
+vi.mock('@/components/download/DownloadCategoryTabs.vue', () => {
   return downloadCategoryTabsMockModule;
 });
 
-vi.mock('/src/components/DownloadCategoryTabs.vue', () => {
+vi.mock('/src/components/download/DownloadCategoryTabs.vue', () => {
   return downloadCategoryTabsMockModule;
 });
 
-vi.mock('@/components/DownloadCategoryTabs.vue?vue&type=script&setup=true&lang.ts', () => {
+vi.mock('@/components/download/DownloadCategoryTabs.vue?vue&type=script&setup=true&lang.ts', () => {
   return downloadCategoryTabsMockModule;
 });
 
-vi.mock('@/components/DownloadCategoryTabs.vue?vue&type=script&setup=true&lang.tsx', () => {
+vi.mock('@/components/download/DownloadCategoryTabs.vue?vue&type=script&setup=true&lang.tsx', () => {
   return downloadCategoryTabsMockModule;
 });
 
-vi.mock('@/components/DownloadCategoryTabs.vue?vue', () => {
+vi.mock('@/components/download/DownloadCategoryTabs.vue?vue', () => {
   return downloadCategoryTabsMockModule;
 });
 
-vi.mock('/src/components/DownloadCategoryTabs.vue?vue', () => {
+vi.mock('/src/components/download/DownloadCategoryTabs.vue?vue', () => {
   return downloadCategoryTabsMockModule;
 });
 
-vi.mock('/src/components/DownloadCategoryTabs.vue?vue&type=script&setup=true&lang.ts', () => {
+vi.mock('/src/components/download/DownloadCategoryTabs.vue?vue&type=script&setup=true&lang.ts', () => {
   return downloadCategoryTabsMockModule;
 });
 

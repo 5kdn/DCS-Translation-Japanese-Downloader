@@ -107,7 +107,7 @@ vi.mock('/src/components/common/DropZone.vue', () => {
   };
 });
 
-import MizTranslationEntrySection from '@/components/MizTranslationEntrySection.vue';
+import MizTranslationEntrySection from '@/components/mizTranslation/MizTranslationEntrySection.vue';
 
 /**
  * @summary すべての子要素をそのまま描画する簡易ラッパーを生成する。

@@ -5,7 +5,7 @@ import type { DownloadListRow } from '@/features/downloads/downloadListModels';
 
 defineOptions({
   components: {
-    CreateIssueDialog: defineAsyncComponent(() => import('./CreateIssueDialog.vue')),
+    CreateIssueDialog: defineAsyncComponent(() => import('../CreateIssueDialog.vue')),
     DownloadFileDialog: defineAsyncComponent(() => import('./DownloadFileDialog.vue')),
   },
 });

@@ -2,7 +2,7 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createApp, defineComponent, h, nextTick } from 'vue';
-import MizTranslationFilterPanel from '@/components/MizTranslationFilterPanel.vue';
+import MizTranslationFilterPanel from '@/components/mizTranslation/MizTranslationFilterPanel.vue';
 
 /**
  * @summary すべての子要素をそのまま描画する簡易ラッパーを生成する。

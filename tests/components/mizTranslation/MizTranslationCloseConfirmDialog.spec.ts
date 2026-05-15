@@ -2,7 +2,7 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createApp, defineComponent, h, nextTick } from 'vue';
-import MizTranslationCloseConfirmDialog from '@/components/MizTranslationCloseConfirmDialog.vue';
+import MizTranslationCloseConfirmDialog from '@/components/mizTranslation/MizTranslationCloseConfirmDialog.vue';
 
 /**
  * @summary 子要素をそのまま描画する簡易ラッパーを生成する。

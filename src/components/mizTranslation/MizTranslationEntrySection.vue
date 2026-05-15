@@ -12,7 +12,7 @@ type MizTranslationEntrySectionProps = {
 
 defineOptions({
   components: {
-    DropZone: defineAsyncComponent(() => import('./common/DropZone.vue')),
+    DropZone: defineAsyncComponent(() => import('../common/DropZone.vue')),
   },
 });
 

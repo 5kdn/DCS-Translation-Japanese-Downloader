@@ -23,7 +23,7 @@ const sampleFilter: MizDictionaryFilter = {
   hideEmptySourceText: true,
 };
 
-vi.mock('@/components/MizTranslationTable.vue', () => {
+vi.mock('@/components/mizTranslation/MizTranslationTable.vue', () => {
   return {
     __esModule: true,
     default: defineComponent({
@@ -82,7 +82,7 @@ vi.mock('@/components/MizTranslationTable.vue', () => {
   };
 });
 
-vi.mock('/src/components/MizTranslationTable.vue', () => {
+vi.mock('/src/components/mizTranslation/MizTranslationTable.vue', () => {
   return {
     __esModule: true,
     default: defineComponent({
@@ -141,7 +141,7 @@ vi.mock('/src/components/MizTranslationTable.vue', () => {
   };
 });
 
-vi.mock('@/components/MizTranslationFilterPanel.vue', () => {
+vi.mock('@/components/mizTranslation/MizTranslationFilterPanel.vue', () => {
   return {
     __esModule: true,
     default: defineComponent({
@@ -190,7 +190,7 @@ vi.mock('@/components/MizTranslationFilterPanel.vue', () => {
   };
 });
 
-vi.mock('/src/components/MizTranslationFilterPanel.vue', () => {
+vi.mock('/src/components/mizTranslation/MizTranslationFilterPanel.vue', () => {
   return {
     __esModule: true,
     default: defineComponent({
@@ -239,7 +239,7 @@ vi.mock('/src/components/MizTranslationFilterPanel.vue', () => {
   };
 });
 
-import MizTranslationDialog from '@/components/MizTranslationDialog.vue';
+import MizTranslationDialog from '@/components/mizTranslation/MizTranslationDialog.vue';
 
 /**
  * @summary すべての子要素をそのまま描画する簡易ラッパーを生成する。

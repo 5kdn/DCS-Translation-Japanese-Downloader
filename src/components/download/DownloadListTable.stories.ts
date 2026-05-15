@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/vue3-vite';
 import { expect, fn, spyOn, userEvent, waitFor, within } from 'storybook/test';
 import type { DownloadListRow } from '@/features/downloads/downloadListModels';
 import type { TreeItem } from '@/types/type';
-import { installFetchMock } from '../../.storybook/fetchMock';
+import { installFetchMock } from '../../../.storybook/fetchMock';
 import DownloadListTable from './DownloadListTable.vue';
 
 const createTreeItem = (path: string, updatedAt: string): TreeItem => {

@@ -13,12 +13,16 @@ import type { TreeItem } from '@/types/type';
 
 defineOptions({
   components: {
-    DownloadCategoryTabs: defineAsyncComponent(() => import('./components/DownloadCategoryTabs.vue')),
+    DownloadCategoryTabs: defineAsyncComponent(() => import('./components/download/DownloadCategoryTabs.vue')),
     Footer: defineAsyncComponent(() => import('./components/Footer.vue')),
     IssueViewer: defineAsyncComponent(() => import('./components/IssueViewer.vue')),
-    MizTranslationCloseConfirmDialog: defineAsyncComponent(() => import('./components/MizTranslationCloseConfirmDialog.vue')),
-    MizTranslationDialog: defineAsyncComponent(() => import('./components/MizTranslationDialog.vue')),
-    MizTranslationEntrySection: defineAsyncComponent(() => import('./components/MizTranslationEntrySection.vue')),
+    MizTranslationCloseConfirmDialog: defineAsyncComponent(
+      () => import('./components/mizTranslation/MizTranslationCloseConfirmDialog.vue'),
+    ),
+    MizTranslationDialog: defineAsyncComponent(() => import('./components/mizTranslation/MizTranslationDialog.vue')),
+    MizTranslationEntrySection: defineAsyncComponent(
+      () => import('./components/mizTranslation/MizTranslationEntrySection.vue'),
+    ),
     Button: defineAsyncComponent(() => import('./components/common/Button.vue')),
     UploadDialog: defineAsyncComponent(() => import('./components/UploadDialog.vue')),
   },

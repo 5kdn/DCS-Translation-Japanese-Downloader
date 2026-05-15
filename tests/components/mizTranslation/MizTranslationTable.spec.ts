@@ -2,7 +2,7 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createApp, defineComponent, h, nextTick } from 'vue';
-import MizTranslationTable from '@/components/MizTranslationTable.vue';
+import MizTranslationTable from '@/components/mizTranslation/MizTranslationTable.vue';
 import type { MizDictionaryEntry } from '@/features/mizTranslation/mizDictionaryModels';
 
 const sampleEntries: MizDictionaryEntry[] = [
