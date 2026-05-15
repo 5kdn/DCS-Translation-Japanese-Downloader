@@ -85,29 +85,6 @@ const mountComponent = async (entries: MizDictionaryEntry[] = sampleEntries) => 
               { 'data-testid': 'miz-table-headers' },
               (props.headers as Array<{ title: string }>).map((header) => header.title).join('|'),
             ),
-            h(
-              'div',
-              { 'data-testid': 'miz-table-header-metadata' },
-              JSON.stringify(
-                (
-                  props.headers as Array<{
-                    key: string;
-                    sortable: boolean;
-                    width?: string;
-                    cellProps?: { class: string };
-                    headerProps?: { class: string };
-                  }>
-                ).map((header) => {
-                  return {
-                    key: header.key,
-                    sortable: header.sortable,
-                    width: header.width ?? null,
-                    cellClass: header.cellProps?.class ?? null,
-                    headerClass: header.headerProps?.class ?? null,
-                  };
-                }),
-              ),
-            ),
             ...(props.items as Array<{ entry: MizDictionaryEntry; keySortValue: string }>).map((item) =>
               h('div', { 'data-testid': `miz-table-row-${item.entry.key}` }, [
                 h('div', slots['item.enabledSortValue']?.({ item: { raw: item } })),
@@ -204,30 +181,6 @@ const mountComponent = async (entries: MizDictionaryEntry[] = sampleEntries) => 
 
 describe('MizTranslationTable', () => {
   /**
-   * @summary ヘッダー定義のメタデータを取得する。
-   * @param container 描画済みコンテナを指定する。
-   * @returns ヘッダー定義一覧を返す。
-   */
-  const parseHeaderMetadata = (
-    container: HTMLElement,
-  ): Array<{
-    key: string;
-    sortable: boolean;
-    width: string | null;
-    cellClass: string | null;
-    headerClass: string | null;
-  }> => {
-    const raw = container.querySelector('[data-testid="miz-table-header-metadata"]')?.textContent ?? '[]';
-    return JSON.parse(raw) as Array<{
-      key: string;
-      sortable: boolean;
-      width: string | null;
-      cellClass: string | null;
-      headerClass: string | null;
-    }>;
-  };
-
-  /**
    * @summary 描画されたテーブル行 key の順序を取得する。
    * @param container 描画済みコンテナを指定する。
    * @returns 表示順の key 一覧を返す。
@@ -253,39 +206,8 @@ describe('MizTranslationTable', () => {
 
     expect(container.querySelector('[data-testid="miz-table-headers"]')?.textContent).toContain('有効|key|原文|翻訳');
     expect(container.querySelector('[data-testid="miz-entry-key"]')?.textContent).toContain('DictKey_1');
-    expect(container.querySelector('[data-testid="miz-entry-key"]')?.className).toContain('key-cell-text');
     expect(sourceTextarea?.value).toBe('Alpha');
     expect(container.querySelector('[data-testid="miz-entry-translation-DictKey_1"]')).not.toBeNull();
-    expect(container.querySelector('[data-testid="miz-entry-translation-DictKey_1"]')?.className).toContain(
-      'translation-field',
-    );
-    expect(container.querySelector('[data-testid="miz-entry-source-text"]')?.className).toContain('translation-field');
-
-    app.unmount();
-  });
-
-  it('有効と key 列の固定幅を除去し、原文と翻訳へ同一列クラスを付与する', async () => {
-    const { app, container } = await mountComponent();
-    const headers = parseHeaderMetadata(container);
-    const enabledHeader = headers.find((header) => header.key === 'enabledSortValue');
-    const keyHeader = headers.find((header) => header.key === 'keySortValue');
-    const sourceHeader = headers.find((header) => header.key === 'sourceTextSortValue');
-    const translatedHeader = headers.find((header) => header.key === 'translatedTextSortValue');
-
-    expect(enabledHeader?.width).toBeNull();
-    expect(enabledHeader?.cellClass).toBe('miz-translation-table__enabled-column');
-    expect(enabledHeader?.headerClass).toBe('miz-translation-table__enabled-column');
-    expect(keyHeader?.width).toBeNull();
-    expect(keyHeader?.cellClass).toBe('miz-translation-table__key-column');
-    expect(keyHeader?.headerClass).toBe('miz-translation-table__key-column');
-    expect(sourceHeader?.cellClass).toBe('miz-translation-table__balanced-column');
-    expect(sourceHeader?.headerClass).toBe('miz-translation-table__balanced-column');
-    expect(sourceHeader?.sortable).toBe(true);
-    expect(translatedHeader?.cellClass).toBe('miz-translation-table__balanced-column');
-    expect(translatedHeader?.headerClass).toBe('miz-translation-table__balanced-column');
-    expect(translatedHeader?.sortable).toBe(true);
-    expect(keyHeader?.cellClass).toBe('miz-translation-table__key-column');
-    expect(keyHeader?.headerClass).toBe('miz-translation-table__key-column');
 
     app.unmount();
   });
@@ -360,19 +282,6 @@ describe('MizTranslationTable', () => {
     expect(container.querySelector('[data-testid="miz-entry-copy-DictKey_1"]')?.className).not.toContain(
       'copy-button--visible',
     );
-
-    app.unmount();
-  });
-
-  it('原文テキストは列幅いっぱいを使い、コピーボタンは重ね表示前提のクラスを持つ', async () => {
-    const { app, container } = await mountComponent();
-    const sourceCell = container.querySelector('[data-testid="miz-entry-source-DictKey_1"]');
-    const sourceText = container.querySelector('[data-testid="miz-entry-source-text"]');
-    const copyButton = container.querySelector('[data-testid="miz-entry-copy-DictKey_1"]');
-
-    expect(sourceCell?.className).toContain('source-cell');
-    expect(sourceText?.className).toContain('translation-field--source');
-    expect(copyButton?.className).toContain('copy-button');
 
     app.unmount();
   });

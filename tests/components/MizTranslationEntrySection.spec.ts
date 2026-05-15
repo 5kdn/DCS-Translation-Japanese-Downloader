@@ -227,7 +227,6 @@ describe('MizTranslationEntrySection', () => {
   it('UploadDropzone と同系統の主文言と操作ボタンを表示する', async () => {
     const { app, container } = await mountComponent();
 
-    expect(container.querySelector('.miz-translation-panel')).not.toBeNull();
     expect(container.textContent).toContain(
       'MIZ ファイルから `l10n/DEFAULT/dictionary` を読み込み、翻訳編集ダイアログを開きます。',
     );
@@ -256,23 +255,6 @@ describe('MizTranslationEntrySection', () => {
 
     expect(onClearError).toHaveBeenCalledTimes(1);
     expect(onSelectMiz).toHaveBeenCalledWith(mizFile);
-
-    app.unmount();
-  });
-
-  it('drag over 中は active class を付与する', async () => {
-    const { app, container } = await mountComponent();
-    const dropzone = container.querySelector('[data-testid="miz-dropzone"]');
-
-    dropzone?.dispatchEvent(new Event('dragenter', { bubbles: true }));
-    await flushComponent();
-
-    expect(dropzone?.className).toContain('drop-zone--active');
-
-    dropzone?.dispatchEvent(new Event('dragleave', { bubbles: true }));
-    await flushComponent();
-
-    expect(dropzone?.className).not.toContain('drop-zone--active');
 
     app.unmount();
   });

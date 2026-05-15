@@ -161,22 +161,42 @@ const _handleDownloadDictionary = (): void => {
   emit('download-dictionary');
 };
 
+/**
+ * @summary 有効な項目を表示する設定変更を親へ通知する。
+ * @param value 有効な項目を表示するかどうか。
+ */
 const _handleShowEnabledUpdate = (value: boolean): void => {
   emit('update:show-enabled', value);
 };
 
+/**
+ * @summary 無効な項目を表示する設定変更を親へ通知する。
+ * @param value 無効な項目を表示するかどうか。
+ */
 const _handleShowDisabledUpdate = (value: boolean): void => {
   emit('update:show-disabled', value);
 };
 
+/**
+ * @summary 未翻訳項目のみを表示する設定変更を親へ通知する。
+ * @param value 未翻訳項目のみを表示するかどうか。
+ */
 const _handleShowOnlyUntranslatedUpdate = (value: boolean): void => {
   emit('update:show-only-untranslated', value);
 };
 
+/**
+ * @summary 翻訳対象外の項目を非表示にする設定変更を親へ通知する。
+ * @param value 翻訳対象外の項目を非表示にするかどうか。
+ */
 const _handleHideNonTranslatableUpdate = (value: boolean): void => {
   emit('update:hide-non-translatable', value);
 };
 
+/**
+ * @summary 元テキストが空の項目を非表示にする設定変更を親へ通知する。
+ * @param value 元テキストが空の項目を非表示にするかどうか。
+ */
 const _handleHideEmptySourceTextUpdate = (value: boolean): void => {
   emit('update:hide-empty-source-text', value);
 };
@@ -185,34 +205,34 @@ const _handleHideEmptySourceTextUpdate = (value: boolean): void => {
 <template lang="pug">
 v-dialog(v-model="_dialogModel" fullscreen)
   v-card
-    input(
+    input.d-none(
       ref="dictionaryInput"
       data-testid="miz-dialog-dictionary-input"
       type="file"
-      accept=".lua,.txt,.dictionary,dictionary"
-      class="miz-dialog-dictionary-input"
+      accept="dictionary"
       @change="_handleDictionaryInputChange"
     )
 
     v-toolbar(border)
       v-toolbar-title.d-flex.align-center.ga-3
         span.text-h6 MIZ 翻訳
-        span.text-body-2.text-medium-emphasis.text-truncate(data-testid="miz-dialog-file-name") {{ loadedFileName || '未選択' }}
+        span.text-body-2.text-medium-emphasis.text-truncate.ml-2(data-testid="miz-dialog-file-name") {{ loadedFileName || '未選択' }}
       v-spacer
-      v-btn(
-        prepend-icon="mdi-file-import-outline"
-        variant="text"
-        :disabled="!_canImportDictionary"
-        data-testid="miz-dialog-import-button"
-        @click="_openDictionaryImportPicker"
-      ) dictionary を読み込む
-      v-btn(
-        prepend-icon="mdi-download"
-        variant="text"
-        :disabled="!_canDownloadDictionary"
-        data-testid="miz-dialog-download-button"
-        @click="_handleDownloadDictionary"
-      ) dictionary をダウンロード
+      div.d-flex.ga-2
+        v-btn(
+          prepend-icon="mdi-file-import-outline"
+          variant="tonal"
+          :disabled="!_canImportDictionary"
+          data-testid="miz-dialog-import-button"
+          @click="_openDictionaryImportPicker"
+        ) dictionary を読み込む
+        v-btn(
+          prepend-icon="mdi-download"
+          variant="tonal"
+          :disabled="!_canDownloadDictionary"
+          data-testid="miz-dialog-download-button"
+          @click="_handleDownloadDictionary"
+        ) dictionary をダウンロード
       v-btn(
         icon="mdi-close"
         variant="text"
@@ -223,16 +243,15 @@ v-dialog(v-model="_dialogModel" fullscreen)
 
     v-card-text.py-6
       v-container
-        v-alert(
+        v-alert.mb-4(
           v-if="_hasErrorMessage"
           type="error"
           variant="tonal"
           :text="_errorAlertText"
-          class="mb-4"
           data-testid="miz-dialog-error"
         )
 
-        v-alert(
+        v-alert.mb-4(
           v-if="isLoading"
           type="info"
           variant="tonal"
@@ -240,17 +259,16 @@ v-dialog(v-model="_dialogModel" fullscreen)
           data-testid="miz-dialog-loading"
         )
 
-        v-alert(
+        v-alert.mb-4(
           v-else
           type="info"
           variant="tonal"
-          class="mb-4"
           data-testid="miz-dialog-information"
         )
-          p 原文と key は読み取り専用です。翻訳欄を編集し、必要な行だけ有効化してください。
-          p 有効にチェックが入っている項目だけが翻訳した dictionary ファイルに追加されます。
-          p dictionary ファイルを直接編集するときのような \ エスケープは不要です。
-          p Lua コードが翻訳対象となっている可能性があります。
+          p.my-0 原文と key は読み取り専用です。翻訳欄を編集し、必要な行だけ有効化してください。
+          p.my-0 有効にチェックが入っている項目だけが翻訳した dictionary ファイルに追加されます。
+          p.my-0 dictionary ファイルを直接編集するときのような \ エスケープは不要です。
+          p.my-0 Lua コードが翻訳対象となっている可能性があります。
 
         MizTranslationFilterPanel(
           v-if="!isLoading"
@@ -276,9 +294,3 @@ v-dialog(v-model="_dialogModel" fullscreen)
           @error="_handleTableError"
         )
 </template>
-
-<style scoped lang="scss">
-.miz-dialog-dictionary-input {
-  display: none;
-}
-</style>

@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import { computed, ref, useTemplateRef } from 'vue';
+import { computed, defineAsyncComponent, ref, useTemplateRef } from 'vue';
 import { normalizeMizFileSelection, validateSelectedMizFile } from '@/features/mizTranslation/mizFileSelection';
-// biome-ignore lint/correctness/noUnusedImports: used in Vue template
-import DropZone from './common/DropZone.vue';
 
 /**
  * @summary MIZ 選択セクション props を表す。
@@ -11,6 +9,12 @@ type MizTranslationEntrySectionProps = {
   isLoading: boolean;
   errorMessage: string | null;
 };
+
+defineOptions({
+  components: {
+    DropZone: defineAsyncComponent(() => import('./common/DropZone.vue')),
+  },
+});
 
 const props = withDefaults(defineProps<MizTranslationEntrySectionProps>(), {
   isLoading: false,
@@ -150,7 +154,7 @@ div.miz-translation-panel
     data-testid="miz-entry-error"
   )
 
-  input.miz-file-input(
+  input.d-none(
     ref="fileInput"
     data-testid="miz-file-input"
     type="file"
@@ -173,9 +177,3 @@ div.miz-translation-panel
     @drop="_handleDrop"
   )
 </template>
-
-<style scoped lang="scss">
-.miz-file-input {
-  display: none;
-}
-</style>

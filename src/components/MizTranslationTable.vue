@@ -268,21 +268,22 @@ v-data-table.miz-translation-table(
   items-per-page="-1"
 )
   template(v-slot:item.enabledSortValue="{ item }")
-    v-checkbox(
-      :model-value="_resolveEntry(item).enabled"
-      hide-details
-      density="compact"
-      color="primary"
-      :data-testid="`miz-entry-enabled-${_resolveEntry(item).key}`"
-      @update:model-value="_handleEnabledChange(_resolveEntry(item).key, $event)"
-    )
+    .d-flex.align-center(style="min-height: 3rem;")
+      v-checkbox(
+        :model-value="_resolveEntry(item).enabled"
+        hide-details
+        density="compact"
+        color="primary"
+        :data-testid="`miz-entry-enabled-${_resolveEntry(item).key}`"
+        @update:model-value="_handleEnabledChange(_resolveEntry(item).key, $event)"
+      )
 
   template(v-slot:item.keySortValue="{ item }")
-    .key-cell
+    .key-cell.d-flex.align-center(style="min-height: 3rem;")
       code.text-body-2.key-cell-text(data-testid="miz-entry-key") {{ _resolveEntry(item).key }}
 
   template(v-slot:item.sourceTextSortValue="{ item }")
-    .source-cell(
+    .position-relative.w-100(
       :data-testid="`miz-entry-source-${_resolveEntry(item).key}`"
       @mouseenter="_setHoveredKey(_resolveEntry(item).key)"
       @mouseleave="_setHoveredKey(null)"
@@ -298,7 +299,7 @@ v-data-table.miz-translation-table(
         hide-details
         data-testid="miz-entry-source-text"
       )
-      v-btn.copy-button(
+      v-btn.copy-button.position-absolute.top-0.right-0(
         icon="mdi-content-copy"
         size="small"
         variant="text"
@@ -309,16 +310,17 @@ v-data-table.miz-translation-table(
       )
 
   template(v-slot:item.translatedTextSortValue="{ item }")
-    v-textarea.translation-field(
-      :model-value="_resolveEntry(item).translatedText"
-      variant="outlined"
-      density="comfortable"
-      :rows="_resolveTextareaRows(_resolveEntry(item).sourceText)"
-      auto-grow
-      hide-details
-      :data-testid="`miz-entry-translation-${_resolveEntry(item).key}`"
-      @update:model-value="_handleTranslatedTextChange(_resolveEntry(item).key, String($event ?? ''))"
-    )
+    .translated-cell.d-flex.w-100
+      v-textarea.translation-field.translation-field--translated(
+        :model-value="_resolveEntry(item).translatedText"
+        variant="outlined"
+        density="comfortable"
+        :rows="_resolveTextareaRows(_resolveEntry(item).sourceText)"
+        auto-grow
+        hide-details
+        :data-testid="`miz-entry-translation-${_resolveEntry(item).key}`"
+        @update:model-value="_handleTranslatedTextChange(_resolveEntry(item).key, String($event ?? ''))"
+      )
 
   template(v-slot:no-data)
     v-alert.my-4(type="info" variant="tonal") 表示できる翻訳項目がありません。
@@ -365,16 +367,11 @@ v-data-table.miz-translation-table(
   }
 }
 
-.source-cell {
-  position: relative;
-  min-height: 3rem;
-  width: 100%;
+.translated-cell {
+  min-height: 100%;
 }
 
 .copy-button {
-  position: absolute;
-  top: 0;
-  right: 0;
   z-index: 1;
   visibility: hidden;
 
@@ -384,15 +381,35 @@ v-data-table.miz-translation-table(
 }
 
 .key-cell {
-  display: flex;
-  align-items: center;
-  min-height: 2.5rem;
-
   &-text {
     display: block;
     max-width: none;
-    white-space: nowrap;
-    word-break: normal;
   }
+}
+
+:deep(.translation-field--translated) {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 100%;
+}
+
+:deep(.translation-field--translated .v-input__control) {
+  display: flex;
+  flex: 1 1 auto;
+}
+
+:deep(.translation-field--translated .v-field) {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 100%;
+}
+
+:deep(.translation-field--translated .v-field__field) {
+  flex: 1 1 auto;
+  min-height: 100%;
+}
+
+:deep(.translation-field--translated textarea) {
+  min-height: 100%;
 }
 </style>

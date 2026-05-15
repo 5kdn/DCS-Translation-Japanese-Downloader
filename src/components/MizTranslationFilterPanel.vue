@@ -32,6 +32,9 @@ const _props = withDefaults(defineProps<MizTranslationFilterPanelProps>(), {
   totalEntryCount: 0,
 });
 
+/**
+ * @summary MIZ 翻訳フィルターパネル emits を表す。
+ */
 type MizTranslationFilterPanelEmits = {
   'update:show-enabled': [value: boolean];
   'update:show-disabled': [value: boolean];
@@ -42,6 +45,9 @@ type MizTranslationFilterPanelEmits = {
 
 const emit = defineEmits<MizTranslationFilterPanelEmits>();
 
+/**
+ * @summary MIZ 翻訳フィルターパネルの emit 関数型を表す。
+ */
 type MizTranslationFilterPanelEmit = <K extends keyof MizTranslationFilterPanelEmits>(
   eventName: K,
   ...args: MizTranslationFilterPanelEmits[K]
@@ -77,10 +83,29 @@ const createBooleanEmitter = <K extends MizTranslationFilterUpdateEventName>(
   };
 };
 
+/**
+ * @summary 有効状態の表示設定変更を親へ通知する。
+ */
 const _handleShowEnabledChange = createBooleanEmitter('update:show-enabled');
+
+/**
+ * @summary 無効状態の表示設定変更を親へ通知する。
+ */
 const _handleShowDisabledChange = createBooleanEmitter('update:show-disabled');
+
+/**
+ * @summary 未翻訳項目のみを表示する設定変更を親へ通知する。
+ */
 const _handleShowOnlyUntranslatedChange = createBooleanEmitter('update:show-only-untranslated');
+
+/**
+ * @summary 翻訳対象外項目を非表示にする設定変更を親へ通知する。
+ */
 const _handleHideNonTranslatableChange = createBooleanEmitter('update:hide-non-translatable');
+
+/**
+ * @summary 原文が空の項目を非表示にする設定変更を親へ通知する。
+ */
 const _handleHideEmptySourceTextChange = createBooleanEmitter('update:hide-empty-source-text');
 </script>
 
