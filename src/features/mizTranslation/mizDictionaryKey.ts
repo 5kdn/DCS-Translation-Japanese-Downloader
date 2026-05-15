@@ -31,8 +31,18 @@ export const isTranslatableDictionaryKey = (key: string): boolean => {
 /**
  * @summary dictionary entry の初期有効状態を判定する。
  * @param key 判定対象の key を指定する。
- * @returns 翻訳対象 key の場合のみ true を返す。
+ * @param sourceText 判定対象の原文文字列を指定する。
+ * @returns 翻訳対象 key かつ原文が空欄でない場合のみ true を返す。
  */
-export const getInitialEnabledState = (key: string): boolean => {
-  return isTranslatableDictionaryKey(key);
+export const getInitialEnabledState = (key: string, sourceText: string): boolean => {
+  return isTranslatableDictionaryKey(key) && !isBlankDictionarySourceText(sourceText);
+};
+
+/**
+ * @summary dictionary 原文が空欄か判定する。
+ * @param sourceText 判定対象の原文文字列を指定する。
+ * @returns 空文字または空白文字だけの場合は true を返す。
+ */
+export const isBlankDictionarySourceText = (sourceText: string): boolean => {
+  return sourceText.trim().length === 0;
 };

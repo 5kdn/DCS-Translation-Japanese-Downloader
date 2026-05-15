@@ -6,8 +6,11 @@ import type {
 import { readMizArchiveDictionarySource } from '@/features/mizTranslation/mizArchiveReader';
 import type { MizDictionaryEntry } from '@/features/mizTranslation/mizDictionaryModels';
 import {
+  type MizDictionaryDocument,
   parseMizDictionaryDocument,
   parseMizDictionaryEntries,
+  parseMizDictionaryValues,
+  rebuildMizDictionary,
   serializeMizDictionary,
 } from '@/features/mizTranslation/mizDictionaryParser';
 
@@ -19,7 +22,7 @@ const DICTIONARY_DOWNLOAD_FILE_NAME = 'dictionary';
 /**
  * @summary dictionary ダウンロード payload に付与する MIME type を表す。
  */
-const DICTIONARY_DOWNLOAD_MIME_TYPE = 'text/plain;charset=utf-8';
+const DICTIONARY_DOWNLOAD_MIME_TYPE = 'application/octet-stream';
 
 /**
  * @summary MIZ から抽出した dictionary ソースを返す。
@@ -70,4 +73,49 @@ export const buildDictionaryDownloadPayloadFromEntries = (
   entries: ReadonlyArray<Pick<MizDictionaryEntry, 'key' | 'translatedText'>>,
 ): MizDictionaryDownloadPayload => {
   return buildDictionaryDownloadPayload(serializeMizDictionary(entries));
+};
+
+/**
+ * @summary dictionary 文字列を既存翻訳 import 用の key/value 一覧へ変換する。
+ * @param source 読込対象の dictionary 文字列を指定する。
+ * @returns key 重複時に後勝ちを適用した value 一覧を返す。
+ */
+export const parseImportedDictionaryValues = (source: string): Map<string, string> => {
+  return parseMizDictionaryValues(source);
+};
+
+/**
+ * @summary 編集状態から `l10n/JP/dictionary` 用の再構築文字列を生成する。
+ * @param document 元 `l10n/DEFAULT/dictionary` の文書表現を指定する。
+ * @param entries 現在の編集状態を指定する。
+ * @returns コメントと並び順を維持した dictionary 文字列を返す。
+ */
+export const buildMizTranslatedDictionaryContent = (
+  document: MizDictionaryDocument,
+  entries: ReadonlyArray<MizDictionaryEntry>,
+): string => {
+  const replacements = new Map<string, string>();
+
+  for (const entry of entries) {
+    if (!entry.enabled || !entry.isTranslatable || entry.translatedText === '') {
+      continue;
+    }
+
+    replacements.set(entry.key, entry.translatedText);
+  }
+
+  return rebuildMizDictionary(document, replacements);
+};
+
+/**
+ * @summary 編集状態から再構築済み dictionary のダウンロード payload を構築する。
+ * @param document 元 `l10n/DEFAULT/dictionary` の文書表現を指定する。
+ * @param entries 現在の編集状態を指定する。
+ * @returns 保存用 Blob とファイル名、MIME type を返す。
+ */
+export const buildDictionaryDownloadPayloadFromDocument = (
+  document: MizDictionaryDocument,
+  entries: ReadonlyArray<MizDictionaryEntry>,
+): MizDictionaryDownloadPayload => {
+  return buildDictionaryDownloadPayload(buildMizTranslatedDictionaryContent(document, entries));
 };

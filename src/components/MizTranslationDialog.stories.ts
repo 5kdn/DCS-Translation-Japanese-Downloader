@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite';
-import { expect, userEvent, waitFor, within } from 'storybook/test';
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { defineComponent, ref } from 'vue';
 import MizTranslationDialog from './MizTranslationDialog.vue';
 
@@ -26,6 +26,10 @@ const meta = {
   title: 'MizTranslation/MizTranslationDialog',
   component: MizTranslationDialog,
   tags: ['autodocs'],
+  argTypes: {
+    'onImport-dictionary': { action: 'import-dictionary' },
+    'onDownload-dictionary': { action: 'download-dictionary' },
+  },
   args: {
     modelValue: true,
     loadedFileName: 'briefing.miz',
@@ -35,16 +39,41 @@ const meta = {
     filter: sampleFilter,
     visibleEntryCount: sampleEntries.length,
     totalEntryCount: sampleEntries.length,
+    'onImport-dictionary': fn(),
+    'onDownload-dictionary': fn(),
   },
   render: (args) =>
     defineComponent({
       components: { MizTranslationDialog },
       setup: () => {
         const isOpen = ref(args.modelValue);
+        const importedFileName = ref('not imported');
+        const downloadCount = ref(0);
+
+        /**
+         * @summary dictionary import イベントを Storybook action と表示状態へ反映する。
+         * @param file 読み込まれた dictionary ファイルを指定する。
+         */
+        const handleImportDictionary = (file: File): void => {
+          importedFileName.value = file.name;
+          args['onImport-dictionary']?.(file);
+        };
+
+        /**
+         * @summary dictionary download イベントを Storybook action と表示状態へ反映する。
+         */
+        const handleDownloadDictionary = (): void => {
+          downloadCount.value += 1;
+          args['onDownload-dictionary']?.();
+        };
 
         return {
           args,
           isOpen,
+          importedFileName,
+          downloadCount,
+          handleImportDictionary,
+          handleDownloadDictionary,
         };
       },
       template: `
@@ -59,8 +88,12 @@ const meta = {
             :visible-entry-count="args.visibleEntryCount"
             :total-entry-count="args.totalEntryCount"
             @update:modelValue="isOpen = $event"
+            @import-dictionary="handleImportDictionary"
+            @download-dictionary="handleDownloadDictionary"
           />
           <output data-testid="miz-dialog-open-state">{{ isOpen ? 'open' : 'closed' }}</output>
+          <output data-testid="miz-dialog-imported-file">{{ importedFileName }}</output>
+          <output data-testid="miz-dialog-download-count">{{ downloadCount }}</output>
         </div>
       `,
     }),
@@ -84,6 +117,8 @@ export const Default: Story = {
     await expect(dialogScope.getByTestId('miz-dialog-information')).toHaveTextContent(
       'Lua コードが翻訳対象となっている可能性があります。',
     );
+    await expect(dialogScope.getByTestId('miz-dialog-import-button')).toBeInTheDocument();
+    await expect(dialogScope.getByTestId('miz-dialog-download-button')).toBeInTheDocument();
   },
 };
 
@@ -120,5 +155,92 @@ export const CloseInteraction: Story = {
     await waitFor(() => {
       expect(canvas.getByTestId('miz-dialog-open-state')).toHaveTextContent('closed');
     });
+  },
+};
+
+export const ImportExportActions: Story = {
+  play: async ({ canvasElement }): Promise<void> => {
+    const dialogScope = within(canvasElement.ownerDocument.body);
+    const canvas = within(canvasElement);
+    const user = userEvent.setup({ pointerEventsCheck: 0 });
+    const importInput = dialogScope.getByTestId('miz-dialog-dictionary-input') as HTMLInputElement;
+    const importButton = dialogScope.getByTestId('miz-dialog-import-button');
+    const downloadButton = dialogScope.getByTestId('miz-dialog-download-button');
+    const file = new File(['dictionary = {}'], 'dictionary', { type: 'text/plain' });
+
+    Object.defineProperty(importInput, 'files', {
+      configurable: true,
+      value: [file],
+    });
+
+    await user.click(importButton);
+    importInput.dispatchEvent(new Event('change', { bubbles: true }));
+    await user.click(downloadButton);
+
+    await waitFor(() => {
+      expect(canvas.getByTestId('miz-dialog-imported-file')).toHaveTextContent('dictionary');
+      expect(canvas.getByTestId('miz-dialog-download-count')).toHaveTextContent('1');
+    });
+  },
+};
+
+export const FilteredOutEntries: Story = {
+  args: {
+    entries: [],
+    visibleEntryCount: 0,
+    totalEntryCount: 2,
+  },
+  play: async ({ canvasElement }): Promise<void> => {
+    const dialogScope = within(canvasElement.ownerDocument.body);
+
+    await expect(dialogScope.getByTestId('miz-dialog-download-button')).toBeEnabled();
+    await expect(dialogScope.getByText('表示できる翻訳項目がありません。')).toBeInTheDocument();
+  },
+};
+
+export const BlankSourceEntries: Story = {
+  args: {
+    entries: [
+      {
+        key: 'DictKey_6',
+        sourceText: '',
+        translatedText: '',
+        enabled: false,
+        isDictionaryKey: true,
+        isTranslatable: true,
+      },
+      {
+        key: 'DictKey_7',
+        sourceText: '   ',
+        translatedText: '',
+        enabled: false,
+        isDictionaryKey: true,
+        isTranslatable: true,
+      },
+      {
+        key: 'DictKey_8',
+        sourceText: 'Alpha',
+        translatedText: '',
+        enabled: true,
+        isDictionaryKey: true,
+        isTranslatable: true,
+      },
+    ],
+    visibleEntryCount: 3,
+    totalEntryCount: 3,
+  },
+  play: async ({ canvasElement }): Promise<void> => {
+    const dialogScope = within(canvasElement.ownerDocument.body);
+    const enabledInput6 = dialogScope.getByTestId('miz-entry-enabled-DictKey_6').querySelector('input');
+    const enabledInput7 = dialogScope.getByTestId('miz-entry-enabled-DictKey_7').querySelector('input');
+    const enabledInput8 = dialogScope.getByTestId('miz-entry-enabled-DictKey_8').querySelector('input');
+
+    await expect(dialogScope.getByTestId('miz-dialog-download-button')).toBeEnabled();
+    await expect(dialogScope.getByText('DictKey_6')).toBeInTheDocument();
+    await expect(dialogScope.getByText('DictKey_7')).toBeInTheDocument();
+    await expect(dialogScope.getByText('DictKey_8')).toBeInTheDocument();
+    await expect(enabledInput6).not.toBeChecked();
+    await expect(enabledInput7).not.toBeChecked();
+    await expect(enabledInput8).toBeChecked();
   },
 };

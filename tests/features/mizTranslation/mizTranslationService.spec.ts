@@ -1,9 +1,12 @@
 import JSZip from 'jszip';
 import { describe, expect, it } from 'vitest';
-import { MizDictionaryParseError } from '@/features/mizTranslation/mizDictionaryParser';
+import { MizDictionaryParseError, parseMizDictionaryDocument } from '@/features/mizTranslation/mizDictionaryParser';
 import {
   buildDictionaryDownloadPayload,
+  buildDictionaryDownloadPayloadFromDocument,
   buildDictionaryDownloadPayloadFromEntries,
+  buildMizTranslatedDictionaryContent,
+  parseImportedDictionaryValues,
   readMizDictionaryEntries,
   readMizDictionarySource,
 } from '@/features/mizTranslation/mizTranslationService';
@@ -87,8 +90,8 @@ describe('mizTranslationService', () => {
     const result = buildDictionaryDownloadPayload(content);
 
     expect(result.fileName).toBe('dictionary');
-    expect(result.mimeType).toBe('text/plain;charset=utf-8');
-    expect(result.blob.type).toBe('text/plain;charset=utf-8');
+    expect(result.mimeType).toBe('application/octet-stream');
+    expect(result.blob.type).toBe('application/octet-stream');
     expect(await result.blob.text()).toBe(content);
     expect((await result.blob.text()).charCodeAt(0)).not.toBe(0xfeff);
   });
@@ -100,9 +103,84 @@ describe('mizTranslationService', () => {
     ]);
 
     expect(result.fileName).toBe('dictionary');
-    expect(result.mimeType).toBe('text/plain;charset=utf-8');
+    expect(result.mimeType).toBe('application/octet-stream');
     expect(await result.blob.text()).toBe(
-      ['dictionary = {', '  ["DictKey_1"] = "翻訳1",', '  ["DictKey_2"] = "line1\\nline2",', '}'].join('\n'),
+      ['dictionary = {', '  ["DictKey_1"] = "翻訳1",', '  ["DictKey_2"] = "line1\\', 'line2",', '}'].join('\n'),
     );
+  });
+
+  it('import 用 dictionary は重複 key を後勝ちで解釈する', () => {
+    const source = ['dictionary = {', '  ["DictKey_1"] = "old",', '  ["DictKey_1"] = "new",', '}'].join('\n');
+
+    expect([...parseImportedDictionaryValues(source).entries()]).toEqual([['DictKey_1', 'new']]);
+  });
+
+  it('DEFAULT 文書のコメントと並び順を維持したまま有効な翻訳だけを再構築する', () => {
+    const source = [
+      'dictionary = {',
+      '  -- keep comment',
+      '  ["DictKey_1"] = "Alpha",',
+      '  ["DictKey_WptName_2"] = "Bravo",',
+      '  ["DictKey_3"] = "Charlie",',
+      '}',
+    ].join('\n');
+    const result = {
+      document: parseMizDictionaryDocument(source),
+      entries: [
+        {
+          key: 'DictKey_1',
+          sourceText: 'Alpha',
+          translatedText: '翻訳1',
+          enabled: true,
+          isDictionaryKey: true,
+          isTranslatable: true,
+        },
+        {
+          key: 'DictKey_WptName_2',
+          sourceText: 'Bravo',
+          translatedText: '非対象',
+          enabled: true,
+          isDictionaryKey: true,
+          isTranslatable: false,
+        },
+        {
+          key: 'DictKey_3',
+          sourceText: 'Charlie',
+          translatedText: '',
+          enabled: true,
+          isDictionaryKey: true,
+          isTranslatable: true,
+        },
+      ],
+    };
+
+    expect(buildMizTranslatedDictionaryContent(result.document, result.entries)).toBe(
+      [
+        'dictionary = {',
+        '  -- keep comment',
+        '  ["DictKey_1"] = "翻訳1",',
+        '  ["DictKey_WptName_2"] = "Bravo",',
+        '  ["DictKey_3"] = "Charlie",',
+        '}',
+      ].join('\n'),
+    );
+  });
+
+  it('document ベースの payload 生成で再構築結果を返す', async () => {
+    const source = ['dictionary = {', '  ["DictKey_1"] = "Alpha",', '}'].join('\n');
+    const document = parseMizDictionaryDocument(source);
+
+    const payload = buildDictionaryDownloadPayloadFromDocument(document, [
+      {
+        key: 'DictKey_1',
+        sourceText: 'Alpha',
+        translatedText: '翻訳1',
+        enabled: true,
+        isDictionaryKey: true,
+        isTranslatable: true,
+      },
+    ]);
+
+    expect(await payload.blob.text()).toBe(['dictionary = {', '  ["DictKey_1"] = "翻訳1",', '}'].join('\n'));
   });
 });

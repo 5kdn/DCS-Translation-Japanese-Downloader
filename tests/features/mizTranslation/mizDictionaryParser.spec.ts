@@ -42,6 +42,43 @@ describe('mizDictionaryParser', () => {
     ]);
   });
 
+  it('翻訳対象 key でも空欄原文の項目は初期有効状態を false にする', () => {
+    const source = [
+      'dictionary = {',
+      '  ["DictKey_6"] = "",',
+      '  ["DictKey_7"] = "   ",',
+      '  ["DictKey_8"] = "Alpha",',
+      '}',
+    ].join('\n');
+
+    expect(parseMizDictionaryEntries(source)).toEqual<MizDictionaryEntry[]>([
+      {
+        key: 'DictKey_6',
+        sourceText: '',
+        translatedText: '',
+        enabled: false,
+        isDictionaryKey: true,
+        isTranslatable: true,
+      },
+      {
+        key: 'DictKey_7',
+        sourceText: '   ',
+        translatedText: '',
+        enabled: false,
+        isDictionaryKey: true,
+        isTranslatable: true,
+      },
+      {
+        key: 'DictKey_8',
+        sourceText: 'Alpha',
+        translatedText: '',
+        enabled: true,
+        isDictionaryKey: true,
+        isTranslatable: true,
+      },
+    ]);
+  });
+
   it('複数行値をデコードして key 重複時は後勝ちにする', () => {
     const source = ['dictionary = {', '  ["DictKey_1"] = "old",', '  ["DictKey_1"] = "line1\\nline2",', '}'].join('\n');
 
@@ -94,9 +131,14 @@ describe('mizDictionaryParser', () => {
 
     expect(result.charCodeAt(0)).not.toBe(0xfeff);
     expect(result).toBe(
-      ['dictionary = {', '  ["DictKey_1"] = "Alpha",', '  ["DictKey_2"] = "line1\\nline2",', '  ["DictKey_3"] = "",', '}'].join(
-        '\n',
-      ),
+      [
+        'dictionary = {',
+        '  ["DictKey_1"] = "Alpha",',
+        '  ["DictKey_2"] = "line1\\',
+        'line2",',
+        '  ["DictKey_3"] = "",',
+        '}',
+      ].join('\n'),
     );
   });
 
@@ -119,7 +161,7 @@ describe('mizDictionaryParser', () => {
     );
 
     expect(rebuilt).toBe(
-      ['dictionary = {', '  -- keep comment', '  ["DictKey_1"] = "翻訳1",', '  ["DictKey_2"] = "line1\\nline2",', '}'].join(
+      ['dictionary = {', '  -- keep comment', '  ["DictKey_1"] = "翻訳1",', '  ["DictKey_2"] = "line1\\', 'line2",', '}'].join(
         '\n',
       ),
     );

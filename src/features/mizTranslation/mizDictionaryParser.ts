@@ -54,7 +54,7 @@ export const parseMizDictionaryEntries = (source: string): MizDictionaryEntry[] 
       key: entry.key,
       sourceText: entry.value,
       translatedText: '',
-      enabled: getInitialEnabledState(entry.key),
+      enabled: getInitialEnabledState(entry.key, entry.value),
       isDictionaryKey: isDictionaryKey(entry.key),
       isTranslatable: isTranslatableDictionaryKey(entry.key),
     });

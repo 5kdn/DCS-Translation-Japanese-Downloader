@@ -5,7 +5,7 @@ import associate_miz_with_zip from '@/assets/associate_miz_with_zip.reg.txt?raw'
 import { useDownloadListState } from '@/composables/useDownloadListState';
 import { useMizTranslationState } from '@/composables/useMizTranslationState';
 import { toErrorMessageForDisplay } from '@/errors/errorMessage';
-import { readMizDictionaryEntries } from '@/features/mizTranslation/mizTranslationService';
+import { parseImportedDictionaryValues, readMizDictionaryEntries } from '@/features/mizTranslation/mizTranslationService';
 import type { UploadDialogSubmitPayload } from '@/features/upload/uploadDialogSubmit';
 import type { CreatePrResponse } from '@/lib/client';
 import { fetchCreatePr, fetchTree, healthCheck } from '@/lib/client';
@@ -43,11 +43,14 @@ const {
   closeDialog: _closeMizDialog,
   setEntryEnabled: _setMizEntryEnabled,
   setEntryTranslatedText: _setMizEntryTranslatedText,
+  replaceTranslationsFromDictionary: _replaceMizTranslationsFromDictionary,
   setShowEnabled: _setMizShowEnabled,
   setShowDisabled: _setMizShowDisabled,
   setShowOnlyUntranslated: _setMizShowOnlyUntranslated,
   setHideNonTranslatable: _setMizHideNonTranslatable,
   setHideEmptySourceText: _setMizHideEmptySourceText,
+  buildDownloadPayload: _buildMizDownloadPayload,
+  markDownloadSucceeded: _markMizDownloadSucceeded,
 } = useMizTranslationState();
 
 const _activeCategoryKey = computed({
@@ -187,6 +190,42 @@ const _handleMizEntryToggleEnabled = (key: string, value: boolean): void => {
  */
 const _handleMizEntryTranslationUpdate = (key: string, value: string): void => {
   _setMizEntryTranslatedText(key, value);
+};
+
+/**
+ * @summary 既存 dictionary を読み込み、翻訳列へ反映する。
+ * @param file 読込対象の dictionary ファイルを指定する。
+ */
+const _handleMizDictionaryImport = async (file: File): Promise<void> => {
+  try {
+    const source = await file.text();
+    const importedValues = parseImportedDictionaryValues(source);
+    _replaceMizTranslationsFromDictionary(importedValues);
+    _clearMizErrorMessage();
+  } catch (error: unknown) {
+    _setMizErrorMessage(toErrorMessage(error));
+  }
+};
+
+/**
+ * @summary 現在の編集内容を dictionary としてダウンロードする。
+ */
+const _handleMizDictionaryDownload = (): void => {
+  try {
+    const payload = _buildMizDownloadPayload();
+    const url = URL.createObjectURL(payload.blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = payload.fileName;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    setTimeout((): void => URL.revokeObjectURL(url), 500);
+    _markMizDownloadSucceeded();
+    _clearMizErrorMessage();
+  } catch (error: unknown) {
+    _setMizErrorMessage(toErrorMessage(error));
+  }
 };
 
 /**
@@ -378,6 +417,8 @@ v-app
         @update:hide-empty-source-text="_handleMizHideEmptySourceTextUpdate"
         @toggle-enabled="_handleMizEntryToggleEnabled"
         @update-translation="_handleMizEntryTranslationUpdate"
+        @import-dictionary="_handleMizDictionaryImport"
+        @download-dictionary="_handleMizDictionaryDownload"
         @error="_handleMizDialogError"
       )
 

@@ -51,6 +51,46 @@ describe('useMizTranslationState', () => {
     });
   });
 
+  it('空原文の翻訳対象行は初期状態で未チェックになる', async () => {
+    const mizFile = await createMizFile([
+      {
+        path: 'l10n/DEFAULT/dictionary',
+        content: 'dictionary = {\n  ["DictKey_6"] = "",\n  ["DictKey_7"] = "   ",\n  ["DictKey_8"] = "Alpha",\n}',
+      },
+    ]);
+    const result = await readMizDictionaryEntries(mizFile);
+    const state = useMizTranslationState();
+
+    state.loadMizResult(result);
+
+    expect(state.entries.value).toEqual([
+      {
+        key: 'DictKey_6',
+        sourceText: '',
+        translatedText: '',
+        enabled: false,
+        isDictionaryKey: true,
+        isTranslatable: true,
+      },
+      {
+        key: 'DictKey_7',
+        sourceText: '   ',
+        translatedText: '',
+        enabled: false,
+        isDictionaryKey: true,
+        isTranslatable: true,
+      },
+      {
+        key: 'DictKey_8',
+        sourceText: 'Alpha',
+        translatedText: '',
+        enabled: true,
+        isDictionaryKey: true,
+        isTranslatable: true,
+      },
+    ]);
+  });
+
   it('needsCloseConfirmation はダイアログ open かつ dirty のときだけ true になる', async () => {
     const mizFile = await createMizFile([
       { path: 'l10n/DEFAULT/dictionary', content: 'dictionary = {\n  ["DictKey_1"] = "Alpha",\n}' },
@@ -119,6 +159,54 @@ describe('useMizTranslationState', () => {
     expect(state.filteredEntries.value.map((entry) => entry.key)).toEqual(['DictKey_1']);
     expect(state.visibleEntryCount.value).toBe(1);
     expect(state.totalEntryCount.value).toBe(2);
+  });
+
+  it('dictionary import 後は dirty を維持し、download 成功後に解消する', async () => {
+    const mizFile = await createMizFile([
+      {
+        path: 'l10n/DEFAULT/dictionary',
+        content: `dictionary = {
+  ["DictKey_1"] = "Alpha",
+  ["DictKey_2"] = "Bravo",
+}`,
+      },
+    ]);
+    const result = await readMizDictionaryEntries(mizFile);
+    const state = useMizTranslationState();
+
+    state.loadMizResult(result);
+    expect(state.hasUnsavedChanges.value).toBe(false);
+
+    state.replaceTranslationsFromDictionary(
+      new Map([
+        ['DictKey_1', '翻訳1'],
+        ['DictKey_3', 'ignored'],
+      ]),
+    );
+
+    expect(state.entries.value).toEqual([
+      {
+        key: 'DictKey_1',
+        sourceText: 'Alpha',
+        translatedText: '翻訳1',
+        enabled: true,
+        isDictionaryKey: true,
+        isTranslatable: true,
+      },
+      {
+        key: 'DictKey_2',
+        sourceText: 'Bravo',
+        translatedText: '',
+        enabled: true,
+        isDictionaryKey: true,
+        isTranslatable: true,
+      },
+    ]);
+    expect(state.hasUnsavedChanges.value).toBe(true);
+
+    state.markDownloadSucceeded();
+
+    expect(state.hasUnsavedChanges.value).toBe(false);
   });
 
   it('resetAll で state を初期値へ戻す', async () => {

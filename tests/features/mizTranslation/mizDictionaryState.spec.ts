@@ -22,6 +22,7 @@ describe('mizDictionaryState', () => {
       createEntry({ key: 'DictKey_2', enabled: false, translatedText: '' }),
       createEntry({ key: 'DictKey_WptName_3', enabled: false, isTranslatable: false, translatedText: '' }),
       createEntry({ key: 'DictKey_4', sourceText: '', translatedText: '' }),
+      createEntry({ key: 'DictKey_6', sourceText: '   ', translatedText: '' }),
       createEntry({ key: 'DictKey_5', translatedText: '翻訳済み' }),
     ];
     const filter: MizDictionaryFilter = {
@@ -33,6 +34,24 @@ describe('mizDictionaryState', () => {
     };
 
     expect(applyMizDictionaryFilter(entries, filter).map((entry) => entry.key)).toEqual(['DictKey_1']);
+  });
+
+  it('空欄非表示は空文字だけでなく空白のみの原文にも適用する', () => {
+    const entries = [
+      createEntry({ key: 'DictKey_1', sourceText: '' }),
+      createEntry({ key: 'DictKey_2', sourceText: '   ' }),
+      createEntry({ key: 'DictKey_3', sourceText: '\n\t' }),
+      createEntry({ key: 'DictKey_4', sourceText: 'Alpha' }),
+    ];
+    const filter: MizDictionaryFilter = {
+      showEnabled: true,
+      showDisabled: true,
+      showOnlyUntranslated: false,
+      hideNonTranslatable: false,
+      hideEmptySourceText: true,
+    };
+
+    expect(applyMizDictionaryFilter(entries, filter).map((entry) => entry.key)).toEqual(['DictKey_4']);
   });
 
   it('enabled と translatedText の差分だけを dirty として判定する', () => {

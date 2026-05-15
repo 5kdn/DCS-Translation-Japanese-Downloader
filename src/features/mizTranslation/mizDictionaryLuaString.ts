@@ -123,8 +123,9 @@ export const decodeLuaStringLiteral = (literal: string): string => {
  */
 export const encodeLuaStringLiteral = (value: string): string => {
   let encoded = '"';
+  const normalizedValue = value.replaceAll('\r\n', '\n').replaceAll('\r', '\n');
 
-  for (const char of value) {
+  for (const char of normalizedValue) {
     if (LUA_REVERSE_ESCAPE_SEQUENCES[char] !== undefined) {
       encoded += LUA_REVERSE_ESCAPE_SEQUENCES[char];
       continue;
@@ -160,7 +161,7 @@ const LUA_REVERSE_ESCAPE_SEQUENCES: Record<string, string> = {
   '\u0007': '\\a',
   '\b': '\\b',
   '\f': '\\f',
-  '\n': '\\n',
+  '\n': '\\\n',
   '\r': '\\r',
   '\t': '\\t',
   '\v': '\\v',

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, defineAsyncComponent } from 'vue';
+import { computed, defineAsyncComponent, useTemplateRef } from 'vue';
 import type { MizDictionaryEntry, MizDictionaryFilter } from '@/features/mizTranslation/mizDictionaryModels';
 
 /**
@@ -49,8 +49,15 @@ const emit = defineEmits<{
   (e: 'update:hide-empty-source-text', value: boolean): void;
   (e: 'toggle-enabled', key: string, value: boolean): void;
   (e: 'update-translation', key: string, value: string): void;
+  (e: 'import-dictionary', file: File): void;
+  (e: 'download-dictionary'): void;
   (e: 'error', message: string): void;
 }>();
+
+/**
+ * @summary dictionary import 用 file input 参照を保持する。
+ */
+const _dictionaryInput = useTemplateRef<HTMLInputElement>('dictionaryInput');
 
 /**
  * @summary エラー alert の表示要否を返す。
@@ -107,6 +114,53 @@ const _handleTableError = (message: string): void => {
   emit('error', message);
 };
 
+/**
+ * @summary import 実行可否を返す。
+ */
+const _canImportDictionary = computed((): boolean => {
+  return !props.isLoading;
+});
+
+/**
+ * @summary download 実行可否を返す。
+ */
+const _canDownloadDictionary = computed((): boolean => {
+  return !props.isLoading && props.totalEntryCount > 0;
+});
+
+/**
+ * @summary dictionary 読み込み用ファイル選択ダイアログを開く。
+ */
+const _openDictionaryImportPicker = (): void => {
+  if (!_canImportDictionary.value) return;
+  _dictionaryInput.value?.click();
+};
+
+/**
+ * @summary 選択された dictionary ファイルを親へ通知する。
+ * @param event file input change event を指定する。
+ */
+const _handleDictionaryInputChange = (event: Event): void => {
+  const input = event.target;
+  const file = input instanceof HTMLInputElement ? (input.files?.[0] ?? null) : null;
+
+  if (file !== null) {
+    emit('import-dictionary', file);
+  }
+
+  if (input instanceof HTMLInputElement) {
+    input.value = '';
+  }
+};
+
+/**
+ * @summary dictionary ダウンロード要求を親へ通知する。
+ */
+const _handleDownloadDictionary = (): void => {
+  if (!_canDownloadDictionary.value) return;
+  emit('download-dictionary');
+};
+
 const _handleShowEnabledUpdate = (value: boolean): void => {
   emit('update:show-enabled', value);
 };
@@ -131,11 +185,34 @@ const _handleHideEmptySourceTextUpdate = (value: boolean): void => {
 <template lang="pug">
 v-dialog(v-model="_dialogModel" fullscreen)
   v-card
+    input(
+      ref="dictionaryInput"
+      data-testid="miz-dialog-dictionary-input"
+      type="file"
+      accept=".lua,.txt,.dictionary,dictionary"
+      class="miz-dialog-dictionary-input"
+      @change="_handleDictionaryInputChange"
+    )
+
     v-toolbar(border)
       v-toolbar-title.d-flex.align-center.ga-3
         span.text-h6 MIZ 翻訳
         span.text-body-2.text-medium-emphasis.text-truncate(data-testid="miz-dialog-file-name") {{ loadedFileName || '未選択' }}
       v-spacer
+      v-btn(
+        prepend-icon="mdi-file-import-outline"
+        variant="text"
+        :disabled="!_canImportDictionary"
+        data-testid="miz-dialog-import-button"
+        @click="_openDictionaryImportPicker"
+      ) dictionary を読み込む
+      v-btn(
+        prepend-icon="mdi-download"
+        variant="text"
+        :disabled="!_canDownloadDictionary"
+        data-testid="miz-dialog-download-button"
+        @click="_handleDownloadDictionary"
+      ) dictionary をダウンロード
       v-btn(
         icon="mdi-close"
         variant="text"
@@ -199,3 +276,9 @@ v-dialog(v-model="_dialogModel" fullscreen)
           @error="_handleTableError"
         )
 </template>
+
+<style scoped lang="scss">
+.miz-dialog-dictionary-input {
+  display: none;
+}
+</style>

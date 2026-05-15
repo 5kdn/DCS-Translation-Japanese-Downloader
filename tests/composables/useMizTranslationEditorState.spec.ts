@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { useMizTranslationEditorState } from '@/composables/useMizTranslationEditorState';
 import type { MizDictionaryEntriesResult } from '@/features/mizTranslation/mizArchiveModels';
 import type { MizDictionaryEntry } from '@/features/mizTranslation/mizDictionaryModels';
-import type { MizDictionaryDocument } from '@/features/mizTranslation/mizDictionaryParser';
+import { parseMizDictionaryDocument } from '@/features/mizTranslation/mizDictionaryParser';
 
 const createEntry = (overrides: Partial<MizDictionaryEntry> = {}): MizDictionaryEntry => {
   return {
@@ -17,14 +17,13 @@ const createEntry = (overrides: Partial<MizDictionaryEntry> = {}): MizDictionary
 };
 
 const createResult = (entries: MizDictionaryEntry[]): MizDictionaryEntriesResult => {
+  const source = 'dictionary = {\n  -- keep comment\n  ["DictKey_1"] = "Alpha",\n  ["DictKey_2"] = "Bravo",\n}';
+
   return {
     entries,
-    source: 'dictionary = {}',
+    source,
     fileName: 'sample.miz',
-    document: {
-      source: 'dictionary = {}',
-      entries: [],
-    } satisfies MizDictionaryDocument,
+    document: parseMizDictionaryDocument(source),
   };
 };
 
@@ -74,6 +73,8 @@ describe('useMizTranslationEditorState', () => {
 
     const payload = state.buildDownloadPayload();
 
-    expect(await payload.blob.text()).toBe(['dictionary = {', '  ["DictKey_1"] = "翻訳1",', '}'].join('\n'));
+    expect(await payload.blob.text()).toBe(
+      ['dictionary = {', '  -- keep comment', '  ["DictKey_1"] = "翻訳1",', '  ["DictKey_2"] = "Bravo",', '}'].join('\n'),
+    );
   });
 });

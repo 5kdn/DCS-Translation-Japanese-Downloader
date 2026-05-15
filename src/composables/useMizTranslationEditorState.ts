@@ -2,7 +2,7 @@ import { computed, ref } from 'vue';
 import type { MizDictionaryEntriesResult } from '@/features/mizTranslation/mizArchiveModels';
 import type { MizDictionaryEntry } from '@/features/mizTranslation/mizDictionaryModels';
 import type { MizDictionaryDocument } from '@/features/mizTranslation/mizDictionaryParser';
-import { buildDictionaryDownloadPayloadFromEntries } from '@/features/mizTranslation/mizTranslationService';
+import { buildDictionaryDownloadPayloadFromDocument } from '@/features/mizTranslation/mizTranslationService';
 
 /**
  * @summary MIZ dictionary の編集状態を管理する。
@@ -88,7 +88,11 @@ export const useMizTranslationEditorState = () => {
    * @returns 出力対象行だけを含むダウンロード用 payload を返す。
    */
   const buildDownloadPayload = () => {
-    return buildDictionaryDownloadPayloadFromEntries(exportableEntries.value);
+    if (document.value === null) {
+      throw new Error('dictionary が未読込のためダウンロードできません。');
+    }
+
+    return buildDictionaryDownloadPayloadFromDocument(document.value, entries.value);
   };
 
   /**

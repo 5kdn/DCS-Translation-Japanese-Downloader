@@ -3,15 +3,18 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createApp, defineComponent, h, nextTick } from 'vue';
 import App from '@/App.vue';
+import { parseMizDictionaryDocument } from '@/features/mizTranslation/mizDictionaryParser';
 
-const { healthCheckMock, fetchTreeMock, fetchCreatePrMock, readMizDictionaryEntriesMock } = vi.hoisted(() => {
-  return {
-    healthCheckMock: vi.fn(),
-    fetchTreeMock: vi.fn(),
-    fetchCreatePrMock: vi.fn(),
-    readMizDictionaryEntriesMock: vi.fn(),
-  };
-});
+const { healthCheckMock, fetchTreeMock, fetchCreatePrMock, readMizDictionaryEntriesMock, parseImportedDictionaryValuesMock } =
+  vi.hoisted(() => {
+    return {
+      healthCheckMock: vi.fn(),
+      fetchTreeMock: vi.fn(),
+      fetchCreatePrMock: vi.fn(),
+      readMizDictionaryEntriesMock: vi.fn(),
+      parseImportedDictionaryValuesMock: vi.fn(),
+    };
+  });
 
 vi.mock('@/lib/client', () => {
   return {
@@ -21,9 +24,15 @@ vi.mock('@/lib/client', () => {
   };
 });
 
-vi.mock('@/features/mizTranslation/mizTranslationService', () => {
+vi.mock('@/features/mizTranslation/mizTranslationService', async () => {
+  const actual = await vi.importActual<typeof import('@/features/mizTranslation/mizTranslationService')>(
+    '@/features/mizTranslation/mizTranslationService',
+  );
+
   return {
+    ...actual,
     readMizDictionaryEntries: readMizDictionaryEntriesMock,
+    parseImportedDictionaryValues: parseImportedDictionaryValuesMock,
   };
 });
 
@@ -176,6 +185,8 @@ const mizTranslationDialogStubModule = {
       'update:hide-empty-source-text',
       'toggle-enabled',
       'update-translation',
+      'import-dictionary',
+      'download-dictionary',
       'error',
     ],
     setup(props, { emit }) {
@@ -232,6 +243,22 @@ const mizTranslationDialogStubModule = {
                   onClick: () => emit('update-translation', 'DictKey_1', '翻訳1'),
                 },
                 'translate miz entry',
+              ),
+              h(
+                'button',
+                {
+                  type: 'button',
+                  onClick: () => emit('import-dictionary', new File(['dictionary = {}'], 'dictionary', { type: 'text/plain' })),
+                },
+                'import miz dictionary',
+              ),
+              h(
+                'button',
+                {
+                  type: 'button',
+                  onClick: () => emit('download-dictionary'),
+                },
+                'download miz dictionary',
               ),
               h(
                 'button',
@@ -446,13 +473,11 @@ describe('App', () => {
           isTranslatable: true,
         },
       ],
-      source: 'dictionary = {}',
+      source: 'dictionary = {\n  ["DictKey_1"] = "Alpha",\n}',
       fileName: 'mission.miz',
-      document: {
-        source: 'dictionary = {}',
-        entries: [],
-      },
+      document: parseMizDictionaryDocument('dictionary = {\n  ["DictKey_1"] = "Alpha",\n}'),
     });
+    parseImportedDictionaryValuesMock.mockReturnValue(new Map());
   });
 
   afterEach(() => {
@@ -629,6 +654,168 @@ describe('App', () => {
     expect(container.querySelector('[data-testid="miz-dialog-visible-entry-count"]')?.textContent).toBe('1');
     expect(container.querySelector('[data-testid="miz-dialog-total-entry-count"]')?.textContent).toBe('2');
     expect(parseDialogEntryState(container).map((entry) => entry.key)).toEqual(['DictKey_1']);
+
+    app.unmount();
+  });
+
+  it('dictionary import で一致 key の翻訳だけを更新し、enabled を維持する', async () => {
+    readMizDictionaryEntriesMock.mockResolvedValueOnce({
+      entries: [
+        {
+          key: 'DictKey_1',
+          sourceText: 'Alpha',
+          translatedText: '',
+          enabled: true,
+          isDictionaryKey: true,
+          isTranslatable: true,
+        },
+        {
+          key: 'DictKey_2',
+          sourceText: 'Bravo',
+          translatedText: '',
+          enabled: false,
+          isDictionaryKey: true,
+          isTranslatable: true,
+        },
+      ],
+      source: 'dictionary = {}',
+      fileName: 'mission.miz',
+      document: {
+        source: 'dictionary = {}',
+        entries: [],
+      },
+    });
+    parseImportedDictionaryValuesMock.mockReturnValueOnce(
+      new Map([
+        ['DictKey_1', '翻訳1'],
+        ['DictKey_3', 'ignored'],
+      ]),
+    );
+
+    const { app, container } = await mountApp();
+
+    const selectButton = [...container.querySelectorAll('button')].find((element) => element.textContent === 'select miz');
+    selectButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flushApp();
+
+    const importButton = [...container.querySelectorAll('button')].find(
+      (element) => element.textContent === 'import miz dictionary',
+    );
+    importButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flushApp();
+
+    expect(parseImportedDictionaryValuesMock).toHaveBeenCalledTimes(1);
+    expect(parseDialogEntryState(container)).toEqual([
+      {
+        key: 'DictKey_1',
+        enabled: true,
+        translatedText: '翻訳1',
+      },
+      {
+        key: 'DictKey_2',
+        enabled: false,
+        translatedText: '',
+      },
+    ]);
+
+    app.unmount();
+  });
+
+  it('dictionary download で再構築済み dictionary を生成する', async () => {
+    const createObjectUrlSpy = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:miz-dictionary');
+    const revokeObjectUrlSpy = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined);
+    const anchorClickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined);
+    const appendChildSpy = vi.spyOn(document.body, 'appendChild');
+
+    const { app, container } = await mountApp();
+
+    const selectButton = [...container.querySelectorAll('button')].find((element) => element.textContent === 'select miz');
+    selectButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flushApp();
+
+    const updateButton = [...container.querySelectorAll('button')].find(
+      (element) => element.textContent === 'translate miz entry',
+    );
+    updateButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flushApp();
+
+    const downloadButton = [...container.querySelectorAll('button')].find(
+      (element) => element.textContent === 'download miz dictionary',
+    );
+    downloadButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flushApp();
+
+    expect(anchorClickSpy).toHaveBeenCalledTimes(1);
+    expect(createObjectUrlSpy).toHaveBeenCalledTimes(1);
+    expect(await (createObjectUrlSpy.mock.calls[0]?.[0] as Blob).text()).toBe(
+      ['dictionary = {', '  ["DictKey_1"] = "翻訳1",', '}'].join('\n'),
+    );
+    const appendedAnchor = appendChildSpy.mock.calls.find((call) => call[0] instanceof HTMLAnchorElement)?.[0] as
+      | HTMLAnchorElement
+      | undefined;
+    expect(appendedAnchor?.download).toBe('dictionary');
+    expect(container.querySelector('[data-testid="miz-entry-error"]')?.textContent).toBe('');
+
+    createObjectUrlSpy.mockRestore();
+    revokeObjectUrlSpy.mockRestore();
+    anchorClickSpy.mockRestore();
+    appendChildSpy.mockRestore();
+    app.unmount();
+  });
+
+  it('dictionary download で翻訳文の改行をバックスラッシュと実改行で出力する', async () => {
+    const createObjectUrlSpy = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:miz-dictionary');
+    const revokeObjectUrlSpy = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined);
+    const anchorClickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined);
+    parseImportedDictionaryValuesMock.mockReturnValueOnce(new Map([['DictKey_1', '1行目\n2行目']]));
+
+    const { app, container } = await mountApp();
+
+    const selectButton = [...container.querySelectorAll('button')].find((element) => element.textContent === 'select miz');
+    selectButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flushApp();
+
+    const importButton = [...container.querySelectorAll('button')].find(
+      (element) => element.textContent === 'import miz dictionary',
+    );
+    importButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flushApp();
+
+    const downloadButton = [...container.querySelectorAll('button')].find(
+      (element) => element.textContent === 'download miz dictionary',
+    );
+    downloadButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flushApp();
+
+    expect(anchorClickSpy).toHaveBeenCalledTimes(1);
+    expect(await (createObjectUrlSpy.mock.calls[0]?.[0] as Blob).text()).toBe(
+      ['dictionary = {', '  ["DictKey_1"] = "1行目\\', '2行目",', '}'].join('\n'),
+    );
+
+    createObjectUrlSpy.mockRestore();
+    revokeObjectUrlSpy.mockRestore();
+    anchorClickSpy.mockRestore();
+    app.unmount();
+  });
+
+  it('dictionary import 失敗時は MIZ エラー表示へ反映する', async () => {
+    parseImportedDictionaryValuesMock.mockImplementationOnce(() => {
+      throw new Error('invalid dictionary');
+    });
+
+    const { app, container } = await mountApp();
+
+    const selectButton = [...container.querySelectorAll('button')].find((element) => element.textContent === 'select miz');
+    selectButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flushApp();
+
+    const importButton = [...container.querySelectorAll('button')].find(
+      (element) => element.textContent === 'import miz dictionary',
+    );
+    importButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flushApp();
+
+    expect(container.querySelector('[data-testid="miz-entry-error"]')?.textContent).not.toBe('');
 
     app.unmount();
   });

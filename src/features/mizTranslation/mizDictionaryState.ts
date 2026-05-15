@@ -1,3 +1,4 @@
+import { isBlankDictionarySourceText } from '@/features/mizTranslation/mizDictionaryKey';
 import type { MizDictionaryEntry, MizDictionaryFilter } from '@/features/mizTranslation/mizDictionaryModels';
 
 /**
@@ -15,7 +16,7 @@ export const applyMizDictionaryFilter = (
     if (!entry.enabled && !filter.showDisabled) return false;
     if (filter.showOnlyUntranslated && entry.translatedText !== '') return false;
     if (filter.hideNonTranslatable && !entry.isTranslatable) return false;
-    if (filter.hideEmptySourceText && entry.sourceText === '') return false;
+    if (filter.hideEmptySourceText && isBlankDictionarySourceText(entry.sourceText)) return false;
     return true;
   });
 };
