@@ -37,6 +37,48 @@ describe('useBeforeUnloadGuard', () => {
     scope.stop();
   });
 
+  it('有効時だけ beforeunload handler が preventDefault と returnValue を設定する', async () => {
+    const handlers = new Map<string, EventListener>();
+    const fakeWindow = {
+      addEventListener: vi.fn((eventName: string, handler: EventListener) => {
+        handlers.set(eventName, handler);
+      }),
+      removeEventListener: vi.fn(),
+    };
+    vi.stubGlobal('window', fakeWindow);
+    const hasUnsavedChanges = ref(false);
+    const isDialogOpen = ref(false);
+
+    const scope = effectScope();
+    scope.run(() => {
+      useBeforeUnloadGuard(hasUnsavedChanges, isDialogOpen);
+    });
+
+    const inactiveEvent = {
+      preventDefault: vi.fn(),
+      returnValue: undefined as unknown,
+    } as BeforeUnloadEvent;
+    handlers.get('beforeunload')?.(inactiveEvent);
+
+    expect(inactiveEvent.preventDefault).not.toHaveBeenCalled();
+    expect(inactiveEvent.returnValue).toBeUndefined();
+
+    isDialogOpen.value = true;
+    hasUnsavedChanges.value = true;
+    await nextTick();
+
+    const activeEvent = {
+      preventDefault: vi.fn(),
+      returnValue: undefined as unknown,
+    } as BeforeUnloadEvent;
+    handlers.get('beforeunload')?.(activeEvent);
+
+    expect(activeEvent.preventDefault).toHaveBeenCalledTimes(1);
+    expect(activeEvent.returnValue).toBe('');
+
+    scope.stop();
+  });
+
   it('window が無い環境でも例外を送出しない', () => {
     vi.stubGlobal('window', undefined);
 

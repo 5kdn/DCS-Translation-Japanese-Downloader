@@ -282,6 +282,51 @@ vi.mock('/src/components/MizTranslationDialog.vue', () => {
   return mizTranslationDialogStubModule;
 });
 
+const mizTranslationCloseConfirmDialogStubModule = {
+  __esModule: true,
+  default: defineComponent({
+    name: 'MizTranslationCloseConfirmDialogStub',
+    props: {
+      modelValue: {
+        type: Boolean,
+        required: true,
+      },
+    },
+    emits: ['update:modelValue', 'confirm'],
+    setup(props, { emit }) {
+      return () =>
+        props.modelValue
+          ? h('div', { 'data-testid': 'miz-close-confirm-dialog-stub' }, [
+              h(
+                'button',
+                {
+                  type: 'button',
+                  onClick: () => emit('update:modelValue', false),
+                },
+                'cancel miz close confirm',
+              ),
+              h(
+                'button',
+                {
+                  type: 'button',
+                  onClick: () => emit('confirm'),
+                },
+                'confirm miz close',
+              ),
+            ])
+          : null;
+    },
+  }),
+};
+
+vi.mock('@/components/MizTranslationCloseConfirmDialog.vue', () => {
+  return mizTranslationCloseConfirmDialogStubModule;
+});
+
+vi.mock('/src/components/MizTranslationCloseConfirmDialog.vue', () => {
+  return mizTranslationCloseConfirmDialogStubModule;
+});
+
 const downloadCategoryTabsMockModule = {
   __esModule: true,
   default: defineComponent({
@@ -833,6 +878,108 @@ describe('App', () => {
 
     expect(container.querySelector('[data-testid="miz-dialog-stub"]')).toBeNull();
 
+    app.unmount();
+  });
+
+  it('dirty ありで close すると確認ダイアログを出し、キャンセルで編集状態を維持する', async () => {
+    const { app, container } = await mountApp();
+
+    const selectButton = [...container.querySelectorAll('button')].find((element) => element.textContent === 'select miz');
+    selectButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flushApp();
+
+    const updateButton = [...container.querySelectorAll('button')].find(
+      (element) => element.textContent === 'translate miz entry',
+    );
+    updateButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flushApp();
+
+    const closeButton = [...container.querySelectorAll('button')].find((element) => element.textContent === 'close miz dialog');
+    closeButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flushApp();
+
+    expect(container.querySelector('[data-testid="miz-dialog-stub"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="miz-close-confirm-dialog-stub"]')).not.toBeNull();
+
+    const cancelButton = [...container.querySelectorAll('button')].find(
+      (element) => element.textContent === 'cancel miz close confirm',
+    );
+    cancelButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flushApp();
+
+    expect(container.querySelector('[data-testid="miz-dialog-stub"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="miz-close-confirm-dialog-stub"]')).toBeNull();
+    expect(parseDialogEntryState(container)).toContainEqual({
+      key: 'DictKey_1',
+      enabled: true,
+      translatedText: '翻訳1',
+    });
+
+    app.unmount();
+  });
+
+  it('dirty ありで close 確定すると表示を閉じて state を初期化する', async () => {
+    const { app, container } = await mountApp();
+
+    const selectButton = [...container.querySelectorAll('button')].find((element) => element.textContent === 'select miz');
+    selectButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flushApp();
+
+    const updateButton = [...container.querySelectorAll('button')].find(
+      (element) => element.textContent === 'translate miz entry',
+    );
+    updateButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flushApp();
+
+    const closeButton = [...container.querySelectorAll('button')].find((element) => element.textContent === 'close miz dialog');
+    closeButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flushApp();
+
+    const confirmButton = [...container.querySelectorAll('button')].find(
+      (element) => element.textContent === 'confirm miz close',
+    );
+    confirmButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flushApp();
+
+    expect(container.querySelector('[data-testid="miz-dialog-stub"]')).toBeNull();
+    expect(container.querySelector('[data-testid="miz-close-confirm-dialog-stub"]')).toBeNull();
+
+    app.unmount();
+  });
+
+  it('download 後は確認なしで close する', async () => {
+    const createObjectUrlSpy = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:miz-dictionary');
+    const revokeObjectUrlSpy = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined);
+    const anchorClickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined);
+
+    const { app, container } = await mountApp();
+
+    const selectButton = [...container.querySelectorAll('button')].find((element) => element.textContent === 'select miz');
+    selectButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flushApp();
+
+    const updateButton = [...container.querySelectorAll('button')].find(
+      (element) => element.textContent === 'translate miz entry',
+    );
+    updateButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flushApp();
+
+    const downloadButton = [...container.querySelectorAll('button')].find(
+      (element) => element.textContent === 'download miz dictionary',
+    );
+    downloadButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flushApp();
+
+    const closeButton = [...container.querySelectorAll('button')].find((element) => element.textContent === 'close miz dialog');
+    closeButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flushApp();
+
+    expect(container.querySelector('[data-testid="miz-close-confirm-dialog-stub"]')).toBeNull();
+    expect(container.querySelector('[data-testid="miz-dialog-stub"]')).toBeNull();
+
+    createObjectUrlSpy.mockRestore();
+    revokeObjectUrlSpy.mockRestore();
+    anchorClickSpy.mockRestore();
     app.unmount();
   });
 });

@@ -16,6 +16,7 @@ defineOptions({
     DownloadCategoryTabs: defineAsyncComponent(() => import('./components/DownloadCategoryTabs.vue')),
     Footer: defineAsyncComponent(() => import('./components/Footer.vue')),
     IssueViewer: defineAsyncComponent(() => import('./components/IssueViewer.vue')),
+    MizTranslationCloseConfirmDialog: defineAsyncComponent(() => import('./components/MizTranslationCloseConfirmDialog.vue')),
     MizTranslationDialog: defineAsyncComponent(() => import('./components/MizTranslationDialog.vue')),
     MizTranslationEntrySection: defineAsyncComponent(() => import('./components/MizTranslationEntrySection.vue')),
     Button: defineAsyncComponent(() => import('./components/common/Button.vue')),
@@ -32,6 +33,7 @@ const {
   isLoading: _mizIsLoading,
   errorMessage: _mizErrorMessage,
   loadedFileName: _mizLoadedFileName,
+  isCloseConfirmDialogOpen: _mizIsCloseConfirmDialogOpen,
   filter: _mizFilter,
   filteredEntries: _mizFilteredEntries,
   visibleEntryCount: _mizVisibleEntryCount,
@@ -40,7 +42,6 @@ const {
   setLoading: _setMizLoading,
   loadMizResult: _loadMizResult,
   setErrorMessage: _setMizErrorMessage,
-  closeDialog: _closeMizDialog,
   setEntryEnabled: _setMizEntryEnabled,
   setEntryTranslatedText: _setMizEntryTranslatedText,
   replaceTranslationsFromDictionary: _replaceMizTranslationsFromDictionary,
@@ -51,6 +52,9 @@ const {
   setHideEmptySourceText: _setMizHideEmptySourceText,
   buildDownloadPayload: _buildMizDownloadPayload,
   markDownloadSucceeded: _markMizDownloadSucceeded,
+  requestClose: _requestMizClose,
+  confirmClose: _confirmMizClose,
+  cancelClose: _cancelMizClose,
 } = useMizTranslationState();
 
 const _activeCategoryKey = computed({
@@ -282,7 +286,23 @@ const _handleMizDialogError = (message: string): void => {
  */
 const _handleMizDialogModelUpdate = (value: boolean): void => {
   if (value) return;
-  _closeMizDialog();
+  _requestMizClose();
+};
+
+/**
+ * @summary MIZ 翻訳クローズ確認ダイアログの開閉要求を処理する。
+ * @param value 更新後のダイアログ表示状態を指定する。
+ */
+const _handleMizCloseConfirmDialogModelUpdate = (value: boolean): void => {
+  if (value) return;
+  _cancelMizClose();
+};
+
+/**
+ * @summary MIZ 翻訳のクローズ破棄を確定する。
+ */
+const _handleMizCloseConfirm = (): void => {
+  _confirmMizClose();
 };
 
 /**
@@ -420,6 +440,12 @@ v-app
         @import-dictionary="_handleMizDictionaryImport"
         @download-dictionary="_handleMizDictionaryDownload"
         @error="_handleMizDialogError"
+      )
+
+      MizTranslationCloseConfirmDialog(
+        :model-value="_mizIsCloseConfirmDialogOpen"
+        @update:modelValue="_handleMizCloseConfirmDialogModelUpdate"
+        @confirm="_handleMizCloseConfirm"
       )
 
   Footer

@@ -1,5 +1,6 @@
 import { computed } from 'vue';
 import { useBeforeUnloadGuard } from '@/composables/useBeforeUnloadGuard';
+import { useMizTranslationCloseGuardState } from '@/composables/useMizTranslationCloseGuardState';
 import { useMizTranslationDialogState } from '@/composables/useMizTranslationDialogState';
 import { useMizTranslationDirtyState } from '@/composables/useMizTranslationDirtyState';
 import { useMizTranslationEditorState } from '@/composables/useMizTranslationEditorState';
@@ -40,11 +41,16 @@ export const useMizTranslationState = () => {
 
   const beforeUnloadGuard = useBeforeUnloadGuard(dirtyState.hasUnsavedChanges, dialogState.isDialogOpen);
 
+  const closeGuardState = useMizTranslationCloseGuardState(needsCloseConfirmation, () => {
+    resetAll();
+  });
+
   /**
    * @summary 読込済み MIZ dictionary を統合状態へ反映する。
    * @param result 読込済み dictionary 結果を指定する。
    */
   const loadMizResult = (result: MizDictionaryEntriesResult): void => {
+    closeGuardState.resetCloseGuardState();
     editorState.replaceEntries(result);
     dirtyState.resetBaseline(editorState.entries.value);
     filterState.resetFilter();
@@ -66,6 +72,7 @@ export const useMizTranslationState = () => {
     filterState.resetFilter();
     editorState.resetEntries();
     dirtyState.clearBaseline();
+    closeGuardState.resetCloseGuardState();
   };
 
   return {
@@ -73,6 +80,7 @@ export const useMizTranslationState = () => {
     ...filterState,
     ...editorState,
     ...dirtyState,
+    ...closeGuardState,
     ...beforeUnloadGuard,
     filteredEntries,
     visibleEntryCount,

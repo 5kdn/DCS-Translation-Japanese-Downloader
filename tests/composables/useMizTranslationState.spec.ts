@@ -110,6 +110,106 @@ describe('useMizTranslationState', () => {
     expect(state.canCloseWithoutConfirm.value).toBe(true);
   });
 
+  it('dirty なしで requestClose すると即 close される', async () => {
+    const mizFile = await createMizFile([
+      { path: 'l10n/DEFAULT/dictionary', content: 'dictionary = {\n  ["DictKey_1"] = "Alpha",\n}' },
+    ]);
+    const result = await readMizDictionaryEntries(mizFile);
+    const state = useMizTranslationState();
+
+    state.loadMizResult(result);
+    state.requestClose();
+
+    expect(state.isCloseConfirmDialogOpen.value).toBe(false);
+    expect(state.isDialogOpen.value).toBe(false);
+    expect(state.entries.value).toEqual([]);
+  });
+
+  it('dirty ありで requestClose すると確認ダイアログだけを開く', async () => {
+    const mizFile = await createMizFile([
+      { path: 'l10n/DEFAULT/dictionary', content: 'dictionary = {\n  ["DictKey_1"] = "Alpha",\n}' },
+    ]);
+    const result = await readMizDictionaryEntries(mizFile);
+    const state = useMizTranslationState();
+
+    state.loadMizResult(result);
+    state.setEntryTranslatedText('DictKey_1', '翻訳');
+    state.requestClose();
+
+    expect(state.isCloseConfirmDialogOpen.value).toBe(true);
+    expect(state.isDialogOpen.value).toBe(true);
+    expect(state.entries.value).toHaveLength(1);
+  });
+
+  it('cancelClose で編集状態を維持したまま確認ダイアログだけを閉じる', async () => {
+    const mizFile = await createMizFile([
+      { path: 'l10n/DEFAULT/dictionary', content: 'dictionary = {\n  ["DictKey_1"] = "Alpha",\n}' },
+    ]);
+    const result = await readMizDictionaryEntries(mizFile);
+    const state = useMizTranslationState();
+
+    state.loadMizResult(result);
+    state.setEntryTranslatedText('DictKey_1', '翻訳');
+    state.requestClose();
+    state.cancelClose();
+
+    expect(state.isCloseConfirmDialogOpen.value).toBe(false);
+    expect(state.isDialogOpen.value).toBe(true);
+    expect(state.entries.value[0]?.translatedText).toBe('翻訳');
+  });
+
+  it('confirmClose で状態を初期化して閉じる', async () => {
+    const mizFile = await createMizFile([
+      { path: 'l10n/DEFAULT/dictionary', content: 'dictionary = {\n  ["DictKey_1"] = "Alpha",\n}' },
+    ]);
+    const result = await readMizDictionaryEntries(mizFile);
+    const state = useMizTranslationState();
+
+    state.loadMizResult(result);
+    state.setEntryTranslatedText('DictKey_1', '翻訳');
+    state.requestClose();
+    state.confirmClose();
+
+    expect(state.isCloseConfirmDialogOpen.value).toBe(false);
+    expect(state.isDialogOpen.value).toBe(false);
+    expect(state.entries.value).toEqual([]);
+    expect(state.hasUnsavedChanges.value).toBe(false);
+  });
+
+  it('loadMizResult は再読込時に close 確認ダイアログ状態も初期化する', async () => {
+    const firstMizFile = await createMizFile([
+      { path: 'l10n/DEFAULT/dictionary', content: 'dictionary = {\n  ["DictKey_1"] = "Alpha",\n}' },
+    ]);
+    const secondMizFile = await createMizFile(
+      [{ path: 'l10n/DEFAULT/dictionary', content: 'dictionary = {\n  ["DictKey_2"] = "Bravo",\n}' }],
+      'second.miz',
+    );
+    const firstResult = await readMizDictionaryEntries(firstMizFile);
+    const secondResult = await readMizDictionaryEntries(secondMizFile);
+    const state = useMizTranslationState();
+
+    state.loadMizResult(firstResult);
+    state.setEntryTranslatedText('DictKey_1', '翻訳');
+    state.requestClose();
+
+    expect(state.isCloseConfirmDialogOpen.value).toBe(true);
+
+    state.loadMizResult(secondResult);
+
+    expect(state.isCloseConfirmDialogOpen.value).toBe(false);
+    expect(state.loadedFileName.value).toBe('second.miz');
+    expect(state.entries.value).toEqual([
+      {
+        key: 'DictKey_2',
+        sourceText: 'Bravo',
+        translatedText: '',
+        enabled: true,
+        isDictionaryKey: true,
+        isTranslatable: true,
+      },
+    ]);
+  });
+
   it('loadMizResult 後の filteredEntries は固定先頭 5 グループ優先順を維持する', async () => {
     const mizFile = await createMizFile([
       {
@@ -207,6 +307,27 @@ describe('useMizTranslationState', () => {
     state.markDownloadSucceeded();
 
     expect(state.hasUnsavedChanges.value).toBe(false);
+  });
+
+  it('download 成功後は requestClose が確認なしで閉じる', async () => {
+    const mizFile = await createMizFile([
+      {
+        path: 'l10n/DEFAULT/dictionary',
+        content: `dictionary = {
+  ["DictKey_1"] = "Alpha",
+}`,
+      },
+    ]);
+    const result = await readMizDictionaryEntries(mizFile);
+    const state = useMizTranslationState();
+
+    state.loadMizResult(result);
+    state.setEntryTranslatedText('DictKey_1', '翻訳');
+    state.markDownloadSucceeded();
+    state.requestClose();
+
+    expect(state.isCloseConfirmDialogOpen.value).toBe(false);
+    expect(state.isDialogOpen.value).toBe(false);
   });
 
   it('resetAll で state を初期値へ戻す', async () => {
