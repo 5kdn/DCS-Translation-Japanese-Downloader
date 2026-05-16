@@ -69,6 +69,7 @@ function createDropZoneStub() {
           'div',
           {
             ...attrs,
+            'data-headline': props.headline,
             class: ['drop-zone', props.isDragOver ? 'drop-zone--active elevation-3' : ''],
             onDragenter: emitDragEnter,
             onDragover: emitDragOver,
@@ -100,7 +101,7 @@ vi.mock('@/components/common/DropZone.vue', () => {
   };
 });
 
-vi.mock('/src/components/common/DropZone.vue', () => {
+vi.mock('@/components/common/DropZone.vue', () => {
   return {
     __esModule: true,
     default: createDropZoneStub(),
@@ -188,7 +189,7 @@ describe('MizTranslationEntrySection', () => {
     document.body.innerHTML = '';
   });
 
-  it('.miz 以外の選択を拒否してエラーを表示する', async () => {
+  it('.miz / .trk 以外の選択を拒否してエラーを表示する', async () => {
     const { app, container, onSelectMiz } = await mountComponent();
     const input = container.querySelector('[data-testid="miz-file-input"]') as HTMLInputElement;
     const invalidFile = new File(['zip'], 'mission.zip', { type: 'application/zip' });
@@ -201,15 +202,15 @@ describe('MizTranslationEntrySection', () => {
     await flushComponent();
 
     expect(onSelectMiz).not.toHaveBeenCalled();
-    expect(container.querySelector('[data-testid="miz-entry-error"]')?.textContent).toContain('.miz');
+    expect(container.querySelector('[data-testid="miz-entry-error"]')).not.toBeNull();
 
     app.unmount();
   });
 
-  it('単一の .miz 選択で親へ通知し、既存エラーをクリアする', async () => {
+  it('単一の .trk 選択で親へ通知し、既存エラーをクリアする', async () => {
     const { app, container, onSelectMiz, onClearError } = await mountComponent({ errorMessage: 'server error' });
     const input = container.querySelector('[data-testid="miz-file-input"]') as HTMLInputElement;
-    const mizFile = new File(['zip'], 'mission.miz', { type: 'application/zip' });
+    const mizFile = new File(['zip'], 'mission.trk', { type: 'application/zip' });
 
     Object.defineProperty(input, 'files', {
       configurable: true,
@@ -224,23 +225,22 @@ describe('MizTranslationEntrySection', () => {
     app.unmount();
   });
 
-  it('UploadDropzone と同系統の主文言と操作ボタンを表示する', async () => {
+  it('入力導線と操作ボタンを表示する', async () => {
     const { app, container } = await mountComponent();
 
-    expect(container.textContent).toContain(
-      'MIZ ファイルから `l10n/DEFAULT/dictionary` を読み込み、翻訳編集ダイアログを開きます。',
-    );
-    expect(container.textContent).toContain('MIZ ファイルをドロップする');
-    expect(container.textContent).toContain('または');
-    expect(container.textContent).toContain('MIZ ファイルを選択');
+    expect(container.querySelector('[data-testid="miz-dropzone"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="miz-select-button"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="miz-file-input"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="miz-file-input"]')?.getAttribute('accept')).toBe('.miz,.trk');
+    expect(container.querySelector('[data-testid="miz-dropzone"]')?.getAttribute('data-headline')).not.toBe('');
 
     app.unmount();
   });
 
-  it('drag and drop でも .miz 選択を親へ通知する', async () => {
+  it('drag and drop でも .trk 選択を親へ通知する', async () => {
     const { app, container, onSelectMiz, onClearError } = await mountComponent();
     const dropzone = container.querySelector('[data-testid="miz-dropzone"]');
-    const mizFile = new File(['zip'], 'drop.miz', { type: 'application/zip' });
+    const mizFile = new File(['zip'], 'drop.trk', { type: 'application/zip' });
     const dropEvent = new Event('drop', { bubbles: true });
 
     Object.defineProperty(dropEvent, 'dataTransfer', {

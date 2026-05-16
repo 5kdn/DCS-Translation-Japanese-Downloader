@@ -3,7 +3,7 @@ import { computed, defineAsyncComponent, ref, useTemplateRef } from 'vue';
 import { normalizeMizFileSelection, validateSelectedMizFile } from '@/features/mizTranslation/mizFileSelection';
 
 /**
- * @summary MIZ 選択セクション props を表す。
+ * @summary MIZ/TRK 選択セクション props を表す。
  */
 type MizTranslationEntrySectionProps = {
   isLoading: boolean;
@@ -27,7 +27,7 @@ const emit = defineEmits<{
 }>();
 
 /**
- * @summary MIZ ファイル入力要素参照を保持する。
+ * @summary MIZ/TRK ファイル入力要素参照を保持する。
  */
 const _fileInput = useTemplateRef<HTMLInputElement>('fileInput');
 
@@ -81,12 +81,12 @@ const _applySelectedFiles = (files: ReadonlyArray<File>): void => {
     const mizFile = validateSelectedMizFile(files);
     emit('select-miz', mizFile);
   } catch (error: unknown) {
-    _localErrorMessage.value = error instanceof Error ? error.message : 'MIZ ファイルの選択に失敗しました。';
+    _localErrorMessage.value = error instanceof Error ? error.message : '.miz / .trk ファイルの選択に失敗しました。';
   }
 };
 
 /**
- * @summary MIZ ファイル選択ダイアログを開く。
+ * @summary MIZ/TRK ファイル選択ダイアログを開く。
  */
 const _openFilePicker = (): void => {
   _fileInput.value?.click();
@@ -144,7 +144,7 @@ const _handleDrop = (event: DragEvent): void => {
 h2.d-inline-flex.align-start.text-display-large.mt-10.mb-5 MIZ Translation
 
 div.miz-translation-panel
-  p.text-body-1.text-medium-emphasis.mb-4 MIZ ファイルから `l10n/DEFAULT/dictionary` を読み込み、翻訳編集ダイアログを開きます。
+  p.text-body-1.text-medium-emphasis.mb-4 .miz / .trk ファイルから `l10n/DEFAULT/dictionary` を読み込み、翻訳編集ダイアログを開きます。
 
   v-alert.mb-4(
     v-if="_hasDisplayErrorMessage"
@@ -158,7 +158,7 @@ div.miz-translation-panel
     ref="fileInput"
     data-testid="miz-file-input"
     type="file"
-    accept=".miz"
+    accept=".miz,.trk"
     :disabled="isLoading"
     @change="_handleFileInputChange"
   )
@@ -168,8 +168,8 @@ div.miz-translation-panel
     :is-drag-over="_isDragOver"
     :is-loading="isLoading"
     icon="mdi-folder-zip-outline"
-    headline="MIZ ファイルをドロップする"
-    button-label="MIZ ファイルを選択"
+    headline=".miz / .trk ファイルをドロップする"
+    button-label=".miz / .trk ファイルを選択"
     @action="_openFilePicker"
     @dragenter="_handleDragEnter"
     @dragover="_handleDragOver"

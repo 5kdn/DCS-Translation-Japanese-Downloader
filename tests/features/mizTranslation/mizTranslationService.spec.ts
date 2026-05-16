@@ -7,6 +7,7 @@ import {
   buildDictionaryDownloadPayloadFromEntries,
   buildMizTranslatedDictionaryContent,
   parseImportedDictionaryValues,
+  parseMizTranslationImportEntries,
   readMizDictionaryEntries,
   readMizDictionarySource,
 } from '@/features/mizTranslation/mizTranslationService';
@@ -113,6 +114,42 @@ describe('mizTranslationService', () => {
     const source = ['dictionary = {', '  ["DictKey_1"] = "old",', '  ["DictKey_1"] = "new",', '}'].join('\n');
 
     expect([...parseImportedDictionaryValues(source).entries()]).toEqual([['DictKey_1', 'new']]);
+  });
+
+  it('形式別 import API は dictionary を key/value から import エントリーへ変換する', () => {
+    const source = ['dictionary = {', '  ["DictKey_1"] = "翻訳1",', '}'].join('\n');
+
+    expect(parseMizTranslationImportEntries('dictionary', source)).toEqual([
+      {
+        key: 'DictKey_1',
+        sourceText: '',
+        translatedText: '翻訳1',
+      },
+    ]);
+  });
+
+  it('形式別 import API は PO を import エントリーへ変換する', () => {
+    const source = ['#, no-wrap', 'msgctxt "DictKey_1"', 'msgid "Alpha"', 'msgstr "翻訳1"'].join('\n');
+
+    expect(parseMizTranslationImportEntries('po', source)).toEqual([
+      {
+        key: 'DictKey_1',
+        sourceText: 'Alpha',
+        translatedText: '翻訳1',
+      },
+    ]);
+  });
+
+  it('形式別 import API は CSV を import エントリーへ変換する', () => {
+    const source = '\uFEFF"有効","key","原文","翻訳"\r\n"TRUE","DictKey_1","Alpha","翻訳1"';
+
+    expect(parseMizTranslationImportEntries('csv', source)).toEqual([
+      {
+        key: 'DictKey_1',
+        sourceText: 'Alpha',
+        translatedText: '翻訳1',
+      },
+    ]);
   });
 
   it('DEFAULT 文書のコメントと並び順を維持したまま有効な翻訳だけを再構築する', () => {

@@ -3,7 +3,13 @@
   "release-type": "node",
   "packages": {
     ".": {
-      "changelog-path": "CHANGELOG.md"
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        {
+          "type": "generic",
+          "path": "src/features/mizTranslation/mizTranslationGeneratorVersion.ts"
+        }
+      ]
     }
   },
   "bump-minor-pre-major": true,

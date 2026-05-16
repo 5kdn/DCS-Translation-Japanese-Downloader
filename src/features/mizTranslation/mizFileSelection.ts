@@ -1,7 +1,7 @@
 /**
- * @summary MIZ ファイル拡張子を表す。
+ * @summary MizTranslation が受け付けるファイル拡張子一覧を表す。
  */
-export const MIZ_FILE_EXTENSION = '.miz';
+export const MIZ_TRANSLATION_FILE_EXTENSIONS = ['.miz', '.trk'] as const;
 
 /**
  * @summary MIZ ファイル選択検証失敗を表す。
@@ -14,12 +14,13 @@ export class MizFileSelectionError extends Error {
 }
 
 /**
- * @summary 指定ファイル名が MIZ 拡張子を持つか判定する。
+ * @summary 指定ファイル名が MizTranslation 対象拡張子を持つか判定する。
  * @param fileName 判定対象ファイル名を指定する。
- * @returns `.miz` 拡張子であれば true を返す。
+ * @returns `.miz` または `.trk` 拡張子であれば true を返す。
  */
 export const isMizFileName = (fileName: string): boolean => {
-  return fileName.toLowerCase().endsWith(MIZ_FILE_EXTENSION);
+  const normalizedFileName = fileName.toLowerCase();
+  return MIZ_TRANSLATION_FILE_EXTENSIONS.some((extension) => normalizedFileName.endsWith(extension));
 };
 
 /**
@@ -40,23 +41,23 @@ export const normalizeMizFileSelection = (value: File | ReadonlyArray<File> | nu
 };
 
 /**
- * @summary 選択された MIZ ファイル一覧から単一の有効ファイルを検証して返す。
+ * @summary 選択された MizTranslation 対象ファイル一覧から単一の有効ファイルを検証して返す。
  * @param files 検証対象のファイル一覧を指定する。
- * @returns 単一の有効な MIZ ファイルを返す。
+ * @returns 単一の有効な `.miz` または `.trk` ファイルを返す。
  * @throws MizFileSelectionError 検証に失敗した場合に送出する。
  */
 export const validateSelectedMizFile = (files: ReadonlyArray<File>): File => {
   if (files.length === 0) {
-    throw new MizFileSelectionError('MIZ ファイルを選択してください。');
+    throw new MizFileSelectionError('.miz または .trk ファイルを選択してください。');
   }
 
   if (files.length > 1) {
-    throw new MizFileSelectionError('MIZ ファイルは 1 件だけ選択してください。');
+    throw new MizFileSelectionError('.miz または .trk ファイルは 1 件だけ選択してください。');
   }
 
   const [file] = files;
   if (file === undefined || !isMizFileName(file.name)) {
-    throw new MizFileSelectionError('拡張子が .miz のファイルを選択してください。');
+    throw new MizFileSelectionError('拡張子が .miz または .trk のファイルを選択してください。');
   }
 
   return file;

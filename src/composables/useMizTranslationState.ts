@@ -1,4 +1,4 @@
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useBeforeUnloadGuard } from '@/composables/useBeforeUnloadGuard';
 import { useMizTranslationCloseGuardState } from '@/composables/useMizTranslationCloseGuardState';
 import { useMizTranslationDialogState } from '@/composables/useMizTranslationDialogState';
@@ -8,6 +8,11 @@ import { useMizTranslationFilterState } from '@/composables/useMizTranslationFil
 import type { MizDictionaryEntriesResult } from '@/features/mizTranslation/mizArchiveModels';
 import { sortMizDictionaryEntries } from '@/features/mizTranslation/mizDictionarySort';
 import { applyMizDictionaryFilter } from '@/features/mizTranslation/mizDictionaryState';
+import { resolveMizTranslationExportEntries } from '@/features/mizTranslation/mizTranslationDownloadEntries';
+import type {
+  MizTranslationDownloadFormat,
+  MizTranslationExportSort,
+} from '@/features/mizTranslation/mizTranslationDownloadModels';
 
 /**
  * @summary MIZ 翻訳機能の状態管理 composable 群を束ねる。
@@ -18,6 +23,7 @@ export const useMizTranslationState = () => {
   const filterState = useMizTranslationFilterState();
   const editorState = useMizTranslationEditorState();
   const dirtyState = useMizTranslationDirtyState(editorState.entries);
+  const exportSort = ref<MizTranslationExportSort>({});
 
   const filteredEntries = computed(() => {
     return sortMizDictionaryEntries(applyMizDictionaryFilter(editorState.entries.value, filterState.filter.value));
@@ -25,6 +31,10 @@ export const useMizTranslationState = () => {
 
   const visibleEntryCount = computed((): number => {
     return filteredEntries.value.length;
+  });
+
+  const exportEntries = computed(() => {
+    return resolveMizTranslationExportEntries(editorState.entries.value, exportSort.value);
   });
 
   const totalEntryCount = computed((): number => {
@@ -54,7 +64,28 @@ export const useMizTranslationState = () => {
     editorState.replaceEntries(result);
     dirtyState.resetBaseline(editorState.entries.value);
     filterState.resetFilter();
+    exportSort.value = {};
     dialogState.openForLoadedDictionary(result);
+  };
+
+  /**
+   * @summary エクスポート用ソート状態を更新する。
+   * @param value 更新後ソート状態を指定する。
+   */
+  const setExportSort = (value: MizTranslationExportSort): void => {
+    exportSort.value = {
+      sortKey: value.sortKey,
+      sortOrder: value.sortOrder,
+    };
+  };
+
+  /**
+   * @summary 現在の編集内容から形式別ダウンロード payload を構築する。
+   * @param format ダウンロード形式を指定する。
+   * @returns 保存用 payload を返す。
+   */
+  const buildDownloadPayload = (format: MizTranslationDownloadFormat) => {
+    return editorState.buildDownloadPayload(format, exportSort.value);
   };
 
   /**
@@ -73,6 +104,7 @@ export const useMizTranslationState = () => {
     editorState.resetEntries();
     dirtyState.clearBaseline();
     closeGuardState.resetCloseGuardState();
+    exportSort.value = {};
   };
 
   return {
@@ -83,11 +115,15 @@ export const useMizTranslationState = () => {
     ...closeGuardState,
     ...beforeUnloadGuard,
     filteredEntries,
+    exportEntries,
+    exportSort,
     visibleEntryCount,
     totalEntryCount,
     needsCloseConfirmation,
     canCloseWithoutConfirm,
+    setExportSort,
     loadMizResult,
+    buildDownloadPayload,
     markDownloadSucceeded,
     resetAll,
   };

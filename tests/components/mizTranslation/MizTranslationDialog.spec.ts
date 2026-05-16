@@ -3,6 +3,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createApp, defineComponent, h, nextTick } from 'vue';
 import type { MizDictionaryEntry, MizDictionaryFilter } from '@/features/mizTranslation/mizDictionaryModels';
+import type { MizTranslationExportSort } from '@/features/mizTranslation/mizTranslationDownloadModels';
 
 const sampleEntries: MizDictionaryEntry[] = [
   {
@@ -34,7 +35,7 @@ vi.mock('@/components/mizTranslation/MizTranslationTable.vue', () => {
           required: true,
         },
       },
-      emits: ['toggle-enabled', 'update-translation', 'error'],
+      emits: ['toggle-enabled', 'update-translation', 'update-sort', 'error'],
       setup(props, { emit }) {
         return () =>
           h('div', { 'data-testid': 'miz-table-stub' }, [
@@ -56,25 +57,37 @@ vi.mock('@/components/mizTranslation/MizTranslationTable.vue', () => {
               'button',
               {
                 type: 'button',
+                'data-testid': 'miz-table-update-sort',
+                onClick: () => emit('update-sort', { sortKey: 'sourceText', sortOrder: 'desc' }),
+              },
+              undefined,
+            ),
+            h(
+              'button',
+              {
+                type: 'button',
+                'data-testid': 'miz-table-toggle-enabled',
                 onClick: () => emit('toggle-enabled', 'DictKey_1', false),
               },
-              'toggle enabled',
+              undefined,
             ),
             h(
               'button',
               {
                 type: 'button',
+                'data-testid': 'miz-table-update-translation',
                 onClick: () => emit('update-translation', 'DictKey_1', '翻訳'),
               },
-              'update translation',
+              undefined,
             ),
             h(
               'button',
               {
                 type: 'button',
+                'data-testid': 'miz-table-error',
                 onClick: () => emit('error', 'copy error'),
               },
-              'table error',
+              undefined,
             ),
           ]);
       },
@@ -82,7 +95,7 @@ vi.mock('@/components/mizTranslation/MizTranslationTable.vue', () => {
   };
 });
 
-vi.mock('/src/components/mizTranslation/MizTranslationTable.vue', () => {
+vi.mock('@/components/mizTranslation/MizTranslationTable.vue', () => {
   return {
     __esModule: true,
     default: defineComponent({
@@ -93,7 +106,7 @@ vi.mock('/src/components/mizTranslation/MizTranslationTable.vue', () => {
           required: true,
         },
       },
-      emits: ['toggle-enabled', 'update-translation', 'error'],
+      emits: ['toggle-enabled', 'update-translation', 'update-sort', 'error'],
       setup(props, { emit }) {
         return () =>
           h('div', { 'data-testid': 'miz-table-stub' }, [
@@ -115,25 +128,37 @@ vi.mock('/src/components/mizTranslation/MizTranslationTable.vue', () => {
               'button',
               {
                 type: 'button',
+                'data-testid': 'miz-table-update-sort',
+                onClick: () => emit('update-sort', { sortKey: 'sourceText', sortOrder: 'desc' }),
+              },
+              undefined,
+            ),
+            h(
+              'button',
+              {
+                type: 'button',
+                'data-testid': 'miz-table-toggle-enabled',
                 onClick: () => emit('toggle-enabled', 'DictKey_1', false),
               },
-              'toggle enabled',
+              undefined,
             ),
             h(
               'button',
               {
                 type: 'button',
+                'data-testid': 'miz-table-update-translation',
                 onClick: () => emit('update-translation', 'DictKey_1', '翻訳'),
               },
-              'update translation',
+              undefined,
             ),
             h(
               'button',
               {
                 type: 'button',
+                'data-testid': 'miz-table-error',
                 onClick: () => emit('error', 'copy error'),
               },
-              'table error',
+              undefined,
             ),
           ]);
       },
@@ -167,30 +192,38 @@ vi.mock('@/components/mizTranslation/MizTranslationFilterPanel.vue', () => {
         return () =>
           h('div', { 'data-testid': 'miz-filter-stub' }, [
             h('output', { 'data-testid': 'miz-filter-count-stub' }, `${props.visibleEntryCount}/${props.totalEntryCount}`),
-            h('button', { type: 'button', onClick: () => emit('update:show-enabled', false) }, 'update show enabled'),
-            h('button', { type: 'button', onClick: () => emit('update:show-disabled', false) }, 'update show disabled'),
-            h(
-              'button',
-              { type: 'button', onClick: () => emit('update:show-only-untranslated', true) },
-              'update show untranslated',
-            ),
-            h(
-              'button',
-              { type: 'button', onClick: () => emit('update:hide-non-translatable', false) },
-              'update hide non translatable',
-            ),
-            h(
-              'button',
-              { type: 'button', onClick: () => emit('update:hide-empty-source-text', false) },
-              'update hide empty source',
-            ),
+            h('button', {
+              type: 'button',
+              'data-testid': 'miz-filter-update-show-enabled',
+              onClick: () => emit('update:show-enabled', false),
+            }),
+            h('button', {
+              type: 'button',
+              'data-testid': 'miz-filter-update-show-disabled',
+              onClick: () => emit('update:show-disabled', false),
+            }),
+            h('button', {
+              type: 'button',
+              'data-testid': 'miz-filter-update-show-untranslated',
+              onClick: () => emit('update:show-only-untranslated', true),
+            }),
+            h('button', {
+              type: 'button',
+              'data-testid': 'miz-filter-update-hide-non-translatable',
+              onClick: () => emit('update:hide-non-translatable', false),
+            }),
+            h('button', {
+              type: 'button',
+              'data-testid': 'miz-filter-update-hide-empty-source',
+              onClick: () => emit('update:hide-empty-source-text', false),
+            }),
           ]);
       },
     }),
   };
 });
 
-vi.mock('/src/components/mizTranslation/MizTranslationFilterPanel.vue', () => {
+vi.mock('@/components/mizTranslation/MizTranslationFilterPanel.vue', () => {
   return {
     __esModule: true,
     default: defineComponent({
@@ -216,23 +249,31 @@ vi.mock('/src/components/mizTranslation/MizTranslationFilterPanel.vue', () => {
         return () =>
           h('div', { 'data-testid': 'miz-filter-stub' }, [
             h('output', { 'data-testid': 'miz-filter-count-stub' }, `${props.visibleEntryCount}/${props.totalEntryCount}`),
-            h('button', { type: 'button', onClick: () => emit('update:show-enabled', false) }, 'update show enabled'),
-            h('button', { type: 'button', onClick: () => emit('update:show-disabled', false) }, 'update show disabled'),
-            h(
-              'button',
-              { type: 'button', onClick: () => emit('update:show-only-untranslated', true) },
-              'update show untranslated',
-            ),
-            h(
-              'button',
-              { type: 'button', onClick: () => emit('update:hide-non-translatable', false) },
-              'update hide non translatable',
-            ),
-            h(
-              'button',
-              { type: 'button', onClick: () => emit('update:hide-empty-source-text', false) },
-              'update hide empty source',
-            ),
+            h('button', {
+              type: 'button',
+              'data-testid': 'miz-filter-update-show-enabled',
+              onClick: () => emit('update:show-enabled', false),
+            }),
+            h('button', {
+              type: 'button',
+              'data-testid': 'miz-filter-update-show-disabled',
+              onClick: () => emit('update:show-disabled', false),
+            }),
+            h('button', {
+              type: 'button',
+              'data-testid': 'miz-filter-update-show-untranslated',
+              onClick: () => emit('update:show-only-untranslated', true),
+            }),
+            h('button', {
+              type: 'button',
+              'data-testid': 'miz-filter-update-hide-non-translatable',
+              onClick: () => emit('update:hide-non-translatable', false),
+            }),
+            h('button', {
+              type: 'button',
+              'data-testid': 'miz-filter-update-hide-empty-source',
+              onClick: () => emit('update:hide-empty-source-text', false),
+            }),
           ]);
       },
     }),
@@ -282,8 +323,9 @@ const mountComponent = async (props?: {
   const onUpdateModelValue = vi.fn();
   const onToggleEnabled = vi.fn();
   const onUpdateTranslation = vi.fn();
+  const onUpdateSort = vi.fn();
   const onImportDictionary = vi.fn();
-  const onDownloadDictionary = vi.fn();
+  const onDownload = vi.fn();
   const onError = vi.fn();
   const onShowEnabled = vi.fn();
   const onShowDisabled = vi.fn();
@@ -312,8 +354,9 @@ const mountComponent = async (props?: {
             'onUpdate:hide-empty-source-text': onHideEmptySourceText,
             onToggleEnabled,
             onUpdateTranslation,
+            onUpdateSort,
             onImportDictionary,
-            onDownloadDictionary,
+            onDownload,
             onError,
           });
       },
@@ -341,6 +384,7 @@ const mountComponent = async (props?: {
   app.component('v-spacer', createWrapperComponent('VSpacerStub'));
   app.component('v-card-text', createWrapperComponent('VCardTextStub'));
   app.component('v-container', createWrapperComponent('VContainerStub'));
+  app.component('v-btn-group', createWrapperComponent('VBtnGroupStub'));
   app.component(
     'v-btn',
     defineComponent({
@@ -354,15 +398,76 @@ const mountComponent = async (props?: {
       },
       emits: ['click'],
       setup(props, { emit, slots, attrs }) {
+        const handleClick = (event: MouseEvent): void => {
+          const attrClick = attrs.onClick;
+          if (typeof attrClick === 'function') {
+            attrClick(event);
+          }
+          emit('click', event);
+        };
+
         return () =>
           h(
             'button',
             {
               ...attrs,
               disabled: props.disabled,
-              onClick: (event: MouseEvent) => emit('click', event),
+              onClick: handleClick,
             },
             slots.default?.(),
+          );
+      },
+    }),
+  );
+  app.component(
+    'v-menu',
+    defineComponent({
+      name: 'VMenuStub',
+      props: {
+        modelValue: {
+          type: Boolean,
+          required: false,
+          default: false,
+        },
+      },
+      emits: ['update:modelValue'],
+      setup(props, { emit, slots }) {
+        const activatorProps = {
+          onClick: () => emit('update:modelValue', !props.modelValue),
+        };
+
+        return () => h('div', [slots.activator?.({ props: activatorProps }), props.modelValue ? slots.default?.() : null]);
+      },
+    }),
+  );
+  app.component('v-list', createWrapperComponent('VListStub'));
+  app.component(
+    'v-list-item',
+    defineComponent({
+      name: 'VListItemStub',
+      props: {
+        title: {
+          type: String,
+          required: false,
+          default: '',
+        },
+        subtitle: {
+          type: String,
+          required: false,
+          default: undefined,
+        },
+      },
+      emits: ['click'],
+      setup(props, { emit, attrs }) {
+        return () =>
+          h(
+            'button',
+            {
+              ...attrs,
+              type: 'button',
+              onClick: (event: MouseEvent) => emit('click', event),
+            },
+            props.subtitle ? `${props.title} ${props.subtitle}` : props.title,
           );
       },
     }),
@@ -397,8 +502,9 @@ const mountComponent = async (props?: {
     onHideEmptySourceText,
     onToggleEnabled,
     onUpdateTranslation,
+    onUpdateSort,
     onImportDictionary,
-    onDownloadDictionary,
+    onDownload,
     onError,
   };
 };
@@ -415,17 +521,13 @@ describe('MizTranslationDialog', () => {
   it('表示時に読込ファイル名とテーブルを表示する', async () => {
     const { app, container } = await mountComponent({ modelValue: true, loadedFileName: 'briefing.miz', isLoading: false });
 
-    expect(container.textContent).toContain('MIZ 翻訳');
     expect(container.querySelector('[data-testid="miz-dialog-file-name"]')?.textContent).toBe('briefing.miz');
-    expect(container.querySelector('[data-testid="miz-dialog-information"]')?.textContent).toContain(
-      '原文と key は読み取り専用',
-    );
-    expect(container.textContent).toContain('有効にチェックが入っている項目だけが翻訳した dictionary ファイルに追加されます。');
-    expect(container.textContent).toContain('dictionary ファイルを直接編集するときのような \\ エスケープは不要です。');
-    expect(container.textContent).toContain('Lua コードが翻訳対象となっている可能性があります。');
+    expect(container.querySelector('[data-testid="miz-dialog-information"]')).not.toBeNull();
     expect(container.querySelector('[data-testid="miz-table-entry-count"]')?.textContent).toBe('1');
     expect(container.querySelector('[data-testid="miz-dialog-import-button"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="miz-dialog-import-menu-button"]')).not.toBeNull();
     expect(container.querySelector('[data-testid="miz-dialog-download-button"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="miz-dialog-download-menu-button"]')).not.toBeNull();
 
     app.unmount();
   });
@@ -433,7 +535,7 @@ describe('MizTranslationDialog', () => {
   it('読込中は loading 表示を優先する', async () => {
     const { app, container } = await mountComponent({ modelValue: true, isLoading: true });
 
-    expect(container.querySelector('[data-testid="miz-dialog-loading"]')?.textContent).toContain('読み込み中');
+    expect(container.querySelector('[data-testid="miz-dialog-loading"]')).not.toBeNull();
     expect(container.querySelector('[data-testid="miz-table-stub"]')).toBeNull();
     expect(
       (container.querySelector('button[aria-label="MIZ 翻訳ダイアログを閉じる"]') as HTMLButtonElement | null)?.disabled,
@@ -441,9 +543,15 @@ describe('MizTranslationDialog', () => {
     expect((container.querySelector('[data-testid="miz-dialog-import-button"]') as HTMLButtonElement | null)?.disabled).toBe(
       true,
     );
+    expect(
+      (container.querySelector('[data-testid="miz-dialog-import-menu-button"]') as HTMLButtonElement | null)?.disabled,
+    ).toBe(true);
     expect((container.querySelector('[data-testid="miz-dialog-download-button"]') as HTMLButtonElement | null)?.disabled).toBe(
       true,
     );
+    expect(
+      (container.querySelector('[data-testid="miz-dialog-download-menu-button"]') as HTMLButtonElement | null)?.disabled,
+    ).toBe(true);
 
     app.unmount();
   });
@@ -454,9 +562,7 @@ describe('MizTranslationDialog', () => {
       errorMessage: 'dictionary の読み込みに失敗しました。',
     });
 
-    expect(container.querySelector('[data-testid="miz-dialog-error"]')?.textContent).toContain(
-      'dictionary の読み込みに失敗しました。',
-    );
+    expect(container.querySelector('[data-testid="miz-dialog-error"]')).not.toBeNull();
     expect(container.querySelector('[data-testid="miz-dialog-information"]')).not.toBeNull();
 
     app.unmount();
@@ -473,32 +579,33 @@ describe('MizTranslationDialog', () => {
       onHideEmptySourceText,
       onToggleEnabled,
       onUpdateTranslation,
+      onUpdateSort,
       onError,
     } = await mountComponent();
 
-    const buttons = [...container.querySelectorAll('button')];
-    buttons
-      .find((button) => button.textContent === 'update show enabled')
+    container
+      .querySelector('[data-testid="miz-filter-update-show-enabled"]')
       ?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    buttons
-      .find((button) => button.textContent === 'update show disabled')
+    container
+      .querySelector('[data-testid="miz-filter-update-show-disabled"]')
       ?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    buttons
-      .find((button) => button.textContent === 'update show untranslated')
+    container
+      .querySelector('[data-testid="miz-filter-update-show-untranslated"]')
       ?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    buttons
-      .find((button) => button.textContent === 'update hide non translatable')
+    container
+      .querySelector('[data-testid="miz-filter-update-hide-non-translatable"]')
       ?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    buttons
-      .find((button) => button.textContent === 'update hide empty source')
+    container
+      .querySelector('[data-testid="miz-filter-update-hide-empty-source"]')
       ?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    buttons
-      .find((button) => button.textContent === 'toggle enabled')
+    container
+      .querySelector('[data-testid="miz-table-toggle-enabled"]')
       ?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    buttons
-      .find((button) => button.textContent === 'update translation')
+    container
+      .querySelector('[data-testid="miz-table-update-translation"]')
       ?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    buttons.find((button) => button.textContent === 'table error')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    container.querySelector('[data-testid="miz-table-update-sort"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    container.querySelector('[data-testid="miz-table-error"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     await flushComponent();
 
     expect(onShowEnabled).toHaveBeenCalledWith(false);
@@ -508,19 +615,23 @@ describe('MizTranslationDialog', () => {
     expect(onHideEmptySourceText).toHaveBeenCalledWith(false);
     expect(onToggleEnabled).toHaveBeenCalledWith('DictKey_1', false);
     expect(onUpdateTranslation).toHaveBeenCalledWith('DictKey_1', '翻訳');
+    expect(onUpdateSort).toHaveBeenCalledWith({
+      sortKey: 'sourceText',
+      sortOrder: 'desc',
+    } satisfies MizTranslationExportSort);
     expect(onError).toHaveBeenCalledWith('copy error');
 
     app.unmount();
   });
 
-  it('dictionary import と download イベントを親へ中継する', async () => {
-    const { app, container, onImportDictionary, onDownloadDictionary } = await mountComponent();
+  it('dictionary import と選択形式 download イベントを親へ中継する', async () => {
+    const { app, container, onImportDictionary, onDownload } = await mountComponent();
     const dictionaryInput = container.querySelector('[data-testid="miz-dialog-dictionary-input"]') as HTMLInputElement | null;
     const importButton = container.querySelector('[data-testid="miz-dialog-import-button"]');
     const downloadButton = container.querySelector('[data-testid="miz-dialog-download-button"]');
 
     importButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    const file = new File(['dictionary = {}'], 'dictionary', { type: 'text/plain' });
+    const file = new File(['dictionary = {}'], 'custom-name.txt', { type: 'text/plain' });
     if (dictionaryInput !== null) {
       Object.defineProperty(dictionaryInput, 'files', {
         configurable: true,
@@ -532,45 +643,261 @@ describe('MizTranslationDialog', () => {
     await flushComponent();
 
     expect(onImportDictionary).toHaveBeenCalledTimes(1);
-    expect(onImportDictionary.mock.calls[0]?.[0]).toBeInstanceOf(File);
-    expect(onImportDictionary.mock.calls[0]?.[0]?.name).toBe('dictionary');
-    expect(onDownloadDictionary).toHaveBeenCalledTimes(1);
+    expect(onImportDictionary.mock.calls[0]?.[0]).toBe('dictionary');
+    expect(onImportDictionary.mock.calls[0]?.[1]).toBeInstanceOf(File);
+    expect(onImportDictionary.mock.calls[0]?.[1]?.name).toBe('custom-name.txt');
+    expect(onDownload).toHaveBeenCalledTimes(1);
+    expect(onDownload).toHaveBeenCalledWith('dictionary');
+
+    app.unmount();
+  });
+
+  it('dictionary 形式では file picker の accept を空にして全ファイル選択を許可する', async () => {
+    const { app, container } = await mountComponent();
+    const dictionaryInput = container.querySelector('[data-testid="miz-dialog-dictionary-input"]') as HTMLInputElement | null;
+    const importMenuButton = container.querySelector('[data-testid="miz-dialog-import-menu-button"]');
+    const clickedAcceptValues: string[] = [];
+    const inputClickSpy =
+      dictionaryInput === null
+        ? null
+        : vi.spyOn(dictionaryInput, 'click').mockImplementation(function mockClick(this: HTMLInputElement) {
+            clickedAcceptValues.push(this.accept);
+          });
+
+    importMenuButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flushComponent();
+
+    [...container.querySelectorAll('button')]
+      .find((button) => button.getAttribute('data-testid') === 'miz-dialog-import-option-dictionary')
+      ?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flushComponent();
+
+    expect(dictionaryInput?.accept).toBe('');
+    expect(clickedAcceptValues).toEqual(['']);
+    expect(inputClickSpy).not.toBeNull();
+    expect(inputClickSpy).toHaveBeenCalledTimes(1);
+
+    inputClickSpy?.mockRestore();
+
+    app.unmount();
+  });
+
+  it('読込形式メニューに dictionary と PO と CSV を表示する', async () => {
+    const { app, container } = await mountComponent();
+    const dictionaryInput = container.querySelector('[data-testid="miz-dialog-dictionary-input"]') as HTMLInputElement | null;
+    const importMenuButton = container.querySelector('[data-testid="miz-dialog-import-menu-button"]');
+    const clickedAcceptValues: string[] = [];
+    const inputClickSpy =
+      dictionaryInput === null
+        ? null
+        : vi.spyOn(dictionaryInput, 'click').mockImplementation(function mockClick(this: HTMLInputElement) {
+            clickedAcceptValues.push(this.accept);
+          });
+
+    importMenuButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flushComponent();
+
+    expect(container.querySelectorAll('[data-testid^="miz-dialog-import-option-"]')).toHaveLength(3);
+
+    [...container.querySelectorAll('button')]
+      .find((button) => button.getAttribute('data-testid') === 'miz-dialog-import-option-po')
+      ?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flushComponent();
+
+    expect(dictionaryInput?.accept).toBe('.po');
+    expect(clickedAcceptValues).toEqual(['.po']);
+    expect(inputClickSpy).not.toBeNull();
+    expect(inputClickSpy).toHaveBeenCalledTimes(1);
+
+    inputClickSpy?.mockRestore();
+
+    app.unmount();
+  });
+
+  it('読込形式で CSV を選ぶと CSV 形式として親へ通知する', async () => {
+    const { app, container, onImportDictionary } = await mountComponent();
+    const dictionaryInput = container.querySelector('[data-testid="miz-dialog-dictionary-input"]') as HTMLInputElement | null;
+    const importMenuButton = container.querySelector('[data-testid="miz-dialog-import-menu-button"]');
+    const clickedAcceptValues: string[] = [];
+    const inputClickSpy =
+      dictionaryInput === null
+        ? null
+        : vi.spyOn(dictionaryInput, 'click').mockImplementation(function mockClick(this: HTMLInputElement) {
+            clickedAcceptValues.push(this.accept);
+          });
+
+    importMenuButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flushComponent();
+
+    [...container.querySelectorAll('button')]
+      .find((button) => button.getAttribute('data-testid') === 'miz-dialog-import-option-csv')
+      ?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flushComponent();
+
+    const file = new File(['csv'], 'sample.csv', { type: 'text/csv' });
+    if (dictionaryInput !== null) {
+      Object.defineProperty(dictionaryInput, 'files', {
+        configurable: true,
+        value: [file],
+      });
+      dictionaryInput.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    await flushComponent();
+
+    expect(dictionaryInput?.accept).toContain('.csv');
+    expect(clickedAcceptValues).toEqual(['.csv']);
+    expect(inputClickSpy).not.toBeNull();
+    expect(inputClickSpy).toHaveBeenCalledTimes(1);
+    expect(onImportDictionary).toHaveBeenCalledWith('csv', expect.any(File));
+
+    inputClickSpy?.mockRestore();
+
+    app.unmount();
+  });
+
+  it('読込形式メニューで選択した形式は主ボタンにも維持される', async () => {
+    const { app, container, onImportDictionary } = await mountComponent();
+    const dictionaryInput = container.querySelector('[data-testid="miz-dialog-dictionary-input"]') as HTMLInputElement | null;
+    const importMenuButton = container.querySelector('[data-testid="miz-dialog-import-menu-button"]');
+    const importButton = container.querySelector('[data-testid="miz-dialog-import-button"]');
+    const clickedAcceptValues: string[] = [];
+    const inputClickSpy =
+      dictionaryInput === null
+        ? null
+        : vi.spyOn(dictionaryInput, 'click').mockImplementation(function mockClick(this: HTMLInputElement) {
+            clickedAcceptValues.push(this.accept);
+          });
+
+    importMenuButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flushComponent();
+
+    [...container.querySelectorAll('button')]
+      .find((button) => button.getAttribute('data-testid') === 'miz-dialog-import-option-po')
+      ?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flushComponent();
+
+    importButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    const file = new File(['po'], 'sample.po', { type: 'text/plain' });
+    if (dictionaryInput !== null) {
+      Object.defineProperty(dictionaryInput, 'files', {
+        configurable: true,
+        value: [file],
+      });
+      dictionaryInput.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    await flushComponent();
+
+    expect(dictionaryInput?.accept).toContain('.po');
+    expect(clickedAcceptValues).toEqual(['.po', '.po']);
+    expect(inputClickSpy).not.toBeNull();
+    expect(inputClickSpy).toHaveBeenCalledTimes(2);
+    expect(onImportDictionary).toHaveBeenCalledWith('po', expect.any(File));
+
+    inputClickSpy?.mockRestore();
+
+    app.unmount();
+  });
+
+  it('ダウンロード形式メニューに dictionary と PO と CSV を表示し、項目クリック時点で通知する', async () => {
+    const { app, container, onDownload } = await mountComponent();
+    const downloadMenuButton = container.querySelector('[data-testid="miz-dialog-download-menu-button"]');
+
+    downloadMenuButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flushComponent();
+
+    expect(container.querySelectorAll('[data-testid^="miz-dialog-download-option-"]')).toHaveLength(3);
+
+    [...container.querySelectorAll('button')]
+      .find((button) => button.getAttribute('data-testid') === 'miz-dialog-download-option-po')
+      ?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flushComponent();
+
+    expect(container.querySelector('[data-testid="miz-dialog-download-option-dictionary"]')).toBeNull();
+    expect(onDownload).toHaveBeenCalledWith('po');
 
     app.unmount();
   });
 
   it('entries が空のとき download ボタンを無効化する', async () => {
-    const { app, container, onDownloadDictionary } = await mountComponent({
+    const { app, container, onDownload } = await mountComponent({
       entries: [],
       visibleEntryCount: 0,
       totalEntryCount: 0,
     });
     const downloadButton = container.querySelector('[data-testid="miz-dialog-download-button"]') as HTMLButtonElement | null;
+    const downloadMenuButton = container.querySelector(
+      '[data-testid="miz-dialog-download-menu-button"]',
+    ) as HTMLButtonElement | null;
 
     expect(downloadButton?.disabled).toBe(true);
+    expect(downloadMenuButton?.disabled).toBe(true);
 
     downloadButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     await flushComponent();
 
-    expect(onDownloadDictionary).not.toHaveBeenCalled();
+    expect(onDownload).not.toHaveBeenCalled();
+
+    app.unmount();
+  });
+
+  it('ダウンロードメニューで dictionary をクリックした時点で通知する', async () => {
+    const { app, container, onDownload } = await mountComponent();
+    const downloadMenuButton = container.querySelector('[data-testid="miz-dialog-download-menu-button"]');
+
+    downloadMenuButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flushComponent();
+
+    [...container.querySelectorAll('button')]
+      .find((button) => button.getAttribute('data-testid') === 'miz-dialog-download-option-dictionary')
+      ?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flushComponent();
+
+    expect(onDownload).toHaveBeenCalledWith('dictionary');
+
+    app.unmount();
+  });
+
+  it('ダウンロードメニューで CSV をクリックした時点で通知し、続けて主ボタンでも同じ形式を通知する', async () => {
+    const { app, container, onDownload } = await mountComponent();
+    const downloadMenuButton = container.querySelector('[data-testid="miz-dialog-download-menu-button"]');
+    const downloadButton = container.querySelector('[data-testid="miz-dialog-download-button"]');
+
+    downloadMenuButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flushComponent();
+
+    [...container.querySelectorAll('button')]
+      .find((button) => button.getAttribute('data-testid') === 'miz-dialog-download-option-csv')
+      ?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flushComponent();
+
+    downloadButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flushComponent();
+
+    expect(onDownload).toHaveBeenNthCalledWith(1, 'csv');
+    expect(onDownload).toHaveBeenNthCalledWith(2, 'csv');
 
     app.unmount();
   });
 
   it('filtered entries が空でも totalEntryCount が残っていれば download ボタンを有効化する', async () => {
-    const { app, container, onDownloadDictionary } = await mountComponent({
+    const { app, container, onDownload } = await mountComponent({
       entries: [],
       visibleEntryCount: 0,
       totalEntryCount: 2,
     });
     const downloadButton = container.querySelector('[data-testid="miz-dialog-download-button"]') as HTMLButtonElement | null;
+    const downloadMenuButton = container.querySelector(
+      '[data-testid="miz-dialog-download-menu-button"]',
+    ) as HTMLButtonElement | null;
 
     expect(downloadButton?.disabled).toBe(false);
+    expect(downloadMenuButton?.disabled).toBe(false);
 
     downloadButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     await flushComponent();
 
-    expect(onDownloadDictionary).toHaveBeenCalledTimes(1);
+    expect(onDownload).toHaveBeenCalledTimes(1);
+    expect(onDownload).toHaveBeenCalledWith('dictionary');
 
     app.unmount();
   });

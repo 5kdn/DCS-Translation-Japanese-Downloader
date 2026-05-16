@@ -2,7 +2,12 @@ import { computed, ref } from 'vue';
 import type { MizDictionaryEntriesResult } from '@/features/mizTranslation/mizArchiveModels';
 import type { MizDictionaryEntry } from '@/features/mizTranslation/mizDictionaryModels';
 import type { MizDictionaryDocument } from '@/features/mizTranslation/mizDictionaryParser';
-import { buildDictionaryDownloadPayloadFromDocument } from '@/features/mizTranslation/mizTranslationService';
+import type {
+  MizTranslationDownloadFormat,
+  MizTranslationExportSort,
+} from '@/features/mizTranslation/mizTranslationDownloadModels';
+import type { MizTranslationImportEntry } from '@/features/mizTranslation/mizTranslationImportModels';
+import { buildMizTranslationDownloadPayload } from '@/features/mizTranslation/mizTranslationService';
 
 /**
  * @summary MIZ dictionary の編集状態を管理する。
@@ -73,6 +78,30 @@ export const useMizTranslationEditorState = () => {
   };
 
   /**
+   * @summary `key` と原文が完全一致する翻訳だけを import 結果で置き換える。
+   * @param importedEntries 読込済み翻訳一覧を指定する。
+   */
+  const replaceTranslationsFromImportEntries = (importedEntries: ReadonlyArray<MizTranslationImportEntry>): void => {
+    const importedEntryMap = new Map<string, string>();
+
+    for (const importedEntry of importedEntries) {
+      importedEntryMap.set(buildImportEntryMatchKey(importedEntry.key, importedEntry.sourceText), importedEntry.translatedText);
+    }
+
+    entries.value = entries.value.map((entry: MizDictionaryEntry): MizDictionaryEntry => {
+      const translatedText = importedEntryMap.get(buildImportEntryMatchKey(entry.key, entry.sourceText));
+      if (translatedText === undefined) {
+        return entry;
+      }
+
+      return {
+        ...entry,
+        translatedText,
+      };
+    });
+  };
+
+  /**
    * @summary 読込済み dictionary 一式を編集状態へ置き換える。
    * @param result 読込済み dictionary 結果を指定する。
    */
@@ -87,12 +116,12 @@ export const useMizTranslationEditorState = () => {
    * @summary 現在の編集内容からダウンロード用 payload を構築する。
    * @returns 出力対象行だけを含むダウンロード用 payload を返す。
    */
-  const buildDownloadPayload = () => {
+  const buildDownloadPayload = (format: MizTranslationDownloadFormat, sort: MizTranslationExportSort) => {
     if (document.value === null) {
       throw new Error('dictionary が未読込のためダウンロードできません。');
     }
 
-    return buildDictionaryDownloadPayloadFromDocument(document.value, entries.value);
+    return buildMizTranslationDownloadPayload(format, document.value, entries.value, fileName.value, sort);
   };
 
   /**
@@ -114,6 +143,7 @@ export const useMizTranslationEditorState = () => {
     setEntryEnabled,
     setEntryTranslatedText,
     replaceTranslationsFromDictionary,
+    replaceTranslationsFromImportEntries,
     replaceEntries,
     buildDownloadPayload,
     resetEntries,
@@ -131,4 +161,14 @@ const cloneEntries = (entries: ReadonlyArray<MizDictionaryEntry>): MizDictionary
       ...entry,
     };
   });
+};
+
+/**
+ * @summary import 一致判定用の複合 key を構築する。
+ * @param key dictionary key を指定する。
+ * @param sourceText 原文を指定する。
+ * @returns 一致判定用文字列を返す。
+ */
+const buildImportEntryMatchKey = (key: string, sourceText: string): string => {
+  return `${key}\u0000${sourceText}`;
 };

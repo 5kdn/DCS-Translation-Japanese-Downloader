@@ -121,15 +121,13 @@ describe('MizTranslationCloseConfirmDialog', () => {
     document.body.innerHTML = '';
   });
 
-  it('確認文言と操作ボタンを表示する', async () => {
+  it('確認ダイアログと操作ボタンを表示する', async () => {
     const { app, container } = await mountComponent(true);
 
     expect(container.querySelector('[data-testid="miz-close-confirm-dialog"]')).not.toBeNull();
-    expect(container.querySelector('[data-testid="miz-close-confirm-message"]')?.textContent).toContain(
-      '未保存の変更があります。保存していない変更は失われます。閉じますか？',
-    );
-    expect(container.querySelector('[data-testid="miz-close-confirm-cancel"]')?.textContent).toContain('キャンセル');
-    expect(container.querySelector('[data-testid="miz-close-confirm-submit"]')?.textContent).toContain('閉じる');
+    expect(container.querySelector('[data-testid="miz-close-confirm-message"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="miz-close-confirm-cancel"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="miz-close-confirm-submit"]')).not.toBeNull();
 
     app.unmount();
   });

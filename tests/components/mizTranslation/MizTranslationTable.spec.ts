@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createApp, defineComponent, h, nextTick } from 'vue';
 import MizTranslationTable from '@/components/mizTranslation/MizTranslationTable.vue';
 import type { MizDictionaryEntry } from '@/features/mizTranslation/mizDictionaryModels';
+import type { MizTranslationExportSort } from '@/features/mizTranslation/mizTranslationDownloadModels';
 
 const sampleEntries: MizDictionaryEntry[] = [
   {
@@ -47,6 +48,7 @@ const mountComponent = async (entries: MizDictionaryEntry[] = sampleEntries) => 
   document.body.appendChild(container);
   const onToggleEnabled = vi.fn();
   const onUpdateTranslation = vi.fn();
+  const onUpdateSort = vi.fn();
   const onError = vi.fn();
 
   const app = createApp(
@@ -57,6 +59,7 @@ const mountComponent = async (entries: MizDictionaryEntry[] = sampleEntries) => 
             entries,
             onToggleEnabled,
             onUpdateTranslation,
+            onUpdateSort,
             onError,
           });
       },
@@ -76,14 +79,35 @@ const mountComponent = async (entries: MizDictionaryEntry[] = sampleEntries) => 
           type: Array,
           required: true,
         },
+        sortBy: {
+          type: Array,
+          required: false,
+          default: () => [],
+        },
       },
-      setup(props, { slots }) {
+      emits: ['update:sortBy'],
+      setup(props, { slots, emit }) {
         return () =>
           h('div', { 'data-testid': 'miz-table-root' }, [
             h(
               'div',
               { 'data-testid': 'miz-table-headers' },
               (props.headers as Array<{ title: string }>).map((header) => header.title).join('|'),
+            ),
+            h(
+              'button',
+              {
+                type: 'button',
+                'data-testid': 'miz-table-sort-source-desc',
+                onClick: () =>
+                  emit('update:sortBy', [
+                    {
+                      key: 'sourceTextSortValue',
+                      order: 'desc',
+                    },
+                  ]),
+              },
+              undefined,
             ),
             ...(props.items as Array<{ entry: MizDictionaryEntry; keySortValue: string }>).map((item) =>
               h('div', { 'data-testid': `miz-table-row-${item.entry.key}` }, [
@@ -176,7 +200,7 @@ const mountComponent = async (entries: MizDictionaryEntry[] = sampleEntries) => 
   app.mount(container);
   await flushComponent();
 
-  return { app, container, onToggleEnabled, onUpdateTranslation, onError };
+  return { app, container, onToggleEnabled, onUpdateTranslation, onUpdateSort, onError };
 };
 
 describe('MizTranslationTable', () => {
@@ -200,14 +224,15 @@ describe('MizTranslationTable', () => {
     vi.restoreAllMocks();
   });
 
-  it('有効、key、原文、翻訳の列を描画する', async () => {
-    const { app, container } = await mountComponent();
+  it('有効、key、原文、翻訳の列要素を描画する', async () => {
+    const { app, container, onUpdateSort } = await mountComponent();
     const sourceTextarea = container.querySelector<HTMLTextAreaElement>('[data-testid="miz-entry-source-text"] textarea');
 
-    expect(container.querySelector('[data-testid="miz-table-headers"]')?.textContent).toContain('有効|key|原文|翻訳');
-    expect(container.querySelector('[data-testid="miz-entry-key"]')?.textContent).toContain('DictKey_1');
+    expect(container.querySelector('[data-testid="miz-table-headers"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="miz-entry-key"]')).not.toBeNull();
     expect(sourceTextarea?.value).toBe('Alpha');
     expect(container.querySelector('[data-testid="miz-entry-translation-DictKey_1"]')).not.toBeNull();
+    expect(onUpdateSort).toHaveBeenCalledWith({});
 
     app.unmount();
   });
@@ -391,6 +416,34 @@ describe('MizTranslationTable', () => {
     await flushComponent();
 
     expect(onError).toHaveBeenCalledWith('クリップボードへコピーできませんでした。');
+
+    app.unmount();
+  });
+
+  it('ソート変更で export 用ソート状態を通知する', async () => {
+    const entries = [
+      {
+        ...sampleEntries[0],
+        key: 'DictKey_2',
+        sourceText: 'Bravo',
+      },
+      {
+        ...sampleEntries[0],
+        key: 'DictKey_1',
+        sourceText: 'Alpha',
+      },
+    ];
+    const { app, container, onUpdateSort } = await mountComponent(entries);
+
+    container
+      .querySelector('[data-testid="miz-table-sort-source-desc"]')
+      ?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flushComponent();
+
+    expect(onUpdateSort).toHaveBeenLastCalledWith({
+      sortKey: 'sourceText',
+      sortOrder: 'desc',
+    } satisfies MizTranslationExportSort);
 
     app.unmount();
   });

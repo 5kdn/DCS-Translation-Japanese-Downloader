@@ -5,7 +5,15 @@ import associate_miz_with_zip from '@/assets/associate_miz_with_zip.reg.txt?raw'
 import { useDownloadListState } from '@/composables/useDownloadListState';
 import { useMizTranslationState } from '@/composables/useMizTranslationState';
 import { toErrorMessageForDisplay } from '@/errors/errorMessage';
-import { parseImportedDictionaryValues, readMizDictionaryEntries } from '@/features/mizTranslation/mizTranslationService';
+import type {
+  MizTranslationDownloadFormat,
+  MizTranslationExportSort,
+} from '@/features/mizTranslation/mizTranslationDownloadModels';
+import {
+  parseImportedDictionaryValues,
+  parseMizTranslationImportEntries,
+  readMizDictionaryEntries,
+} from '@/features/mizTranslation/mizTranslationService';
 import type { UploadDialogSubmitPayload } from '@/features/upload/uploadDialogSubmit';
 import type { CreatePrResponse } from '@/lib/client';
 import { fetchCreatePr, fetchTree, healthCheck } from '@/lib/client';
@@ -49,11 +57,13 @@ const {
   setEntryEnabled: _setMizEntryEnabled,
   setEntryTranslatedText: _setMizEntryTranslatedText,
   replaceTranslationsFromDictionary: _replaceMizTranslationsFromDictionary,
+  replaceTranslationsFromImportEntries: _replaceMizTranslationsFromImportEntries,
   setShowEnabled: _setMizShowEnabled,
   setShowDisabled: _setMizShowDisabled,
   setShowOnlyUntranslated: _setMizShowOnlyUntranslated,
   setHideNonTranslatable: _setMizHideNonTranslatable,
   setHideEmptySourceText: _setMizHideEmptySourceText,
+  setExportSort: _setMizExportSort,
   buildDownloadPayload: _buildMizDownloadPayload,
   markDownloadSucceeded: _markMizDownloadSucceeded,
   requestClose: _requestMizClose,
@@ -201,14 +211,21 @@ const _handleMizEntryTranslationUpdate = (key: string, value: string): void => {
 };
 
 /**
- * @summary 既存 dictionary を読み込み、翻訳列へ反映する。
- * @param file 読込対象の dictionary ファイルを指定する。
+ * @summary 既存翻訳ファイルを読み込み、翻訳列へ反映する。
+ * @param format 読込形式を指定する。
+ * @param file 読込対象ファイルを指定する。
  */
-const _handleMizDictionaryImport = async (file: File): Promise<void> => {
+const _handleMizDictionaryImport = async (format: MizTranslationDownloadFormat, file: File): Promise<void> => {
   try {
     const source = await file.text();
-    const importedValues = parseImportedDictionaryValues(source);
-    _replaceMizTranslationsFromDictionary(importedValues);
+    if (format === 'dictionary') {
+      const importedValues = parseImportedDictionaryValues(source);
+      _replaceMizTranslationsFromDictionary(importedValues);
+    } else {
+      const importedEntries = parseMizTranslationImportEntries(format, source);
+      _replaceMizTranslationsFromImportEntries(importedEntries);
+    }
+
     _clearMizErrorMessage();
   } catch (error: unknown) {
     _setMizErrorMessage(toErrorMessage(error));
@@ -218,9 +235,9 @@ const _handleMizDictionaryImport = async (file: File): Promise<void> => {
 /**
  * @summary 現在の編集内容を dictionary としてダウンロードする。
  */
-const _handleMizDictionaryDownload = (): void => {
+const _handleMizDictionaryDownload = (format: MizTranslationDownloadFormat): void => {
   try {
-    const payload = _buildMizDownloadPayload();
+    const payload = _buildMizDownloadPayload(format);
     const url = URL.createObjectURL(payload.blob);
     const anchor = document.createElement('a');
     anchor.href = url;
@@ -234,6 +251,14 @@ const _handleMizDictionaryDownload = (): void => {
   } catch (error: unknown) {
     _setMizErrorMessage(toErrorMessage(error));
   }
+};
+
+/**
+ * @summary MIZ エクスポート用ソート状態を更新する。
+ * @param value 更新後ソート状態を指定する。
+ */
+const _handleMizSortUpdate = (value: MizTranslationExportSort): void => {
+  _setMizExportSort(value);
 };
 
 /**
@@ -441,8 +466,9 @@ v-app
         @update:hide-empty-source-text="_handleMizHideEmptySourceTextUpdate"
         @toggle-enabled="_handleMizEntryToggleEnabled"
         @update-translation="_handleMizEntryTranslationUpdate"
+        @update-sort="_handleMizSortUpdate"
         @import-dictionary="_handleMizDictionaryImport"
-        @download-dictionary="_handleMizDictionaryDownload"
+        @download="_handleMizDictionaryDownload"
         @error="_handleMizDialogError"
       )
 

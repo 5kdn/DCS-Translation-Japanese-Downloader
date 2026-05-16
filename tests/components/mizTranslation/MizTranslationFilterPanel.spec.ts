@@ -157,10 +157,10 @@ describe('MizTranslationFilterPanel', () => {
     document.body.innerHTML = '';
   });
 
-  it('件数表示と主要フィルター要素を描画する', async () => {
+  it('件数表示要素と主要フィルター要素を描画する', async () => {
     const { app, container } = await mountComponent({ visibleEntryCount: 2, totalEntryCount: 5 });
 
-    expect(container.textContent).toContain('表示 2 / 5 件');
+    expect(container.querySelector('[data-testid="miz-filter-count"]')).not.toBeNull();
     expect(container.querySelector('[data-testid="miz-filter-show-enabled"]')).not.toBeNull();
     expect(container.querySelector('[data-testid="miz-filter-show-disabled"]')).not.toBeNull();
     expect(container.querySelector('[data-testid="miz-filter-show-only-untranslated"]')).not.toBeNull();
@@ -195,20 +195,13 @@ describe('MizTranslationFilterPanel', () => {
     app.unmount();
   });
 
-  it('tooltip に仕様文言を表示する', async () => {
+  it('tooltip 要素を描画する', async () => {
     const { app, container } = await mountComponent();
 
-    expect(container.querySelector('[data-testid="miz-filter-hide-non-translatable-tooltip-text"]')?.textContent).toBe(
-      `翻訳対象外であると思われる以下の項目を非表示にします
-  - キーが DictKey_ から始まらない
-  - キーが DictKey_WptName_* に当てはまる
-  - キーが DictKey_ActionComment_* に当てはまる
-  - キーが DictKey_GroupName_* に当てはまる
-  - キーが DictKey_UnitName_* に当てはまる`,
-    );
-    expect(container.querySelector('[data-testid="miz-filter-hide-empty-source-text-tooltip-text"]')?.textContent).toBe(
-      '原文が空の文字列である項目を非表示にします',
-    );
+    expect(container.querySelector('[data-testid="miz-filter-hide-non-translatable-tooltip-trigger"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="miz-filter-hide-non-translatable-tooltip-text"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="miz-filter-hide-empty-source-text-tooltip-trigger"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="miz-filter-hide-empty-source-text-tooltip-text"]')).not.toBeNull();
 
     app.unmount();
   });

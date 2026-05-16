@@ -235,6 +235,30 @@ describe('useMizTranslationState', () => {
     ]);
   });
 
+  it('exportEntries は現在のソート状態に追従する', async () => {
+    const mizFile = await createMizFile([
+      {
+        path: 'l10n/DEFAULT/dictionary',
+        content: `dictionary = {
+  ["DictKey_1"] = "Bravo",
+  ["DictKey_2"] = "Alpha",
+}`,
+      },
+    ]);
+    const result = await readMizDictionaryEntries(mizFile);
+    const state = useMizTranslationState();
+
+    state.loadMizResult(result);
+    expect(state.exportEntries.value.map((entry) => entry.key)).toEqual(['DictKey_1', 'DictKey_2']);
+
+    state.setExportSort({
+      sortKey: 'sourceText',
+      sortOrder: 'asc',
+    });
+
+    expect(state.exportEntries.value.map((entry) => entry.key)).toEqual(['DictKey_2', 'DictKey_1']);
+  });
+
   it('visibleEntryCount はフィルター変更に追従する', async () => {
     const mizFile = await createMizFile([
       {

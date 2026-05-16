@@ -95,7 +95,7 @@ vi.mock('@/components/CreateIssueDialog.vue', () => {
   return createIssueDialogStubModule;
 });
 
-vi.mock('/src/components/CreateIssueDialog.vue', () => {
+vi.mock('@/components/CreateIssueDialog.vue', () => {
   return createIssueDialogStubModule;
 });
 
@@ -103,7 +103,7 @@ vi.mock('@/components/download/DownloadFileDialog.vue', () => {
   return downloadFileDialogStubModule;
 });
 
-vi.mock('/src/components/download/DownloadFileDialog.vue', () => {
+vi.mock('@/components/download/DownloadFileDialog.vue', () => {
   return downloadFileDialogStubModule;
 });
 
@@ -277,21 +277,6 @@ const mountDownloadListTable = async (): Promise<{
   return { app, container, onError };
 };
 
-const getButtonsByLabel = (label: string): HTMLButtonElement[] => {
-  return [...document.body.querySelectorAll('button')].filter((element): element is HTMLButtonElement => {
-    return element.textContent?.trim() === label;
-  });
-};
-
-const getButtonByLabel = (label: string, index = 0): HTMLButtonElement => {
-  const buttons = getButtonsByLabel(label);
-  const button = buttons[index];
-  if (button === undefined) {
-    throw new Error(`button not found: ${label}[${index}]`);
-  }
-  return button;
-};
-
 describe('DownloadListTable', () => {
   const windowOpenSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
   const createObjectUrlSpy = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:download-result');
@@ -307,24 +292,35 @@ describe('DownloadListTable', () => {
     document.body.innerHTML = '';
   });
 
+  /**
+   * @summary アクセシブル名から操作ボタンを取得する。
+   * @param label ボタンの aria-label を指定する。
+   * @returns 対象ボタンを返す。
+   */
+  const getButtonByAriaLabel = (label: string): HTMLButtonElement => {
+    const button = document.body.querySelector(`button[aria-label="${label}"]`);
+    if (!(button instanceof HTMLButtonElement)) {
+      throw new Error(`button not found: ${label}`);
+    }
+    return button;
+  };
+
   it('ファイル一覧操作で対象行のダイアログを開いて閉じる', async () => {
     const { app } = await mountDownloadListTable();
 
-    getButtonByLabel('ファイル一覧').click();
+    getButtonByAriaLabel('F-16C のファイル一覧を開く').click();
     await flushComponent();
 
-    expect(document.body.querySelector('[data-testid="download-file-row-name"]')?.textContent).toBe('F-16C');
-    expect(document.body.textContent).toContain('Cold Start.miz');
+    expect(document.body.querySelector('[data-testid="download-file-dialog"]')).not.toBeNull();
+    expect(document.body.querySelectorAll('[data-testid="download-file-item"]')).toHaveLength(2);
 
-    const fileListButtons = getButtonsByLabel('ファイル一覧');
-    expect(fileListButtons[0]?.hasAttribute('disabled')).toBe(true);
+    expect(getButtonByAriaLabel('F-16C のファイル一覧を開く').disabled).toBe(true);
 
-    const closeButton = getButtonByLabel('close file dialog');
-    closeButton?.click();
+    (document.body.querySelector('[data-testid="download-file-dialog"] button') as HTMLButtonElement).click();
     await flushComponent();
 
     expect(document.body.querySelector('[data-testid="download-file-dialog"]')).toBeNull();
-    expect(getButtonsByLabel('ファイル一覧')[0]?.hasAttribute('disabled')).toBe(false);
+    expect(getButtonByAriaLabel('F-16C のファイル一覧を開く').disabled).toBe(false);
 
     app.unmount();
   });
@@ -332,19 +328,18 @@ describe('DownloadListTable', () => {
   it('報告操作で対象ディレクトリを引き継いでダイアログを開く', async () => {
     const { app } = await mountDownloadListTable();
 
-    getButtonByLabel('報告', 1).click();
+    getButtonByAriaLabel('Mi-24P の問題を報告する').click();
     await flushComponent();
 
     const pathOutput = document.body.querySelector('[data-testid="create-issue-path"]');
     expect(pathOutput?.textContent).toBe('DCSWorld/Mods/aircraft/Mi-24P');
-    expect(getButtonsByLabel('報告')[1]?.hasAttribute('disabled')).toBe(true);
+    expect(getButtonByAriaLabel('Mi-24P の問題を報告する').disabled).toBe(true);
 
-    const closeButton = getButtonByLabel('close issue dialog');
-    closeButton.click();
+    (document.body.querySelector('[data-testid="create-issue-dialog"] button') as HTMLButtonElement).click();
     await flushComponent();
 
     expect(document.body.querySelector('[data-testid="create-issue-dialog"]')).toBeNull();
-    expect(getButtonsByLabel('報告')[1]?.hasAttribute('disabled')).toBe(false);
+    expect(getButtonByAriaLabel('Mi-24P の問題を報告する').disabled).toBe(false);
 
     app.unmount();
   });
@@ -352,11 +347,11 @@ describe('DownloadListTable', () => {
   it('フォルダを見ると DL が既存導線を維持する', async () => {
     const { app, onError } = await mountDownloadListTable();
 
-    getButtonByLabel('フォルダを見る').click();
+    getButtonByAriaLabel('F-16C のフォルダを開く').click();
     expect(buildGitHubBlobUrlMock).toHaveBeenCalledWith('DCSWorld/Mods/aircraft/F-16C');
     expect(windowOpenSpy).toHaveBeenCalledWith('blob:DCSWorld/Mods/aircraft/F-16C', '_blank', 'noopener,noreferrer');
 
-    getButtonByLabel('DL').click();
+    getButtonByAriaLabel('F-16C のZIP をダウンロードする').click();
     await flushComponent();
 
     expect(createZipFromTargetsMock).toHaveBeenCalledWith([

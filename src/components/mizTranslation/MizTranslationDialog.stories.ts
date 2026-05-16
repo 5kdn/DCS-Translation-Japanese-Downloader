@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { defineComponent, ref } from 'vue';
+import type { MizTranslationDownloadFormat } from '@/features/mizTranslation/mizTranslationDownloadModels';
 import MizTranslationDialog from './MizTranslationDialog.vue';
 
 const sampleEntries = [
@@ -28,7 +29,7 @@ const meta = {
   tags: ['autodocs'],
   argTypes: {
     'onImport-dictionary': { action: 'import-dictionary' },
-    'onDownload-dictionary': { action: 'download-dictionary' },
+    onDownload: { action: 'download' },
   },
   args: {
     modelValue: true,
@@ -40,7 +41,7 @@ const meta = {
     visibleEntryCount: sampleEntries.length,
     totalEntryCount: sampleEntries.length,
     'onImport-dictionary': fn(),
-    'onDownload-dictionary': fn(),
+    onDownload: fn(),
   },
   render: (args) =>
     defineComponent({
@@ -52,19 +53,21 @@ const meta = {
 
         /**
          * @summary dictionary import イベントを Storybook action と表示状態へ反映する。
+         * @param format 読み込み形式を指定する。
          * @param file 読み込まれた dictionary ファイルを指定する。
          */
-        const handleImportDictionary = (file: File): void => {
+        const handleImportDictionary = (format: MizTranslationDownloadFormat, file: File): void => {
           importedFileName.value = file.name;
-          args['onImport-dictionary']?.(file);
+          args['onImport-dictionary']?.(format, file);
         };
 
         /**
          * @summary dictionary download イベントを Storybook action と表示状態へ反映する。
+         * @param format ダウンロード形式を指定する。
          */
-        const handleDownloadDictionary = (): void => {
+        const handleDownloadDictionary = (format: MizTranslationDownloadFormat): void => {
           downloadCount.value += 1;
-          args['onDownload-dictionary']?.();
+          args.onDownload?.(format);
         };
 
         return {
@@ -89,7 +92,7 @@ const meta = {
             :total-entry-count="args.totalEntryCount"
             @update:modelValue="isOpen = $event"
             @import-dictionary="handleImportDictionary"
-            @download-dictionary="handleDownloadDictionary"
+            @download="handleDownloadDictionary"
           />
           <output data-testid="miz-dialog-open-state">{{ isOpen ? 'open' : 'closed' }}</output>
           <output data-testid="miz-dialog-imported-file">{{ importedFileName }}</output>
@@ -118,7 +121,10 @@ export const Default: Story = {
       'Lua コードが翻訳対象となっている可能性があります。',
     );
     await expect(dialogScope.getByTestId('miz-dialog-import-button')).toBeInTheDocument();
+    await expect(dialogScope.getByTestId('miz-dialog-import-button')).toHaveTextContent('Import');
+    await expect(dialogScope.getByTestId('miz-dialog-import-menu-button')).toBeInTheDocument();
     await expect(dialogScope.getByTestId('miz-dialog-download-button')).toBeInTheDocument();
+    await expect(dialogScope.getByTestId('miz-dialog-download-menu-button')).toBeInTheDocument();
   },
 };
 
@@ -164,21 +170,28 @@ export const ImportExportActions: Story = {
     const canvas = within(canvasElement);
     const user = userEvent.setup({ pointerEventsCheck: 0 });
     const importInput = dialogScope.getByTestId('miz-dialog-dictionary-input') as HTMLInputElement;
-    const importButton = dialogScope.getByTestId('miz-dialog-import-button');
-    const downloadButton = dialogScope.getByTestId('miz-dialog-download-button');
-    const file = new File(['dictionary = {}'], 'dictionary', { type: 'text/plain' });
+    const downloadMenuButton = dialogScope.getByTestId('miz-dialog-download-menu-button');
+    const file = new File(['msgid ""'], 'sample.po', { type: 'text/plain' });
 
     Object.defineProperty(importInput, 'files', {
       configurable: true,
       value: [file],
     });
 
-    await user.click(importButton);
+    await user.click(dialogScope.getByTestId('miz-dialog-import-menu-button'));
+    await expect(dialogScope.getByTestId('miz-dialog-import-option-dictionary')).toHaveTextContent('dictionary形式（既定）');
+    await expect(dialogScope.getByTestId('miz-dialog-import-option-po')).toHaveTextContent('PO形式');
+    await expect(dialogScope.getByTestId('miz-dialog-import-option-csv')).toHaveTextContent('CSV形式');
+    await user.click(dialogScope.getByTestId('miz-dialog-import-option-po'));
     importInput.dispatchEvent(new Event('change', { bubbles: true }));
-    await user.click(downloadButton);
+    await user.click(downloadMenuButton);
+    await expect(dialogScope.getByTestId('miz-dialog-download-option-dictionary')).toHaveTextContent('dictionary形式（既定）');
+    await expect(dialogScope.getByTestId('miz-dialog-download-option-po')).toHaveTextContent('PO形式');
+    await expect(dialogScope.getByTestId('miz-dialog-download-option-csv')).toHaveTextContent('CSV形式');
+    await user.click(dialogScope.getByTestId('miz-dialog-download-option-po'));
 
     await waitFor(() => {
-      expect(canvas.getByTestId('miz-dialog-imported-file')).toHaveTextContent('dictionary');
+      expect(canvas.getByTestId('miz-dialog-imported-file')).toHaveTextContent('sample.po');
       expect(canvas.getByTestId('miz-dialog-download-count')).toHaveTextContent('1');
     });
   },
@@ -194,6 +207,7 @@ export const FilteredOutEntries: Story = {
     const dialogScope = within(canvasElement.ownerDocument.body);
 
     await expect(dialogScope.getByTestId('miz-dialog-download-button')).toBeEnabled();
+    await expect(dialogScope.getByTestId('miz-dialog-download-menu-button')).toBeEnabled();
     await expect(dialogScope.getByText('表示できる翻訳項目がありません。')).toBeInTheDocument();
   },
 };
@@ -236,6 +250,7 @@ export const BlankSourceEntries: Story = {
     const enabledInput8 = dialogScope.getByTestId('miz-entry-enabled-DictKey_8').querySelector('input');
 
     await expect(dialogScope.getByTestId('miz-dialog-download-button')).toBeEnabled();
+    await expect(dialogScope.getByTestId('miz-dialog-download-menu-button')).toBeEnabled();
     await expect(dialogScope.getByText('DictKey_6')).toBeInTheDocument();
     await expect(dialogScope.getByText('DictKey_7')).toBeInTheDocument();
     await expect(dialogScope.getByText('DictKey_8')).toBeInTheDocument();

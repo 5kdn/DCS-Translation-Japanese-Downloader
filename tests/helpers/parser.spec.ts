@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { parseDate, parseNullableDate } from '../../src/helpers/parser';
+import { parseDate, parseNullableDate } from '@/helpers/parser';
 
 describe('parseDate', () => {
   it('null/undefined/empty/whitespace は undefined を返す', () => {

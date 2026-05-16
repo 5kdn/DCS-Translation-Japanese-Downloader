@@ -60,6 +60,39 @@ describe('useMizTranslationEditorState', () => {
     ]);
   });
 
+  it('import エントリーは key と原文が完全一致した行だけを置き換える', () => {
+    const state = useMizTranslationEditorState();
+    state.replaceEntries(
+      createResult([
+        createEntry({ key: 'DictKey_1', sourceText: 'Alpha' }),
+        createEntry({ key: 'DictKey_2', sourceText: 'Bravo', enabled: false }),
+      ]),
+    );
+
+    state.replaceTranslationsFromImportEntries([
+      {
+        key: 'DictKey_1',
+        sourceText: 'Alpha',
+        translatedText: '翻訳1',
+      },
+      {
+        key: 'DictKey_2',
+        sourceText: 'Mismatch',
+        translatedText: 'ignored',
+      },
+      {
+        key: 'DictKey_3',
+        sourceText: 'Charlie',
+        translatedText: 'ignored',
+      },
+    ]);
+
+    expect(state.entries.value).toEqual([
+      createEntry({ key: 'DictKey_1', sourceText: 'Alpha', translatedText: '翻訳1' }),
+      createEntry({ key: 'DictKey_2', sourceText: 'Bravo', enabled: false }),
+    ]);
+  });
+
   it('出力対象行だけを dictionary ダウンロード payload へ含める', async () => {
     const state = useMizTranslationEditorState();
     state.replaceEntries(
@@ -71,10 +104,29 @@ describe('useMizTranslationEditorState', () => {
       ]),
     );
 
-    const payload = state.buildDownloadPayload();
+    const payload = state.buildDownloadPayload('dictionary', {});
 
     expect(await payload.blob.text()).toBe(
       ['dictionary = {', '  -- keep comment', '  ["DictKey_1"] = "翻訳1",', '  ["DictKey_2"] = "Bravo",', '}'].join('\n'),
     );
+  });
+
+  it('dictionary ダウンロード payload は UTF-8 BOM 無しかつ LF で出力する', async () => {
+    const source = 'dictionary = {\r\n  ["DictKey_1"] = "Alpha",\r\n}';
+    const state = useMizTranslationEditorState();
+    state.replaceEntries({
+      entries: [createEntry({ translatedText: '翻訳1' })],
+      source,
+      fileName: 'sample.miz',
+      document: parseMizDictionaryDocument(source),
+    });
+
+    const payload = state.buildDownloadPayload('dictionary', {});
+    const bytes = new Uint8Array(await payload.blob.arrayBuffer());
+    const content = await payload.blob.text();
+
+    expect([...bytes.slice(0, 3)]).not.toEqual([0xef, 0xbb, 0xbf]);
+    expect(content).toBe('dictionary = {\n  ["DictKey_1"] = "翻訳1",\n}');
+    expect(content).not.toContain('\r');
   });
 });
