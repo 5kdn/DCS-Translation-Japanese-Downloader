@@ -141,7 +141,7 @@ onBeforeUnmount((): void => {
 
 <template lang="pug">
 h2.d-inline-flex.align-start.text-display-large.mt-10.mb-5 Download
-v-card(variant="tonal")
+v-card
   v-tabs(v-model="_activeCategoryKey" color="primary" grow mandatory aria-label="ダウンロードカテゴリ")
     v-tab(v-for="category in categories" :key="category.key" :value="category.key") {{ category.label }}
 

@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite';
 import { expect, waitFor, within } from 'storybook/test';
-import { defineComponent } from 'vue';
 import MizTranslationEntrySection from './MizTranslationEntrySection.vue';
 
 const meta = {
@@ -11,18 +10,6 @@ const meta = {
     isLoading: false,
     errorMessage: null,
   },
-  render: (args) =>
-    defineComponent({
-      components: { MizTranslationEntrySection },
-      setup: () => {
-        return {
-          args,
-        };
-      },
-      template: `
-        <MizTranslationEntrySection v-bind="args" />
-      `,
-    }),
 } satisfies Meta<typeof MizTranslationEntrySection>;
 
 export default meta;
@@ -35,7 +22,7 @@ export const Default: Story = {
     await expect(await canvas.findByText('.miz / .trk ファイルをドロップする')).toBeInTheDocument();
     await expect(await canvas.findByRole('button', { name: '.miz / .trk ファイルを選択' })).toBeInTheDocument();
 
-    const input = canvasElement.querySelector('input[type="file"]');
+    const input = await canvas.findByTestId('miz-file-input');
     if (!(input instanceof HTMLInputElement)) {
       throw new Error('MIZ/TRK file input の取得に失敗した。');
     }
@@ -56,7 +43,8 @@ export const ErrorState: Story = {
 
 export const DragOver: Story = {
   play: async ({ canvasElement }): Promise<void> => {
-    const dropzone = canvasElement.querySelector('[data-testid="miz-dropzone"]');
+    const canvas = within(canvasElement);
+    const dropzone = await canvas.findByTestId('miz-dropzone');
     if (!(dropzone instanceof HTMLElement)) {
       throw new Error('MIZ/TRK dropzone の取得に失敗した。');
     }
@@ -73,13 +61,14 @@ export const Loading: Story = {
     isLoading: true,
   },
   play: async ({ canvasElement }): Promise<void> => {
-    const input = canvasElement.querySelector('input[type="file"]');
+    const canvas = within(canvasElement);
+    const input = await canvas.findByTestId('miz-file-input');
     if (!(input instanceof HTMLInputElement)) {
       throw new Error('MIZ/TRK file input の取得に失敗した。');
     }
 
     expect(input.disabled).toBe(true);
     expect(input.accept).toBe('.miz,.trk');
-    await expect((await within(canvasElement).findByRole('button')).hasAttribute('disabled')).toBe(true);
+    await expect((await canvas.findByRole('button')).hasAttribute('disabled')).toBe(true);
   },
 };

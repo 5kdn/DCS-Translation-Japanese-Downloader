@@ -1,6 +1,7 @@
 import { setup } from '@storybook/vue3';
 import type { Preview } from '@storybook/vue3-vite';
 import { registerPlugins } from '../src/plugins';
+import { mswLoader } from './msw';
 import '@mdi/font/css/materialdesignicons.css';
 // Plugins
 import { withVuetifyTheme } from './withVuetifyTheme.decorator';
@@ -27,6 +28,7 @@ export const GlobalTypes = {
 
 const preview: Preview = {
   decorators: [withVuetifyTheme],
+  loaders: [mswLoader],
   parameters: {
     controls: {
       matchers: {

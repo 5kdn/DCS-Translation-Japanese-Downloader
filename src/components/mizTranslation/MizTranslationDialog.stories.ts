@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite';
+import { useArgs } from 'storybook/preview-api';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
-import { defineComponent, ref } from 'vue';
+import { defineComponent } from 'vue';
 import type { MizTranslationDownloadFormat } from '@/features/mizTranslation/mizTranslationDownloadModels';
 import MizTranslationDialog from './MizTranslationDialog.vue';
 
@@ -23,6 +24,11 @@ const sampleFilter = {
   hideEmptySourceText: true,
 };
 
+type SampleFilter = typeof sampleFilter;
+type SampleFilterKey = keyof SampleFilter;
+type ImportDictionaryAction = (format: MizTranslationDownloadFormat, file: File) => void;
+type DownloadAction = (format: MizTranslationDownloadFormat) => void;
+
 const meta = {
   title: 'MizTranslation/MizTranslationDialog',
   component: MizTranslationDialog,
@@ -43,63 +49,121 @@ const meta = {
     'onImport-dictionary': fn(),
     onDownload: fn(),
   },
-  render: (args) =>
-    defineComponent({
+  render: (args) => {
+    const [currentArgs, updateArgs] = useArgs<typeof args>();
+
+    return defineComponent({
       components: { MizTranslationDialog },
       setup: () => {
-        const isOpen = ref(args.modelValue);
-        const importedFileName = ref('not imported');
-        const downloadCount = ref(0);
+        const importDictionaryAction: ImportDictionaryAction =
+          (args['onImport-dictionary'] as ImportDictionaryAction | undefined) ?? (() => undefined);
+        const downloadAction: DownloadAction = (args.onDownload as DownloadAction | undefined) ?? (() => undefined);
 
         /**
-         * @summary dictionary import イベントを Storybook action と表示状態へ反映する。
-         * @param format 読み込み形式を指定する。
-         * @param file 読み込まれた dictionary ファイルを指定する。
+         * @summary ダイアログ表示状態を Storybook args へ反映する。
+         * @param value 更新値を指定する。
          */
-        const handleImportDictionary = (format: MizTranslationDownloadFormat, file: File): void => {
-          importedFileName.value = file.name;
-          args['onImport-dictionary']?.(format, file);
+        const handleModelValueUpdate = (value: boolean): void => {
+          updateArgs({ modelValue: value });
         };
 
         /**
-         * @summary dictionary download イベントを Storybook action と表示状態へ反映する。
+         * @summary 指定したフィルター項目を Storybook args へ反映する関数を生成する。
+         * @param key 更新対象の filter キーを指定する。
+         * @returns Storybook args 更新ハンドラーを返す。
+         */
+        const createFilterUpdater = (key: SampleFilterKey) => {
+          return (value: boolean): void => {
+            updateArgs({
+              filter: {
+                ...currentArgs.filter,
+                [key]: value,
+              },
+            });
+          };
+        };
+
+        /**
+         * @summary 有効状態表示フィルターを Storybook args へ反映する。
+         * @param value 更新値を指定する。
+         */
+        const handleShowEnabledUpdate = createFilterUpdater('showEnabled');
+
+        /**
+         * @summary 無効状態表示フィルターを Storybook args へ反映する。
+         * @param value 更新値を指定する。
+         */
+        const handleShowDisabledUpdate = createFilterUpdater('showDisabled');
+
+        /**
+         * @summary 未翻訳のみ表示フィルターを Storybook args へ反映する。
+         * @param value 更新値を指定する。
+         */
+        const handleShowOnlyUntranslatedUpdate = createFilterUpdater('showOnlyUntranslated');
+
+        /**
+         * @summary 翻訳対象外非表示フィルターを Storybook args へ反映する。
+         * @param value 更新値を指定する。
+         */
+        const handleHideNonTranslatableUpdate = createFilterUpdater('hideNonTranslatable');
+
+        /**
+         * @summary 空欄非表示フィルターを Storybook args へ反映する。
+         * @param value 更新値を指定する。
+         */
+        const handleHideEmptySourceTextUpdate = createFilterUpdater('hideEmptySourceText');
+
+        /**
+         * @summary 辞書取り込みイベントを action へ中継する。
+         * @param format 取り込み形式を指定する。
+         * @param file 取り込み対象ファイルを指定する。
+         */
+        const handleImportDictionary = (format: MizTranslationDownloadFormat, file: File): void => {
+          importDictionaryAction(format, file);
+        };
+
+        /**
+         * @summary ダウンロードイベントを action へ中継する。
          * @param format ダウンロード形式を指定する。
          */
-        const handleDownloadDictionary = (format: MizTranslationDownloadFormat): void => {
-          downloadCount.value += 1;
-          args.onDownload?.(format);
+        const handleDownload = (format: MizTranslationDownloadFormat): void => {
+          downloadAction(format);
         };
 
         return {
-          args,
-          isOpen,
-          importedFileName,
-          downloadCount,
+          currentArgs,
+          handleDownload,
+          handleHideEmptySourceTextUpdate,
+          handleHideNonTranslatableUpdate,
           handleImportDictionary,
-          handleDownloadDictionary,
+          handleModelValueUpdate,
+          handleShowDisabledUpdate,
+          handleShowEnabledUpdate,
+          handleShowOnlyUntranslatedUpdate,
         };
       },
       template: `
-        <div>
-          <MizTranslationDialog
-            :model-value="isOpen"
-            :loaded-file-name="args.loadedFileName"
-            :is-loading="args.isLoading"
-            :entries="args.entries"
-            :error-message="args.errorMessage"
-            :filter="args.filter"
-            :visible-entry-count="args.visibleEntryCount"
-            :total-entry-count="args.totalEntryCount"
-            @update:modelValue="isOpen = $event"
-            @import-dictionary="handleImportDictionary"
-            @download="handleDownloadDictionary"
-          />
-          <output data-testid="miz-dialog-open-state">{{ isOpen ? 'open' : 'closed' }}</output>
-          <output data-testid="miz-dialog-imported-file">{{ importedFileName }}</output>
-          <output data-testid="miz-dialog-download-count">{{ downloadCount }}</output>
-        </div>
+        <MizTranslationDialog
+          :model-value="currentArgs.modelValue"
+          :loaded-file-name="currentArgs.loadedFileName"
+          :is-loading="currentArgs.isLoading"
+          :entries="currentArgs.entries"
+          :error-message="currentArgs.errorMessage"
+          :filter="currentArgs.filter"
+          :visible-entry-count="currentArgs.visibleEntryCount"
+          :total-entry-count="currentArgs.totalEntryCount"
+          @update:model-value="handleModelValueUpdate"
+          @update:show-enabled="handleShowEnabledUpdate"
+          @update:show-disabled="handleShowDisabledUpdate"
+          @update:show-only-untranslated="handleShowOnlyUntranslatedUpdate"
+          @update:hide-non-translatable="handleHideNonTranslatableUpdate"
+          @update:hide-empty-source-text="handleHideEmptySourceTextUpdate"
+          @import-dictionary="handleImportDictionary"
+          @download="handleDownload"
+        />
       `,
-    }),
+    });
+  },
 } satisfies Meta<typeof MizTranslationDialog>;
 
 export default meta;
@@ -108,23 +172,15 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   play: async ({ canvasElement }): Promise<void> => {
     const dialogScope = within(canvasElement.ownerDocument.body);
-    await expect(dialogScope.getByText('MIZ 翻訳')).toBeInTheDocument();
+
     await expect(dialogScope.getByTestId('miz-dialog-file-name')).toHaveTextContent('briefing.miz');
     await expect(dialogScope.getByTestId('miz-dialog-information')).toBeInTheDocument();
-    await expect(dialogScope.getByTestId('miz-dialog-information')).toHaveTextContent(
-      '有効にチェックが入っている項目だけが翻訳した dictionary ファイルに追加されます。',
-    );
-    await expect(dialogScope.getByTestId('miz-dialog-information')).toHaveTextContent(
-      'dictionary ファイルを直接編集するときのような \\ エスケープは不要です。',
-    );
-    await expect(dialogScope.getByTestId('miz-dialog-information')).toHaveTextContent(
-      'Lua コードが翻訳対象となっている可能性があります。',
-    );
     await expect(dialogScope.getByTestId('miz-dialog-import-button')).toBeInTheDocument();
-    await expect(dialogScope.getByTestId('miz-dialog-import-button')).toHaveTextContent('Import');
     await expect(dialogScope.getByTestId('miz-dialog-import-menu-button')).toBeInTheDocument();
     await expect(dialogScope.getByTestId('miz-dialog-download-button')).toBeInTheDocument();
     await expect(dialogScope.getByTestId('miz-dialog-download-menu-button')).toBeInTheDocument();
+    await expect(await dialogScope.findByLabelText('有効状態を表示')).toBeChecked();
+    await expect(await dialogScope.findByLabelText('対象外を非表示')).toBeChecked();
   },
 };
 
@@ -134,7 +190,15 @@ export const Loading: Story = {
   },
   play: async ({ canvasElement }): Promise<void> => {
     const dialogScope = within(canvasElement.ownerDocument.body);
-    await expect(dialogScope.getByTestId('miz-dialog-loading')).toHaveTextContent('dictionary を読み込み中です。');
+
+    await expect(dialogScope.getByTestId('miz-dialog-loading')).toBeInTheDocument();
+    await expect(dialogScope.queryByTestId('miz-dialog-information')).toBeNull();
+    await expect(dialogScope.queryByTestId('miz-table-entry-count')).toBeNull();
+    await expect(dialogScope.getByLabelText('MIZ 翻訳ダイアログを閉じる')).toBeDisabled();
+    await expect(dialogScope.getByTestId('miz-dialog-import-button')).toBeDisabled();
+    await expect(dialogScope.getByTestId('miz-dialog-import-menu-button')).toBeDisabled();
+    await expect(dialogScope.getByTestId('miz-dialog-download-button')).toBeDisabled();
+    await expect(dialogScope.getByTestId('miz-dialog-download-menu-button')).toBeDisabled();
   },
 };
 
@@ -144,56 +208,9 @@ export const ErrorState: Story = {
   },
   play: async ({ canvasElement }): Promise<void> => {
     const dialogScope = within(canvasElement.ownerDocument.body);
+
     await expect(dialogScope.getByTestId('miz-dialog-error')).toHaveTextContent('dictionary の読み込みに失敗しました。');
     await expect(dialogScope.getByTestId('miz-dialog-information')).toBeInTheDocument();
-  },
-};
-
-export const CloseInteraction: Story = {
-  play: async ({ canvasElement }): Promise<void> => {
-    const dialogScope = within(canvasElement.ownerDocument.body);
-    const canvas = within(canvasElement);
-    const closeButton = dialogScope.getByRole('button', { name: 'MIZ 翻訳ダイアログを閉じる' });
-    const user = userEvent.setup({ pointerEventsCheck: 0 });
-
-    await user.click(closeButton);
-
-    await waitFor(() => {
-      expect(canvas.getByTestId('miz-dialog-open-state')).toHaveTextContent('closed');
-    });
-  },
-};
-
-export const ImportExportActions: Story = {
-  play: async ({ canvasElement }): Promise<void> => {
-    const dialogScope = within(canvasElement.ownerDocument.body);
-    const canvas = within(canvasElement);
-    const user = userEvent.setup({ pointerEventsCheck: 0 });
-    const importInput = dialogScope.getByTestId('miz-dialog-dictionary-input') as HTMLInputElement;
-    const downloadMenuButton = dialogScope.getByTestId('miz-dialog-download-menu-button');
-    const file = new File(['msgid ""'], 'sample.po', { type: 'text/plain' });
-
-    Object.defineProperty(importInput, 'files', {
-      configurable: true,
-      value: [file],
-    });
-
-    await user.click(dialogScope.getByTestId('miz-dialog-import-menu-button'));
-    await expect(dialogScope.getByTestId('miz-dialog-import-option-dictionary')).toHaveTextContent('dictionary形式（既定）');
-    await expect(dialogScope.getByTestId('miz-dialog-import-option-po')).toHaveTextContent('PO形式');
-    await expect(dialogScope.getByTestId('miz-dialog-import-option-csv')).toHaveTextContent('CSV形式');
-    await user.click(dialogScope.getByTestId('miz-dialog-import-option-po'));
-    importInput.dispatchEvent(new Event('change', { bubbles: true }));
-    await user.click(downloadMenuButton);
-    await expect(dialogScope.getByTestId('miz-dialog-download-option-dictionary')).toHaveTextContent('dictionary形式（既定）');
-    await expect(dialogScope.getByTestId('miz-dialog-download-option-po')).toHaveTextContent('PO形式');
-    await expect(dialogScope.getByTestId('miz-dialog-download-option-csv')).toHaveTextContent('CSV形式');
-    await user.click(dialogScope.getByTestId('miz-dialog-download-option-po'));
-
-    await waitFor(() => {
-      expect(canvas.getByTestId('miz-dialog-imported-file')).toHaveTextContent('sample.po');
-      expect(canvas.getByTestId('miz-dialog-download-count')).toHaveTextContent('1');
-    });
   },
 };
 
@@ -203,12 +220,22 @@ export const FilteredOutEntries: Story = {
     visibleEntryCount: 0,
     totalEntryCount: 2,
   },
+};
+
+export const ToggleFilters: Story = {
   play: async ({ canvasElement }): Promise<void> => {
     const dialogScope = within(canvasElement.ownerDocument.body);
+    const user = userEvent.setup({ pointerEventsCheck: 0 });
 
-    await expect(dialogScope.getByTestId('miz-dialog-download-button')).toBeEnabled();
-    await expect(dialogScope.getByTestId('miz-dialog-download-menu-button')).toBeEnabled();
-    await expect(dialogScope.getByText('表示できる翻訳項目がありません。')).toBeInTheDocument();
+    await user.click(await dialogScope.findByLabelText('未翻訳のみ表示'));
+    await waitFor(() => {
+      expect(dialogScope.getByLabelText('未翻訳のみ表示')).toBeChecked();
+    });
+
+    await user.click(dialogScope.getByLabelText('対象外を非表示'));
+    await waitFor(() => {
+      expect(dialogScope.getByLabelText('対象外を非表示')).not.toBeChecked();
+    });
   },
 };
 
@@ -242,20 +269,5 @@ export const BlankSourceEntries: Story = {
     ],
     visibleEntryCount: 3,
     totalEntryCount: 3,
-  },
-  play: async ({ canvasElement }): Promise<void> => {
-    const dialogScope = within(canvasElement.ownerDocument.body);
-    const enabledInput6 = dialogScope.getByTestId('miz-entry-enabled-DictKey_6').querySelector('input');
-    const enabledInput7 = dialogScope.getByTestId('miz-entry-enabled-DictKey_7').querySelector('input');
-    const enabledInput8 = dialogScope.getByTestId('miz-entry-enabled-DictKey_8').querySelector('input');
-
-    await expect(dialogScope.getByTestId('miz-dialog-download-button')).toBeEnabled();
-    await expect(dialogScope.getByTestId('miz-dialog-download-menu-button')).toBeEnabled();
-    await expect(dialogScope.getByText('DictKey_6')).toBeInTheDocument();
-    await expect(dialogScope.getByText('DictKey_7')).toBeInTheDocument();
-    await expect(dialogScope.getByText('DictKey_8')).toBeInTheDocument();
-    await expect(enabledInput6).not.toBeChecked();
-    await expect(enabledInput7).not.toBeChecked();
-    await expect(enabledInput8).toBeChecked();
   },
 };

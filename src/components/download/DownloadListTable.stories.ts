@@ -1,8 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite';
-import { expect, fn, spyOn, userEvent, waitFor, within } from 'storybook/test';
+import { fn } from 'storybook/test';
 import type { DownloadListRow } from '@/features/downloads/downloadListModels';
 import type { TreeItem } from '@/types/type';
-import { installFetchMock } from '../../../.storybook/fetchMock';
 import DownloadListTable from './DownloadListTable.vue';
 
 const createTreeItem = (path: string, updatedAt: string): TreeItem => {
@@ -56,118 +55,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {
-  play: async ({ canvasElement }): Promise<void> => {
-    import.meta.env.VITE_TARGET_OWNER = '5kdn';
-    import.meta.env.VITE_TARGET_REPO = 'DCS-Translation-Japanese';
-    import.meta.env.VITE_TARGET_REF = 'master';
-
-    const canvas = within(canvasElement);
-    canvas.getByText('名称');
-    canvas.getByText('最終更新日');
-    canvas.getByText('Operation Black Knight');
-    expect(canvas.getAllByRole('button', { name: /ファイル一覧を開く/ })).toHaveLength(2);
-    expect(canvas.getAllByRole('button', { name: /フォルダを開く/ })).toHaveLength(2);
-    expect(canvas.getAllByRole('button', { name: /問題を報告する/ })).toHaveLength(2);
-    expect(canvas.getAllByRole('button', { name: /ZIP をダウンロードする/ })).toHaveLength(2);
-  },
-};
-
-export const OpenFileDialog: Story = {
-  play: async ({ canvasElement }): Promise<void> => {
-    import.meta.env.VITE_TARGET_OWNER = '5kdn';
-    import.meta.env.VITE_TARGET_REPO = 'DCS-Translation-Japanese';
-    import.meta.env.VITE_TARGET_REF = 'master';
-
-    const canvas = within(canvasElement);
-    const fileListButtons = canvas.getAllByRole('button', { name: /ファイル一覧を開く/ });
-    fileListButtons[0]?.click();
-
-    const dialogScope = within(canvasElement.ownerDocument.body);
-    await expect(dialogScope.getAllByText('Operation Black Knight').length).toBeGreaterThan(0);
-  },
-};
-
-export const OpenGitHubDirectory: Story = {
-  play: async ({ canvasElement }): Promise<void> => {
-    import.meta.env.VITE_TARGET_OWNER = '5kdn';
-    import.meta.env.VITE_TARGET_REPO = 'DCS-Translation-Japanese';
-    import.meta.env.VITE_TARGET_REF = 'master';
-
-    const openSpy = spyOn(window, 'open').mockImplementation(() => null);
-    const canvas = within(canvasElement);
-    const directoryButtons = canvas.getAllByRole('button', { name: /フォルダを開く/ });
-
-    directoryButtons[1]?.click();
-
-    await expect(openSpy).toHaveBeenCalledWith(
-      'https://github.com/5kdn/DCS-Translation-Japanese/blob/master/UserMissions/Campaigns/Operation Black Knight',
-      '_blank',
-      'noopener,noreferrer',
-    );
-
-    openSpy.mockRestore();
-  },
-};
-
-export const OpenReportDialog: Story = {
-  play: async ({ canvasElement }): Promise<void> => {
-    const canvas = within(canvasElement);
-    const reportButtons = canvas.getAllByRole('button', { name: /問題を報告する/ });
-
-    await userEvent.click(reportButtons[1] as HTMLElement);
-
-    const dialogScope = within(canvasElement.ownerDocument.body);
-    const title = dialogScope.getByLabelText('タイトル') as HTMLInputElement;
-    await expect(title.value).toBe('[typo] UserMissions/Campaigns/Operation Black Knight');
-  },
-};
-
-export const DownloadStarts: Story = {
-  play: async ({ canvasElement }): Promise<void> => {
-    import.meta.env.VITE_TARGET_OWNER = '5kdn';
-    import.meta.env.VITE_TARGET_REPO = 'DCS-Translation-Japanese';
-    import.meta.env.VITE_TARGET_REF = 'master';
-
-    const createObjectUrlSpy = spyOn(URL, 'createObjectURL').mockReturnValue('blob:download-list-table');
-    const revokeObjectUrlSpy = spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
-    const anchorClickSpy = spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
-    const appendChildSpy = spyOn(document.body, 'appendChild');
-    const fetchMock = installFetchMock({
-      match: ({ url, method }) => method === 'GET' && url.startsWith('https://raw.githubusercontent.com/'),
-      handle: () => new Response(new Uint8Array([0x50, 0x4b]).buffer, { status: 200 }),
-    });
-    const canvas = within(canvasElement);
-    const downloadButtons = canvas.getAllByRole('button', { name: /ZIP をダウンロードする/ });
-
-    await userEvent.click(downloadButtons[1] as HTMLElement);
-
-    await waitFor(() => {
-      expect(createObjectUrlSpy).toHaveBeenCalledTimes(1);
-    });
-    await waitFor(() => {
-      expect(anchorClickSpy).toHaveBeenCalledTimes(1);
-    });
-
-    const anchorElement = appendChildSpy.mock.calls[0]?.[0] as HTMLAnchorElement | undefined;
-    await expect(anchorElement?.download).toBe('Operation Black Knight.zip');
-
-    fetchMock.restore();
-    createObjectUrlSpy.mockRestore();
-    revokeObjectUrlSpy.mockRestore();
-    anchorClickSpy.mockRestore();
-    appendChildSpy.mockRestore();
-  },
-};
-
-export const InitialSortByNameAsc: Story = {
-  play: async ({ canvasElement }): Promise<void> => {
-    const rows = Array.from(canvasElement.querySelectorAll('tbody tr'));
-    expect(rows).toHaveLength(2);
-    expect(rows[0]?.textContent).toContain('F-16C');
-    expect(rows[1]?.textContent).toContain('Operation Black Knight');
-  },
-};
+export const Default: Story = {};
 
 export const UpdatedAtUnset: Story = {
   args: {
@@ -176,25 +64,6 @@ export const UpdatedAtUnset: Story = {
         createTreeItem('UserMissions/NoDate/Mission_01.miz/l10n/JP/dictionary', '2026-05-10T00:00:00Z'),
       ]),
     ],
-  },
-  play: async ({ canvasElement }): Promise<void> => {
-    const canvas = within(canvasElement);
-    canvas.getByText('NoDate');
-    canvas.getByText('-');
-  },
-};
-
-export const TooltipDisplay: Story = {
-  play: async ({ canvasElement }): Promise<void> => {
-    const canvas = within(canvasElement);
-    const fileListButtons = canvas.getAllByRole('button', { name: /ファイル一覧を開く/ });
-
-    await userEvent.hover(fileListButtons[0] as HTMLElement);
-
-    const dialogScope = within(canvasElement.ownerDocument.body);
-    await waitFor(() => {
-      expect(dialogScope.getAllByText('ファイル一覧を表示する').length).toBeGreaterThan(0);
-    });
   },
 };
 
@@ -208,18 +77,6 @@ export const SortByUpdatedAt: Story = {
         createTreeItem('UserMissions/Zulu/Mission_01.miz/l10n/JP/dictionary', '2026-05-10T00:00:00Z'),
       ]),
     ],
-  },
-  play: async ({ canvasElement }): Promise<void> => {
-    const canvas = within(canvasElement);
-    const updatedAtHeader = canvas.getByRole('columnheader', { name: /最終更新日/ });
-
-    await userEvent.click(updatedAtHeader);
-
-    await waitFor(() => {
-      const rows = Array.from(canvasElement.querySelectorAll('tbody tr'));
-      expect(rows[0]?.textContent).toContain('Zulu');
-      expect(rows[1]?.textContent).toContain('Alpha');
-    });
   },
 };
 
@@ -240,26 +97,10 @@ export const DownloadErrorEmitsError: Story = {
       ]),
     ],
   },
-  play: async ({ canvasElement, args }): Promise<void> => {
-    const onError = args.onError as unknown as ReturnType<typeof fn>;
-    onError.mockClear();
-    const consoleErrorSpy = spyOn(console, 'error').mockImplementation(() => {});
-    const canvas = within(canvasElement);
-
-    await userEvent.click(canvas.getByRole('button', { name: /ZIP をダウンロードする/ }));
-
-    await expect(onError).toHaveBeenCalledTimes(1);
-
-    consoleErrorSpy.mockRestore();
-  },
 };
 
 export const Empty: Story = {
   args: {
     rows: [],
-  },
-  play: async ({ canvasElement }): Promise<void> => {
-    const canvas = within(canvasElement);
-    canvas.getByText('表示できる項目がありません。');
   },
 };

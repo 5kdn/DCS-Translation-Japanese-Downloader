@@ -117,14 +117,12 @@ const meta = {
         };
       },
       template: `
-        <div>
-          <MizTranslationTable
-            :entries="entries"
-            @toggle-enabled="handleToggleEnabled"
-            @update-translation="handleUpdateTranslation"
-            @error="handleError"
-          />
-        </div>
+        <MizTranslationTable
+          :entries="entries"
+          @toggle-enabled="handleToggleEnabled"
+          @update-translation="handleUpdateTranslation"
+          @error="handleError"
+        />
       `,
     }),
 } satisfies Meta<typeof MizTranslationTable>;
@@ -181,11 +179,20 @@ export const CopyButtonOnHover: Story = {
   play: async ({ canvasElement }): Promise<void> => {
     const canvas = within(canvasElement);
     const sourceCell = canvas.getByTestId('miz-entry-source-DictKey_1001');
+    const copyButton = canvas.getByTestId('miz-entry-copy-DictKey_1001');
+
+    await expect(copyButton).not.toBeVisible();
 
     await userEvent.hover(sourceCell);
 
     await waitFor(() => {
-      expect(canvas.getByTestId('miz-entry-copy-DictKey_1001')).toBeInTheDocument();
+      expect(copyButton).toBeVisible();
+    });
+
+    await userEvent.unhover(sourceCell);
+
+    await waitFor(() => {
+      expect(copyButton).not.toBeVisible();
     });
   },
 };
@@ -227,5 +234,81 @@ export const Empty: Story = {
   play: async ({ canvasElement }): Promise<void> => {
     const canvas = within(canvasElement);
     await expect(canvas.getByText('表示できる翻訳項目がありません。')).toBeInTheDocument();
+  },
+};
+
+export const ReadonlySource: Story = {
+  play: async ({ canvasElement }): Promise<void> => {
+    const canvas = within(canvasElement);
+    const sourceField = canvas.getAllByTestId('miz-entry-source-text')[0];
+    const sourceTextarea = sourceField.querySelector('textarea');
+
+    if (!(sourceTextarea instanceof HTMLTextAreaElement)) {
+      throw new Error('原文 textarea の取得に失敗した。');
+    }
+
+    expect(sourceTextarea.readOnly).toBe(true);
+  },
+};
+
+export const RowsFromSourceLineCount: Story = {
+  args: {
+    entries: [
+      {
+        key: 'DictKey_single',
+        sourceText: 'Alpha',
+        translatedText: '',
+        enabled: true,
+        isDictionaryKey: true,
+        isTranslatable: true,
+      },
+      {
+        key: 'DictKey_multi',
+        sourceText: 'Alpha\nBravo\nCharlie',
+        translatedText: '',
+        enabled: true,
+        isDictionaryKey: true,
+        isTranslatable: true,
+      },
+      {
+        key: 'DictKey_empty',
+        sourceText: '',
+        translatedText: '',
+        enabled: true,
+        isDictionaryKey: true,
+        isTranslatable: true,
+      },
+    ],
+  },
+  play: async ({ canvasElement }): Promise<void> => {
+    const canvas = within(canvasElement);
+    const sourceFields = canvas.getAllByTestId('miz-entry-source-text');
+    const sourceTextareas = sourceFields.map((field) => {
+      const textarea = field.querySelector('textarea');
+      if (!(textarea instanceof HTMLTextAreaElement)) {
+        throw new Error('原文 textarea の取得に失敗した。');
+      }
+      return textarea;
+    });
+    const translatedSingle = canvas.getByTestId('miz-entry-translation-DictKey_single').querySelector('textarea');
+    const translatedMulti = canvas.getByTestId('miz-entry-translation-DictKey_multi').querySelector('textarea');
+    const translatedEmpty = canvas.getByTestId('miz-entry-translation-DictKey_empty').querySelector('textarea');
+
+    if (!(translatedSingle instanceof HTMLTextAreaElement)) {
+      throw new Error('1 行原文の翻訳 textarea の取得に失敗した。');
+    }
+    if (!(translatedMulti instanceof HTMLTextAreaElement)) {
+      throw new Error('複数行原文の翻訳 textarea の取得に失敗した。');
+    }
+    if (!(translatedEmpty instanceof HTMLTextAreaElement)) {
+      throw new Error('空原文の翻訳 textarea の取得に失敗した。');
+    }
+
+    expect(sourceTextareas[0]?.getAttribute('rows')).toBe('1');
+    expect(sourceTextareas[1]?.getAttribute('rows')).toBe('3');
+    expect(sourceTextareas[2]?.getAttribute('rows')).toBe('1');
+    expect(translatedSingle.getAttribute('rows')).toBe('1');
+    expect(translatedMulti.getAttribute('rows')).toBe('3');
+    expect(translatedEmpty.getAttribute('rows')).toBe('1');
   },
 };

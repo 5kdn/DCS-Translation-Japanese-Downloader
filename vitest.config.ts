@@ -10,8 +10,16 @@ export default defineConfig({
       {
         extends: './vite.config.ts',
         test: {
-          name: 'vitest',
-          include: ['tests/**/*.spec.ts'],
+          name: 'unit',
+          include: ['tests/unit/**/*.test.ts'],
+        },
+      },
+      {
+        extends: './vite.config.ts',
+        test: {
+          name: 'integration',
+          include: ['tests/integration/**/*.integration.tests.ts'],
+          setupFiles: ['tests/integration/setup/msw.ts'],
         },
       },
       {

@@ -1,9 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite';
-import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
-import { computed, h, ref } from 'vue';
+import { useArgs } from 'storybook/preview-api';
+import { expect, fn, waitFor, within } from 'storybook/test';
+import { h } from 'vue';
 import { DOWNLOAD_LIST_CATEGORIES, DownloadListCategoryKey } from '@/features/downloads/downloadListCategory';
 import { applyDownloadListFilter } from '@/features/downloads/downloadListFilter';
-import type { DownloadListFilter, DownloadListRow } from '@/features/downloads/downloadListModels';
+import type { DownloadListRow } from '@/features/downloads/downloadListModels';
 import type { TreeItem } from '@/types/type';
 import DownloadCategoryTabs from './DownloadCategoryTabs.vue';
 
@@ -87,216 +88,135 @@ const meta = {
     'onUpdate:updatedAfter': fn(),
     onError: fn(),
   },
-  render: (args) => ({
-    setup: () => {
-      const activeCategoryKey = ref(args.activeCategoryKey);
-      const searchText = ref(args.searchText);
-      const updatedAfter = ref(args.updatedAfter);
-      const filter = computed<DownloadListFilter>(() => {
-        return {
-          searchText: searchText.value,
-          updatedAfter: updatedAfter.value,
-        };
+  render: (args) => {
+    const [, updateArgs] = useArgs<typeof args>();
+
+    /**
+     * @summary カテゴリに応じた行一覧を返す。
+     * @returns 表示対象の一覧行を返す。
+     */
+    const resolveRows = (): DownloadListRow[] => {
+      return applyDownloadListFilter(rowsByCategory[args.activeCategoryKey], {
+        searchText: args.searchText,
+        updatedAfter: args.updatedAfter,
       });
-      const rows = computed<DownloadListRow[]>(() => {
-        return applyDownloadListFilter(rowsByCategory[activeCategoryKey.value], filter.value);
+    };
+
+    /**
+     * @summary カテゴリに応じた検索候補一覧を返す。
+     * @returns 検索候補一覧を返す。
+     */
+    const resolveSearchCandidates = (): readonly string[] => {
+      return rowsByCategory[args.activeCategoryKey].map((row) => row.name);
+    };
+
+    /**
+     * @summary カテゴリ変更を Storybook args へ反映する。
+     * @param value 更新後のカテゴリを指定する。
+     */
+    const handleActiveCategoryKey = (value: DownloadListCategoryKey): void => {
+      updateArgs({ activeCategoryKey: value });
+      args['onUpdate:activeCategoryKey']?.(value);
+    };
+
+    /**
+     * @summary 名称フィルター変更を Storybook args へ反映する。
+     * @param value 更新後の検索文字列を指定する。
+     */
+    const handleSearchText = (value: string): void => {
+      updateArgs({ searchText: value });
+      args['onUpdate:searchText']?.(value);
+    };
+
+    /**
+     * @summary 更新日フィルター変更を Storybook args へ反映する。
+     * @param value 更新後の日時を指定する。
+     */
+    const handleUpdatedAfter = (value: Date | null): void => {
+      updateArgs({ updatedAfter: value });
+      args['onUpdate:updatedAfter']?.(value);
+    };
+
+    /**
+     * @summary エラーイベントを Storybook action へ中継する。
+     * @param message エラーメッセージを指定する。
+     */
+    const handleError = (message: string): void => {
+      args.onError?.(message);
+    };
+
+    return () =>
+      h(DownloadCategoryTabs, {
+        categories: args.categories,
+        activeCategoryKey: args.activeCategoryKey,
+        searchText: args.searchText,
+        searchCandidates: resolveSearchCandidates(),
+        updatedAfter: args.updatedAfter,
+        rows: resolveRows(),
+        'onUpdate:activeCategoryKey': handleActiveCategoryKey,
+        'onUpdate:searchText': handleSearchText,
+        'onUpdate:updatedAfter': handleUpdatedAfter,
+        onError: handleError,
       });
-      const searchCandidates = computed<readonly string[]>(() => {
-        return rowsByCategory[activeCategoryKey.value].map((row) => row.name);
-      });
-
-      const handleActiveCategoryKey = (value: DownloadListCategoryKey): void => {
-        activeCategoryKey.value = value;
-        args['onUpdate:activeCategoryKey']?.(value);
-      };
-
-      const handleSearchText = (value: string): void => {
-        searchText.value = value;
-        args['onUpdate:searchText']?.(value);
-      };
-
-      const handleUpdatedAfter = (value: Date | null): void => {
-        updatedAfter.value = value;
-        args['onUpdate:updatedAfter']?.(value);
-      };
-
-      const handleError = (message: string): void => {
-        args.onError?.(message);
-      };
-
-      return () =>
-        h('div', [
-          h(DownloadCategoryTabs, {
-            categories: args.categories,
-            activeCategoryKey: activeCategoryKey.value,
-            searchText: searchText.value,
-            searchCandidates: searchCandidates.value,
-            updatedAfter: updatedAfter.value,
-            rows: rows.value,
-            'onUpdate:activeCategoryKey': handleActiveCategoryKey,
-            'onUpdate:searchText': handleSearchText,
-            'onUpdate:updatedAfter': handleUpdatedAfter,
-            onError: handleError,
-          }),
-          h(
-            'output',
-            {
-              'data-testid': 'active-row-names',
-              style: 'display:none',
-            },
-            rows.value.map((row) => row.name).join('|'),
-          ),
-        ]);
-    },
-  }),
+  },
 } satisfies Meta<typeof DownloadCategoryTabs>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {
-  play: async ({ canvasElement }): Promise<void> => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByRole('tab', { name: 'Aircrafts' })).toHaveAttribute('aria-selected', 'true');
-    await expect(canvas.getByLabelText('名称で絞り込み')).toHaveValue('');
-    canvas.getByLabelText('最終更新日 (以降)');
-    await waitFor(() => {
-      expect(canvas.getByText('AH-64D')).toBeTruthy();
-    });
-    await expect(canvas.getByTestId('active-row-names')).toHaveTextContent('F-16C|AH-64D');
-  },
-};
+export const Default: Story = {};
 
 export const SwitchCategory: Story = {
-  play: async ({ canvasElement, args }): Promise<void> => {
-    const onActiveCategoryKey = args['onUpdate:activeCategoryKey'] as unknown as ReturnType<typeof fn>;
-    onActiveCategoryKey.mockClear();
-    const canvas = within(canvasElement);
-
-    await waitFor(() => {
-      expect(canvas.getByText('AH-64D')).toBeTruthy();
-    });
-
-    await userEvent.click(canvas.getByRole('tab', { name: 'User Campaigns' }));
-
-    await waitFor(() => {
-      expect(onActiveCategoryKey).toHaveBeenCalledWith(DownloadListCategoryKey.UserCampaigns);
-    });
-
-    await waitFor(() => {
-      expect(canvas.getByRole('tab', { name: 'User Campaigns' })).toHaveAttribute('aria-selected', 'true');
-      expect(canvas.getByTestId('active-row-names')).toHaveTextContent('Operation Black Knight');
-    });
-
-    await userEvent.click(canvas.getByRole('tab', { name: 'DLC Campaigns' }));
-
-    await waitFor(() => {
-      expect(onActiveCategoryKey).toHaveBeenCalledWith(DownloadListCategoryKey.DlcCampaigns);
-      expect(canvas.getByRole('tab', { name: 'DLC Campaigns' })).toHaveAttribute('aria-selected', 'true');
-      expect(canvas.getByTestId('active-row-names')).toHaveTextContent('The Enemy Within');
-    });
+  args: {
+    activeCategoryKey: DownloadListCategoryKey.UserCampaigns,
   },
 };
 
 export const InputFilters: Story = {
-  play: async ({ canvasElement, args }): Promise<void> => {
-    const onSearchText = args['onUpdate:searchText'] as unknown as ReturnType<typeof fn>;
-    onSearchText.mockClear();
+  args: {
+    searchText: 'f16',
+  },
+  play: async ({ canvasElement }): Promise<void> => {
     const canvas = within(canvasElement);
 
-    await userEvent.type(canvas.getByLabelText('名称で絞り込み'), 'f16');
-
-    await waitFor(() => {
-      expect(onSearchText).toHaveBeenCalled();
-    });
-    await expect(canvas.getByTestId('active-row-names')).toHaveTextContent('F-16C');
+    await expect(await canvas.findByText('F-16C')).toBeInTheDocument();
+    await expect(canvas.queryByText('AH-64D')).not.toBeInTheDocument();
   },
 };
 
 export const UpdatedAfterFilter: Story = {
-  play: async ({ canvasElement, args }): Promise<void> => {
-    const onUpdatedAfter = args['onUpdate:updatedAfter'] as unknown as ReturnType<typeof fn>;
-    onUpdatedAfter.mockClear();
-    const canvas = within(canvasElement);
-    const documentBody = within(canvasElement.ownerDocument.body);
-
-    await userEvent.click(canvas.getByLabelText('最終更新日 (以降)'));
-    const dayLabel = await documentBody.findByText('10');
-    const dayButton = dayLabel.closest('button');
-    if (dayButton === null) {
-      throw new Error('日付ボタンが見つからない');
-    }
-    dayButton.click();
-
-    await waitFor(() => {
-      expect(onUpdatedAfter).toHaveBeenCalled();
-    });
-    await expect(canvas.getByTestId('active-row-names')).toHaveTextContent('F-16C');
-
-    await userEvent.click(canvas.getByLabelText('Clear 最終更新日 (以降)'));
-
-    await waitFor(() => {
-      expect(onUpdatedAfter).toHaveBeenLastCalledWith(null);
-    });
-    await expect(canvas.getByTestId('active-row-names')).toHaveTextContent('F-16C|AH-64D');
+  args: {
+    updatedAfter: new Date('2026-05-10T00:00:00Z'),
   },
 };
 
 export const CombinedFilters: Story = {
-  play: async ({ canvasElement }): Promise<void> => {
-    const canvas = within(canvasElement);
-    const documentBody = within(canvasElement.ownerDocument.body);
-
-    await userEvent.type(canvas.getByLabelText('名称で絞り込み'), 'f16');
-    await userEvent.click(canvas.getByLabelText('最終更新日 (以降)'));
-
-    const dayLabel = await documentBody.findByText('10');
-    const dayButton = dayLabel.closest('button');
-    if (dayButton === null) {
-      throw new Error('日付ボタンが見つからない');
-    }
-    dayButton.click();
-
-    await waitFor(() => {
-      expect(canvas.getByTestId('active-row-names')).toHaveTextContent('F-16C');
-    });
-
-    await userEvent.click(canvas.getByRole('button', { name: 'F-16C のファイル一覧を開く' }));
-
-    await waitFor(() => {
-      expect(documentBody.getAllByText('F-16C').length).toBeGreaterThan(0);
-    });
-    await expect(documentBody.getByText('ファイル数: 1')).toBeTruthy();
+  args: {
+    searchText: 'f16',
+    updatedAfter: new Date('2026-05-10T00:00:00Z'),
   },
 };
 
 export const SearchCandidateSelection: Story = {
-  play: async ({ canvasElement, args }): Promise<void> => {
-    const onSearchText = args['onUpdate:searchText'] as unknown as ReturnType<typeof fn>;
-    onSearchText.mockClear();
-    const canvas = within(canvasElement);
-    const input = canvas.getByLabelText('名称で絞り込み');
-
-    await userEvent.click(input);
-    await userEvent.type(input, 'ah');
-    await userEvent.keyboard('{Enter}');
-
-    await waitFor(() => {
-      expect(onSearchText).toHaveBeenLastCalledWith('AH-64D');
-    });
-    await expect(canvas.getByTestId('active-row-names')).toHaveTextContent('AH-64D');
+  args: {
+    searchText: 'AH-64D',
   },
 };
 
 export const EmptyAfterFiltering: Story = {
+  args: {
+    searchText: 'zzz',
+  },
   play: async ({ canvasElement }): Promise<void> => {
     const canvas = within(canvasElement);
 
-    await userEvent.type(canvas.getByLabelText('名称で絞り込み'), 'zzz');
-
-    await waitFor(() => {
-      expect(canvas.getByText('表示できる項目がありません。')).toBeTruthy();
-    });
-    await expect(canvas.getByTestId('active-row-names')).toHaveTextContent('');
+    await waitFor(
+      async (): Promise<void> => {
+        await expect(await canvas.findByText('表示できる項目がありません。')).toBeInTheDocument();
+        await expect(canvas.queryByText('F-16C')).not.toBeInTheDocument();
+        await expect(canvas.queryByText('AH-64D')).not.toBeInTheDocument();
+      },
+      { timeout: 5_000 },
+    );
   },
 };

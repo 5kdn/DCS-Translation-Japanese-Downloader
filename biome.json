@@ -24,6 +24,20 @@
       "trailingCommas": "all"
     }
   },
+  "overrides": [
+    {
+      "includes": [
+        "**/*.vue"
+      ],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "useHookAtTopLevel": "off"
+          }
+        }
+      }
+    }
+  ],
   "json": {
     "formatter": {
       "expand": "always"
@@ -44,7 +58,8 @@
       "!dist",
       "!src/lib/http/apiClient",
       "!src/assets/LICENSES",
-      "!storybook-static"
+      "!storybook-static",
+      "!test-results"
     ]
   }
 }

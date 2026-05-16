@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
-import { defineComponent, ref } from 'vue';
 import MizTranslationCloseConfirmDialog from './MizTranslationCloseConfirmDialog.vue';
 
 const meta = {
@@ -11,41 +10,6 @@ const meta = {
     modelValue: true,
     onConfirm: fn(),
   },
-  render: (args) =>
-    defineComponent({
-      components: { MizTranslationCloseConfirmDialog },
-      setup: () => {
-        const isOpen = ref(args.modelValue);
-        const confirmCount = ref(0);
-
-        /**
-         * @summary クローズ破棄確定イベントを Storybook action と表示状態へ反映する。
-         */
-        const handleConfirm = (): void => {
-          confirmCount.value += 1;
-          isOpen.value = false;
-          args.onConfirm?.();
-        };
-
-        return {
-          args,
-          isOpen,
-          confirmCount,
-          handleConfirm,
-        };
-      },
-      template: `
-        <div>
-          <MizTranslationCloseConfirmDialog
-            :model-value="isOpen"
-            @update:modelValue="isOpen = $event"
-            @confirm="handleConfirm"
-          />
-          <output data-testid="miz-close-confirm-open-state">{{ isOpen ? 'open' : 'closed' }}</output>
-          <output data-testid="miz-close-confirm-count">{{ confirmCount }}</output>
-        </div>
-      `,
-    }),
 } satisfies Meta<typeof MizTranslationCloseConfirmDialog>;
 
 export default meta;
@@ -66,31 +30,31 @@ export const Default: Story = {
 };
 
 export const CancelInteraction: Story = {
-  play: async ({ canvasElement }): Promise<void> => {
+  play: async ({ canvasElement, args }): Promise<void> => {
     const dialogScope = within(canvasElement.ownerDocument.body);
-    const canvas = within(canvasElement);
     const user = userEvent.setup({ pointerEventsCheck: 0 });
+    const onConfirm = args.onConfirm as unknown as ReturnType<typeof fn>;
+
+    onConfirm.mockClear();
 
     await user.click(dialogScope.getByTestId('miz-close-confirm-cancel'));
 
-    await waitFor(() => {
-      expect(canvas.getByTestId('miz-close-confirm-open-state')).toHaveTextContent('closed');
-      expect(canvas.getByTestId('miz-close-confirm-count')).toHaveTextContent('0');
-    });
+    await expect(onConfirm).not.toHaveBeenCalled();
   },
 };
 
 export const ConfirmInteraction: Story = {
-  play: async ({ canvasElement }): Promise<void> => {
+  play: async ({ canvasElement, args }): Promise<void> => {
     const dialogScope = within(canvasElement.ownerDocument.body);
-    const canvas = within(canvasElement);
     const user = userEvent.setup({ pointerEventsCheck: 0 });
+    const onConfirm = args.onConfirm as unknown as ReturnType<typeof fn>;
+
+    onConfirm.mockClear();
 
     await user.click(dialogScope.getByTestId('miz-close-confirm-submit'));
 
     await waitFor(() => {
-      expect(canvas.getByTestId('miz-close-confirm-open-state')).toHaveTextContent('closed');
-      expect(canvas.getByTestId('miz-close-confirm-count')).toHaveTextContent('1');
+      expect(onConfirm).toHaveBeenCalledTimes(1);
     });
   },
 };

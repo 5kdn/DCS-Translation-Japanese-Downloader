@@ -143,8 +143,10 @@ const _handleDrop = (event: DragEvent): void => {
 <template lang="pug">
 h2.d-inline-flex.align-start.text-display-large.mt-10.mb-5 MIZ Translation
 
-div.miz-translation-panel
-  p.text-body-1.text-medium-emphasis.mb-4 .miz / .trk ファイルから `l10n/DEFAULT/dictionary` を読み込み、翻訳編集ダイアログを開きます。
+v-container.miz-translation-panel.bg-surface.rounded
+  v-card.mb-4
+    v-card-text
+      p .miz / .trk ファイルから翻訳ファイルを作成します。
 
   v-alert.mb-4(
     v-if="_hasDisplayErrorMessage"
