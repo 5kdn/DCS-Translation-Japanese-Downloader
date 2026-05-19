@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.4.12/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.4.15/schema.json",
   "formatter": {
     "indentStyle": "space",
     "indentWidth": 2,
@@ -24,6 +24,20 @@
       "trailingCommas": "all"
     }
   },
+  "overrides": [
+    {
+      "includes": [
+        "**/*.vue"
+      ],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "useHookAtTopLevel": "off"
+          }
+        }
+      }
+    }
+  ],
   "json": {
     "formatter": {
       "expand": "always"
@@ -44,7 +58,8 @@
       "!dist",
       "!src/lib/http/apiClient",
       "!src/assets/LICENSES",
-      "!storybook-static"
+      "!storybook-static",
+      "!test-results"
     ]
   }
 }

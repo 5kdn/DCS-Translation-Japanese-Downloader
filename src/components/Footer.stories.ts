@@ -28,6 +28,15 @@ export const DialogOpen: Story = {
     const body = within(canvasElement.ownerDocument.body);
     await userEvent.click(canvas.getByRole('button', { name: 'third-party licenses' }));
     await body.findByRole('heading', { name: 'third-party licenses' });
+  },
+};
+
+export const DialogOpenAndClose: Story = {
+  play: async ({ canvasElement }): Promise<void> => {
+    const canvas = within(canvasElement);
+    const body = within(canvasElement.ownerDocument.body);
+    await userEvent.click(canvas.getByRole('button', { name: 'third-party licenses' }));
+    await body.findByRole('heading', { name: 'third-party licenses' });
 
     const closeButton = await body.findByRole('button', { name: 'close' });
     await waitFor(() => {

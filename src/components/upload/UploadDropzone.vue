@@ -1,11 +1,6 @@
 <script setup lang="ts">
-import { defineAsyncComponent } from 'vue';
-
-defineOptions({
-  components: {
-    Button: defineAsyncComponent(() => import('../common/Button.vue')),
-  },
-});
+// biome-ignore lint/correctness/noUnusedImports: used in Vue template
+import DropZone from '../common/DropZone.vue';
 
 defineProps<{
   isDragOver: boolean;
@@ -51,31 +46,15 @@ const _emitDrop = (event: DragEvent): void => {
 </script>
 
 <template lang="pug">
-div.upload-dropzone.rounded-lg.pa-8.text-center(
-  :class="isDragOver ? 'upload-dropzone--active elevation-3' : ''"
+DropZone(
+  :is-drag-over="isDragOver"
+  :is-loading="isLoading"
+  icon="mdi-folder-upload-outline"
+  headline="フォルダーをドロップする"
+  button-label="フォルダーを選択"
+  @action="_emitChooseFolder"
   @dragover="_emitDragOver"
   @dragleave="_emitDragLeave"
   @drop="_emitDrop"
 )
-  .d-inline-flex.align-center.justify-center.ga-3
-    v-icon(size="24" color="primary") mdi-folder-upload-outline
-    span.text-title-large.text-primary フォルダーをドロップする
-  p.mt-2.text-primary または
-  .d-flex.flex-column.flex-sm-row.justify-center.ga-3.mt-4
-    Button(label="フォルダーを選択" :loading="isLoading" @click="_emitChooseFolder")
 </template>
-
-<style lang="scss" scoped>
-.upload-dropzone {
-  border-style: dashed;
-  border-width: 3px;
-  background-color: rgb(var(--v-theme-primary), 0.1);
-  border-color: rgb(var(--v-theme-primary));
-  box-shadow: none;
-  transition: background-color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-
-  &--active {
-    background-color: rgb(var(--v-theme-primary), 0.3);
-  }
-}
-</style>

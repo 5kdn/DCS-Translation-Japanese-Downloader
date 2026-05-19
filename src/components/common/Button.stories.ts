@@ -3,7 +3,7 @@ import { expect, fn, userEvent, within } from 'storybook/test';
 import Button from './Button.vue';
 
 const meta = {
-  title: 'Parts/Button',
+  title: 'Common/Button',
   component: Button,
   tags: ['autodocs'],
   argTypes: {

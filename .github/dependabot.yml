@@ -60,6 +60,7 @@ updates:
     tooling-and-tests:
       patterns:
         - "@chromatic-com/*"
+        - "@playwright/*"
         - "@storybook/*"
         - "@vitejs/*"
         - "@vitest/*"
@@ -67,7 +68,11 @@ updates:
         - "esbuild"
         - "jsdom"
         - "license-checker*"
+        - "msw"
+        - "msw-storybook-addon"
         - "playwright"
+        - "react"
+        - "react-dom"
         - "sass"
         - "storybook"
         - "terser"

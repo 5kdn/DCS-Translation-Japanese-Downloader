@@ -3,7 +3,17 @@ import { computed, defineAsyncComponent, onMounted, ref } from 'vue';
 // biome-ignore lint/correctness/noUnusedImports: used in Vue template
 import associate_miz_with_zip from '@/assets/associate_miz_with_zip.reg.txt?raw';
 import { useDownloadListState } from '@/composables/useDownloadListState';
+import { useMizTranslationState } from '@/composables/useMizTranslationState';
 import { toErrorMessageForDisplay } from '@/errors/errorMessage';
+import type {
+  MizTranslationDownloadFormat,
+  MizTranslationExportSort,
+} from '@/features/mizTranslation/mizTranslationDownloadModels';
+import {
+  parseImportedDictionaryValues,
+  parseMizTranslationImportEntries,
+  readMizDictionaryEntries,
+} from '@/features/mizTranslation/mizTranslationService';
 import type { UploadDialogSubmitPayload } from '@/features/upload/uploadDialogSubmit';
 import type { CreatePrResponse } from '@/lib/client';
 import { fetchCreatePr, fetchTree, healthCheck } from '@/lib/client';
@@ -11,9 +21,16 @@ import type { TreeItem } from '@/types/type';
 
 defineOptions({
   components: {
-    DownloadCategoryTabs: defineAsyncComponent(() => import('./components/DownloadCategoryTabs.vue')),
+    DownloadCategoryTabs: defineAsyncComponent(() => import('./components/download/DownloadCategoryTabs.vue')),
     Footer: defineAsyncComponent(() => import('./components/Footer.vue')),
     IssueViewer: defineAsyncComponent(() => import('./components/IssueViewer.vue')),
+    MizTranslationCloseConfirmDialog: defineAsyncComponent(
+      () => import('./components/mizTranslation/MizTranslationCloseConfirmDialog.vue'),
+    ),
+    MizTranslationDialog: defineAsyncComponent(() => import('./components/mizTranslation/MizTranslationDialog.vue')),
+    MizTranslationEntrySection: defineAsyncComponent(
+      () => import('./components/mizTranslation/MizTranslationEntrySection.vue'),
+    ),
     Button: defineAsyncComponent(() => import('./components/common/Button.vue')),
     UploadDialog: defineAsyncComponent(() => import('./components/UploadDialog.vue')),
   },
@@ -23,6 +40,36 @@ const isLoadingTree = ref(false);
 const errorMessage = ref<string | null>(null);
 const treeItems = ref<TreeItem[]>([]);
 const _downloadListState = useDownloadListState(treeItems);
+const {
+  isDialogOpen: _mizIsDialogOpen,
+  isLoading: _mizIsLoading,
+  errorMessage: _mizErrorMessage,
+  loadedFileName: _mizLoadedFileName,
+  isCloseConfirmDialogOpen: _mizIsCloseConfirmDialogOpen,
+  filter: _mizFilter,
+  filteredEntries: _mizFilteredEntries,
+  visibleEntryCount: _mizVisibleEntryCount,
+  totalEntryCount: _mizTotalEntryCount,
+  clearErrorMessage: _clearMizErrorMessage,
+  setLoading: _setMizLoading,
+  loadMizResult: _loadMizResult,
+  setErrorMessage: _setMizErrorMessage,
+  setEntryEnabled: _setMizEntryEnabled,
+  setEntryTranslatedText: _setMizEntryTranslatedText,
+  replaceTranslationsFromDictionary: _replaceMizTranslationsFromDictionary,
+  replaceTranslationsFromImportEntries: _replaceMizTranslationsFromImportEntries,
+  setShowEnabled: _setMizShowEnabled,
+  setShowDisabled: _setMizShowDisabled,
+  setShowOnlyUntranslated: _setMizShowOnlyUntranslated,
+  setHideNonTranslatable: _setMizHideNonTranslatable,
+  setHideEmptySourceText: _setMizHideEmptySourceText,
+  setExportSort: _setMizExportSort,
+  buildDownloadPayload: _buildMizDownloadPayload,
+  markDownloadSucceeded: _markMizDownloadSucceeded,
+  requestClose: _requestMizClose,
+  confirmClose: _confirmMizClose,
+  cancelClose: _cancelMizClose,
+} = useMizTranslationState();
 
 const _activeCategoryKey = computed({
   get: () => _downloadListState.activeCategoryKey.value,
@@ -47,6 +94,8 @@ const _updatedAfter = computed({
 
 const _searchCandidates = computed(() => _downloadListState.searchCandidates.value);
 const _visibleRows = computed(() => _downloadListState.visibleRows.value);
+const _hasErrorMessage = computed(() => errorMessage.value !== null);
+const _errorAlertText = computed(() => errorMessage.value ?? undefined);
 
 /**
  * @summary 例外を画面表示向けメッセージへ変換する。
@@ -117,6 +166,172 @@ const _handleUploadSubmit = async (payload: UploadDialogSubmitPayload): Promise<
     selectedChangeTypes: payload.selectedChangeTypes,
     selectedFiles: payload.selectedFiles,
   });
+};
+
+/**
+ * @summary MIZ ファイル選択後の dictionary 読込を処理する。
+ * @param file 読込対象の MIZ ファイルを指定する。
+ */
+const _handleMizFileSelected = async (file: File): Promise<void> => {
+  _clearMizErrorMessage();
+  _setMizLoading(true);
+
+  try {
+    const result = await readMizDictionaryEntries(file);
+    _loadMizResult(result);
+  } catch (error: unknown) {
+    _setMizLoading(false);
+    _setMizErrorMessage(toErrorMessage(error));
+  }
+};
+
+/**
+ * @summary MIZ 読込エラー表示を初期化する。
+ */
+const _handleMizErrorClear = (): void => {
+  _clearMizErrorMessage();
+};
+
+/**
+ * @summary MIZ 翻訳行の有効状態変更を反映する。
+ * @param key 更新対象 key を指定する。
+ * @param value 更新値を指定する。
+ */
+const _handleMizEntryToggleEnabled = (key: string, value: boolean): void => {
+  _setMizEntryEnabled(key, value);
+};
+
+/**
+ * @summary MIZ 翻訳行の翻訳文変更を反映する。
+ * @param key 更新対象 key を指定する。
+ * @param value 翻訳文を指定する。
+ */
+const _handleMizEntryTranslationUpdate = (key: string, value: string): void => {
+  _setMizEntryTranslatedText(key, value);
+};
+
+/**
+ * @summary 既存翻訳ファイルを読み込み、翻訳列へ反映する。
+ * @param format 読込形式を指定する。
+ * @param file 読込対象ファイルを指定する。
+ */
+const _handleMizDictionaryImport = async (format: MizTranslationDownloadFormat, file: File): Promise<void> => {
+  try {
+    const source = await file.text();
+    if (format === 'dictionary') {
+      const importedValues = parseImportedDictionaryValues(source);
+      _replaceMizTranslationsFromDictionary(importedValues);
+    } else {
+      const importedEntries = parseMizTranslationImportEntries(format, source);
+      _replaceMizTranslationsFromImportEntries(importedEntries);
+    }
+
+    _clearMizErrorMessage();
+  } catch (error: unknown) {
+    _setMizErrorMessage(toErrorMessage(error));
+  }
+};
+
+/**
+ * @summary 現在の編集内容を dictionary としてダウンロードする。
+ */
+const _handleMizDictionaryDownload = (format: MizTranslationDownloadFormat): void => {
+  try {
+    const payload = _buildMizDownloadPayload(format);
+    const url = URL.createObjectURL(payload.blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = payload.fileName;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    setTimeout((): void => URL.revokeObjectURL(url), 500);
+    _markMizDownloadSucceeded();
+    _clearMizErrorMessage();
+  } catch (error: unknown) {
+    _setMizErrorMessage(toErrorMessage(error));
+  }
+};
+
+/**
+ * @summary MIZ エクスポート用ソート状態を更新する。
+ * @param value 更新後ソート状態を指定する。
+ */
+const _handleMizSortUpdate = (value: MizTranslationExportSort): void => {
+  _setMizExportSort(value);
+};
+
+/**
+ * @summary MIZ フィルターの有効表示状態を更新する。
+ * @param value 更新値を指定する。
+ */
+const _handleMizShowEnabledUpdate = (value: boolean): void => {
+  _setMizShowEnabled(value);
+};
+
+/**
+ * @summary MIZ フィルターの無効表示状態を更新する。
+ * @param value 更新値を指定する。
+ */
+const _handleMizShowDisabledUpdate = (value: boolean): void => {
+  _setMizShowDisabled(value);
+};
+
+/**
+ * @summary MIZ フィルターの未翻訳のみ表示状態を更新する。
+ * @param value 更新値を指定する。
+ */
+const _handleMizShowOnlyUntranslatedUpdate = (value: boolean): void => {
+  _setMizShowOnlyUntranslated(value);
+};
+
+/**
+ * @summary MIZ フィルターの対象外非表示状態を更新する。
+ * @param value 更新値を指定する。
+ */
+const _handleMizHideNonTranslatableUpdate = (value: boolean): void => {
+  _setMizHideNonTranslatable(value);
+};
+
+/**
+ * @summary MIZ フィルターの空欄非表示状態を更新する。
+ * @param value 更新値を指定する。
+ */
+const _handleMizHideEmptySourceTextUpdate = (value: boolean): void => {
+  _setMizHideEmptySourceText(value);
+};
+
+/**
+ * @summary MIZ 翻訳ダイアログ内エラーを表示する。
+ * @param message 表示用メッセージを指定する。
+ */
+const _handleMizDialogError = (message: string): void => {
+  _setMizErrorMessage(message);
+};
+
+/**
+ * @summary MIZ 翻訳ダイアログの開閉要求を処理する。
+ * @param value 更新後のダイアログ表示状態を指定する。
+ */
+const _handleMizDialogModelUpdate = (value: boolean): void => {
+  if (value) return;
+  _requestMizClose();
+};
+
+/**
+ * @summary MIZ 翻訳クローズ確認ダイアログの開閉要求を処理する。
+ * @param value 更新後のダイアログ表示状態を指定する。
+ */
+const _handleMizCloseConfirmDialogModelUpdate = (value: boolean): void => {
+  if (value) return;
+  _cancelMizClose();
+};
+
+/**
+ * @summary MIZ 翻訳のクローズ破棄を確定する。
+ */
+const _handleMizCloseConfirm = (): void => {
+  _confirmMizClose();
 };
 
 /**
@@ -203,9 +418,24 @@ v-app
 
         v-container#alert-area.alert-area
           v-alert(type="info" variant="tonal" v-if="isLoadingTree") 読み込み中です...
-          v-alert(type="error" variant="tonal" :text="errorMessage" v-if="errorMessage" class="my-4" closable @click:close="_handleAlertClose")
+          v-alert(
+            type="error"
+            variant="tonal"
+            :text="_errorAlertText"
+            v-if="_hasErrorMessage"
+            class="my-4"
+            closable
+            @click:close="_handleAlertClose"
+          )
 
       v-container#upload-area
+        MizTranslationEntrySection(
+          :is-loading="_mizIsLoading"
+          :error-message="_mizErrorMessage"
+          @select-miz="_handleMizFileSelected"
+          @clear-error="_handleMizErrorClear"
+        )
+
         UploadDialog(:on-submit="_handleUploadSubmit" :tree-items="treeItems")
 
       v-container#download-area
@@ -218,6 +448,35 @@ v-app
           :rows="_visibleRows"
           @error="_handleDownloadError"
         )
+
+      MizTranslationDialog(
+        :model-value="_mizIsDialogOpen"
+        :loaded-file-name="_mizLoadedFileName"
+        :is-loading="_mizIsLoading"
+        :filter="_mizFilter"
+        :entries="_mizFilteredEntries"
+        :visible-entry-count="_mizVisibleEntryCount"
+        :total-entry-count="_mizTotalEntryCount"
+        :error-message="_mizErrorMessage"
+        @update:modelValue="_handleMizDialogModelUpdate"
+        @update:show-enabled="_handleMizShowEnabledUpdate"
+        @update:show-disabled="_handleMizShowDisabledUpdate"
+        @update:show-only-untranslated="_handleMizShowOnlyUntranslatedUpdate"
+        @update:hide-non-translatable="_handleMizHideNonTranslatableUpdate"
+        @update:hide-empty-source-text="_handleMizHideEmptySourceTextUpdate"
+        @toggle-enabled="_handleMizEntryToggleEnabled"
+        @update-translation="_handleMizEntryTranslationUpdate"
+        @update-sort="_handleMizSortUpdate"
+        @import-dictionary="_handleMizDictionaryImport"
+        @download="_handleMizDictionaryDownload"
+        @error="_handleMizDialogError"
+      )
+
+      MizTranslationCloseConfirmDialog(
+        :model-value="_mizIsCloseConfirmDialogOpen"
+        @update:modelValue="_handleMizCloseConfirmDialogModelUpdate"
+        @confirm="_handleMizCloseConfirm"
+      )
 
   Footer
 </template>
