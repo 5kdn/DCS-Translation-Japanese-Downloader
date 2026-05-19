@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.0.0](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/compare/v2.1.0...v3.0.0) (2026-05-19)
+
+
+### ⚠ BREAKING CHANGES
+
+* Downloadをタブ・表形式のUIに変更 ([#147](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/issues/147))
+
+### Features
+
+* Downloadをタブ・表形式のUIに変更 ([#147](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/issues/147)) ([a80287c](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/commit/a80287c4321126b617aae06c8e8739a7f52dd175))
+* mizファイルから翻訳ファイルを生成する機能を追加 ([#153](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/issues/153)) ([aa43f42](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/commit/aa43f428a9003ce4f05089d900e7d48ad149e508))
+
 ## [2.1.0](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/compare/v2.0.1...v2.1.0) (2026-04-21)
 
 
