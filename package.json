@@ -54,7 +54,7 @@
     "@storybook/vue3": "^10.4.0",
     "@storybook/vue3-vite": "^10.4.0",
     "@types/markdown-it": "^14.1.2",
-    "@types/node": "^25.7.0",
+    "@types/node": "^25.9.1",
     "@vitejs/plugin-vue": "^6.0.7",
     "@vitest/browser": "4.1.6",
     "@vitest/browser-playwright": "4.1.6",
