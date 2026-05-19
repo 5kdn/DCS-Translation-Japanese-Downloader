@@ -2,7 +2,7 @@
 # Workflow Name : CI
 # Trigger       : pull_request to master
 # Purpose       :
-#   - 変更に対して Lint / Format / Type / Build Check, UnitTest を実行
+#   - 変更に対して Lint / Format / Type / Build Check, unit/integration/storybook/e2e test を実行
 # ------------------------------------------------------------
 name: CI
 on:
@@ -12,8 +12,10 @@ on:
     paths:
       - 'src/**/*'
       - 'tests/**/*'
+      - '.storybook/**/*'
       - 'package.json'
       - 'pnpm-lock.yaml'
+      - 'playwright.config.*'
       - 'vitest.config.*'
 
 concurrency:
@@ -85,6 +87,42 @@ jobs:
 
       - run: pnpm i --frozen-lockfile
 
+      - name: Run Unit Tests
+        run: pnpm run test:unit
+
+  IntegrationTest:
+    name: Integration Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v6
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - run: pnpm i --frozen-lockfile
+      - run: pnpm run test:integration
+
+  StorybookTest:
+    name: Storybook Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v6
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - run: pnpm i --frozen-lockfile
+
       - name: Cache Playwright browsers
         uses: actions/cache@v5
         with:
@@ -94,8 +132,36 @@ jobs:
       - name: Install Playwright
         run: pnpm exec playwright install chromium
 
-      - name: Run Tests
-        run: pnpm vitest --run
+      - name: Run Storybook Tests
+        run: pnpm run test:storybook
+
+  E2ETest:
+    name: E2E Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v6
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - run: pnpm i --frozen-lockfile
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-ms-playwright-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install Playwright
+        run: pnpm exec playwright install chromium
+
+      - name: Run E2E Tests
+        run: pnpm run test:e2e
 
   BuildCheck:
     name: Build Check
