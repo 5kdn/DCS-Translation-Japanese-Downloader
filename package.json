@@ -8,7 +8,10 @@
   "pnpm": {
     "patchedDependencies": {
       "@microsoft/kiota-abstractions@1.0.0-preview.100": "patches/@microsoft__kiota-abstractions@1.0.0-preview.100.patch"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "msw"
+    ]
   },
   "scripts": {
     "dev": "vite --port 5177",
@@ -37,7 +40,7 @@
     "@microsoft/kiota-serialization-json": "1.0.0-preview.100",
     "@microsoft/kiota-serialization-multipart": "1.0.0-preview.100",
     "@microsoft/kiota-serialization-text": "1.0.0-preview.100",
-    "dompurify": "^3.4.3",
+    "dompurify": "^3.4.5",
     "jszip": "^3.10.1",
     "markdown-it": "^14.1.1",
     "markdown-it-task-lists": "^2.1.1",
@@ -67,8 +70,8 @@
     "msw": "^2.14.6",
     "msw-storybook-addon": "^2.0.7",
     "playwright": "^1.60.0",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
     "sass": "^1.99.0",
     "storybook": "^10.4.0",
     "terser": "^5.47.1",
