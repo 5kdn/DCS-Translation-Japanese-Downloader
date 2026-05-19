@@ -4,7 +4,8 @@ import { HealthRequestBuilderUriTemplate } from '@/lib/http/apiClient/health';
 import { CreateRequestBuilderUriTemplate } from '@/lib/http/apiClient/issue/create';
 import { ListRequestBuilderUriTemplate } from '@/lib/http/apiClient/issue/list';
 import { TreeRequestBuilderUriTemplate } from '@/lib/http/apiClient/tree';
-import { DEFAULT_RAW_TEXT_BY_PATH, RAW_GITHUB_PREFIX } from '../../shared/msw/fixtures/appApiFixtures';
+import { extractRepositoryPathFromRawUrl } from '../../shared/extractRepositoryPathFromRawUrl';
+import { DEFAULT_RAW_TEXT_BY_PATH } from '../../shared/msw/fixtures/appApiFixtures';
 import type { AppApiMockOptions, CapturedRequest } from '../../shared/msw/models/appApiMockTypes';
 import {
   createCapturedRequest,
@@ -30,6 +31,7 @@ const TREE_ROUTE_PATTERN = toRoutePattern(TreeRequestBuilderUriTemplate);
 const ISSUE_LIST_ROUTE_PATTERN = toRoutePattern(ListRequestBuilderUriTemplate);
 const ISSUE_CREATE_ROUTE_PATTERN = toRoutePattern(CreateRequestBuilderUriTemplate);
 const CREATE_PR_ROUTE_PATTERN = toRoutePattern(CreatePrRequestBuilderUriTemplate);
+const RAW_GITHUB_ROUTE_PATTERN = 'https://raw.githubusercontent.com/**';
 
 export type { AppApiMockOptions, CapturedRequest };
 
@@ -96,9 +98,15 @@ export const installAppApiMocks = async (page: Page, options: AppApiMockOptions 
     });
   });
 
-  await page.route(`${RAW_GITHUB_PREFIX}*`, async (route: Route): Promise<void> => {
+  await page.route(RAW_GITHUB_ROUTE_PATTERN, async (route: Route): Promise<void> => {
     const url = route.request().url();
-    const path = decodeURIComponent(url.slice(RAW_GITHUB_PREFIX.length));
+    let path: string;
+    try {
+      path = extractRepositoryPathFromRawUrl(url);
+    } catch {
+      await route.fallback();
+      return;
+    }
 
     if (rawErrorPathSet.has(path)) {
       await route.fulfill({ status: 500, body: 'failed' });

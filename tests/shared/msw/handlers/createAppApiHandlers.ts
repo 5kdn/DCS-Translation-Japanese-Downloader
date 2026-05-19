@@ -1,5 +1,5 @@
 import { HttpResponse, http } from 'msw';
-import { RAW_GITHUB_PREFIX } from '../fixtures/appApiFixtures';
+import { extractRepositoryPathFromRawUrl } from '../../extractRepositoryPathFromRawUrl';
 import type { AppApiMockOptions } from '../models/appApiMockTypes';
 import {
   createCapturedRequest,
@@ -10,10 +10,6 @@ import {
   createRawFileResponse,
   createTreeResponse,
 } from '../services/appApiMockResponses';
-
-const escapeRegExp = (value: string): string => {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-};
 
 /**
  * @summary アプリ向け API モックハンドラ群を生成する。
@@ -26,7 +22,6 @@ export const createAppApiHandlers = (options: AppApiMockOptions) => {
   }
 
   const apiBaseUrl = options.apiBaseUrl.replace(/\/$/, '');
-  const rawGithubPattern = new RegExp(`^${escapeRegExp(RAW_GITHUB_PREFIX)}(.+)$`);
 
   return [
     http.get(`${apiBaseUrl}/health`, () => {
@@ -60,9 +55,8 @@ export const createAppApiHandlers = (options: AppApiMockOptions) => {
       return HttpResponse.json(response.body, { status: response.status });
     }),
 
-    http.get(rawGithubPattern, ({ request }) => {
-      const matchedPath = request.url.match(rawGithubPattern)?.[1];
-      const path = matchedPath === undefined ? '' : decodeURIComponent(matchedPath);
+    http.get('https://raw.githubusercontent.com/*', ({ request }) => {
+      const path = extractRepositoryPathFromRawUrl(request.url);
       const response = createRawFileResponse(options, path);
 
       return new HttpResponse(response.body, {

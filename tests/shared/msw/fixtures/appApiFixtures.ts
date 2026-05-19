@@ -1,7 +1,5 @@
 import type { MockTreeItem } from '../models/appApiMockTypes';
 
-export const RAW_GITHUB_PREFIX = 'https://raw.githubusercontent.com/5kdn/DCS-Translation-Japanese/master/';
-
 /**
  * @summary tree API 用のファイル項目を生成する。
  * @param path 対象パスを指定する。
