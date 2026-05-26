@@ -20,20 +20,20 @@ importers:
         specifier: 1.0.0-preview.100
         version: 1.0.0-preview.100(patch_hash=5c7dfe5071c2c5fe5f64d3237e5a1f1195efc49c8f3bb965df3d2010671f6de0)
       '@microsoft/kiota-http-fetchlibrary':
-        specifier: 1.0.0-preview.100
-        version: 1.0.0-preview.100
+        specifier: 1.0.0-preview.102
+        version: 1.0.0-preview.102
       '@microsoft/kiota-serialization-form':
-        specifier: 1.0.0-preview.100
-        version: 1.0.0-preview.100
+        specifier: 1.0.0-preview.102
+        version: 1.0.0-preview.102
       '@microsoft/kiota-serialization-json':
-        specifier: 1.0.0-preview.100
-        version: 1.0.0-preview.100
+        specifier: 1.0.0-preview.102
+        version: 1.0.0-preview.102
       '@microsoft/kiota-serialization-multipart':
-        specifier: 1.0.0-preview.100
-        version: 1.0.0-preview.100
+        specifier: 1.0.0-preview.102
+        version: 1.0.0-preview.102
       '@microsoft/kiota-serialization-text':
-        specifier: 1.0.0-preview.100
-        version: 1.0.0-preview.100
+        specifier: 1.0.0-preview.102
+        version: 1.0.0-preview.102
       dompurify:
         specifier: ^3.4.5
         version: 3.4.5
@@ -167,8 +167,8 @@ packages:
   '@asamuzakjp/nwsapi@2.3.9':
     resolution: {integrity: sha512-n8GuYSrI9bF7FFZ/SjhwevlHc8xaVlb/7HmHelnc/PZXBD2ZR49NnN9sMMuDdEGPeeRQ5d0hqlSlEpgCX3Wl0Q==}
 
-  '@babel/code-frame@7.29.0':
-    resolution: {integrity: sha512-9NhCeYjq9+3uxgdtp20LSiJXJvN0FeCtNGpJxuMFZ1Kv3cWUNb6DOhJwUvcVCzKGR66cw4njwM6hrJLqgOwbcw==}
+  '@babel/code-frame@7.29.7':
+    resolution: {integrity: sha512-Aup7aUOfpbAUg2ROOJN6Iw5f9DMBlzu0mIkm/malLQFN/YQgO48wCj0Kxa3sEHJvPVFg7siR+qRInwXd2qhQKw==}
     engines: {node: '>=6.9.0'}
 
   '@babel/helper-string-parser@7.27.1':
@@ -179,13 +179,17 @@ packages:
     resolution: {integrity: sha512-qSs4ifwzKJSV39ucNjsvc6WVHs6b7S03sOh2OcHF9UHfVPqWWALUsNUVzhSBiItjRZoLHx7nIarVjqKVusUZ1Q==}
     engines: {node: '>=6.9.0'}
 
+  '@babel/helper-validator-identifier@7.29.7':
+    resolution: {integrity: sha512-qehxGkRj55h/ff8EMaJ+cYhyaKlHIxqYDn682wQD7RNp9UujOQsHog2uS0r2vzr4pW+sXf90NeeayjcNaX3fFg==}
+    engines: {node: '>=6.9.0'}
+
   '@babel/parser@7.29.3':
     resolution: {integrity: sha512-b3ctpQwp+PROvU/cttc4OYl4MzfJUWy6FZg+PMXfzmt/+39iHVF0sDfqay8TQM3JA2EUOyKcFZt75jWriQijsA==}
     engines: {node: '>=6.0.0'}
     hasBin: true
 
-  '@babel/runtime@7.29.2':
-    resolution: {integrity: sha512-JiDShH45zKHWyGe4ZNVRrCjBz8Nh9TMmZG1kh4QTK8hCBTWBi8Da+i7s1fJw7/lYpM4ccepSNfqzZ/QvABBi5g==}
+  '@babel/runtime@7.29.7':
+    resolution: {integrity: sha512-Nq8OhGWiZIZGV6hLHoyAKLLcJihP/xFeBMGJoUrxTX2psI8dCifzLhZISFb+VWS3wFMRDmCGw5R+dOySCqPLhw==}
     engines: {node: '>=6.9.0'}
 
   '@babel/types@7.29.0':
@@ -704,20 +708,23 @@ packages:
   '@microsoft/kiota-abstractions@1.0.0-preview.100':
     resolution: {integrity: sha512-3s2WYKQ6WLB/0pyDmmv9bigH/3LZ0Mm4ldHskNLBj0U8DYjFzfG729snnEij+hZN0l2XHr37pGBr1MZK8vM7zQ==}
 
-  '@microsoft/kiota-http-fetchlibrary@1.0.0-preview.100':
-    resolution: {integrity: sha512-uS2rhKKjbYiT8JWG8GGVOALB+s4HdDc9hg5tTZMVf3qY5b/us1OKLQ6WgW6USq/kZAuKKWkIq/BQgPCWbHtFTQ==}
+  '@microsoft/kiota-abstractions@1.0.0-preview.102':
+    resolution: {integrity: sha512-WL+S7X+W6zpDO6vFk+FClb5hoUJMV1ZcMHo1H52r2Q49xTuYx9esJqmwh/0EXsftmxKwOOIOoPfO7+Tp5QAddw==}
 
-  '@microsoft/kiota-serialization-form@1.0.0-preview.100':
-    resolution: {integrity: sha512-SR/yWBtvKYhN2ARR4wVMFb91XgN32DBmLLQmtemdKgL1YWBxVCNAUP/qHbZhrTX7q4kh7jl/S9yrr1S8ySS7AA==}
+  '@microsoft/kiota-http-fetchlibrary@1.0.0-preview.102':
+    resolution: {integrity: sha512-oXfrPOWkIR2/Gs700n00EY3VDc+Qgz6y7ZiA/f8FHJsnwSjZ017xcWFw2PLzJItczVsad0pq/N5DYnoF6Co11Q==}
 
-  '@microsoft/kiota-serialization-json@1.0.0-preview.100':
-    resolution: {integrity: sha512-4qatf5j0Aeaakdw24jMuIX7W6mf/W2rU9UyAjkIrSjaB7W5n8gsUvhoTcRpPTAFN7pvzQkCbO7Z0paRfdYzhIw==}
+  '@microsoft/kiota-serialization-form@1.0.0-preview.102':
+    resolution: {integrity: sha512-1w70XAA/F4RgbyNbRAaZCjLAOiKQjdiQDYlNZC9x8g7xgd7tNqYqowt/auQS1A9SZOrT626q6+Gr2xKKyW3wOg==}
 
-  '@microsoft/kiota-serialization-multipart@1.0.0-preview.100':
-    resolution: {integrity: sha512-zwWoLZH6+KsAl05Ijd8HpbU+mct5wb0//ZCGdCkQ/UqsAaoe2xYSoKicxQbVGv9VvSTq0as7iVLwqDeqEI9rDw==}
+  '@microsoft/kiota-serialization-json@1.0.0-preview.102':
+    resolution: {integrity: sha512-YpIt5pXNX13ND736oJFf0wBYPAafCv+CAE17Fa1HcS1drCdXx8ELPQ5GxGDbQG7J5LIMDgUtBOUmf5R/FrMQ6A==}
 
-  '@microsoft/kiota-serialization-text@1.0.0-preview.100':
-    resolution: {integrity: sha512-x2Epz0StHLBkVJKeEmwrXSh6SJuxZ72VVBNO53uHUNZ/Y7X8tZuSQR7X74EO69mEi4zAF21X2jbkF9/dhlARog==}
+  '@microsoft/kiota-serialization-multipart@1.0.0-preview.102':
+    resolution: {integrity: sha512-tjwt0m+8+OqZizZU6gBARTcA8suPYS0onD9IUbhKsvRrAJpBIyp07hnyOTXBgE+gurGGbeT3TTl9AUK2ic6DiA==}
+
+  '@microsoft/kiota-serialization-text@1.0.0-preview.102':
+    resolution: {integrity: sha512-ZCihyrXKYGfTz/frqNQvwKsD+EgjhjfclB5/XDrSGNXduisL/f1MbyvjsgmrZnLmtCwX8/v+Mc3vlz716KWYbg==}
 
   '@mswjs/interceptors@0.41.9':
     resolution: {integrity: sha512-VVPPgHyQ6ShqnrmDWuxjmUIsO9gWyOZFmuOfLd9LfBGQJwZfy0gvv9pbHSJuoFNIYC7ZDX9aoFwowjcdSC4E8w==}
@@ -1196,6 +1203,9 @@ packages:
 
   '@standard-schema/spec@1.1.0':
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
+
+  '@std-uritemplate/std-uritemplate@2.0.10':
+    resolution: {integrity: sha512-EGxlaZDK+CcvMYzxLWKgQlhNiyGIoznEi/CVnzM1DCiQQh/EwSH0ThvseXJ4g6btu1hvlUZ70SrZD6ahsglXcw==}
 
   '@std-uritemplate/std-uritemplate@2.0.8':
     resolution: {integrity: sha512-8oj7jKksoTRxjdPkWKX9FyOKDS8ORBm+ZfTSHm0f3eYha8cI0O1d57gyduOIAX7Y2uUukNDNlxlvGb+FFkE7yQ==}
@@ -2789,6 +2799,9 @@ packages:
   vue-component-type-helpers@3.3.1:
     resolution: {integrity: sha512-pu58kqxmVyEH6VfNYW1UyEfR3XAnJ27ZXT3yzXxxpjLxVzAbyC35Zk/nm/RMs7ijWnJNSd9fWkeex2OhUsx3MA==}
 
+  vue-component-type-helpers@3.3.2:
+    resolution: {integrity: sha512-l4Z2Y34m7nFMlx8vrslJaVtXxUpzgDMSESC7TakG/c5kwjYT/do+E0NcT2/vWDzaoIhsShg/2OKwX7Q4nbzC0g==}
+
   vue-docgen-api@4.79.2:
     resolution: {integrity: sha512-n9ENAcs+40awPZMsas7STqjkZiVlIjxIKgiJr5rSohDP0/JCrD9VtlzNojafsA1MChm/hz2h3PDtUedx3lbgfA==}
     peerDependencies:
@@ -2928,9 +2941,9 @@ snapshots:
 
   '@asamuzakjp/nwsapi@2.3.9': {}
 
-  '@babel/code-frame@7.29.0':
+  '@babel/code-frame@7.29.7':
     dependencies:
-      '@babel/helper-validator-identifier': 7.28.5
+      '@babel/helper-validator-identifier': 7.29.7
       js-tokens: 4.0.0
       picocolors: 1.1.1
 
@@ -2938,11 +2951,13 @@ snapshots:
 
   '@babel/helper-validator-identifier@7.28.5': {}
 
+  '@babel/helper-validator-identifier@7.29.7': {}
+
   '@babel/parser@7.29.3':
     dependencies:
       '@babel/types': 7.29.0
 
-  '@babel/runtime@7.29.2': {}
+  '@babel/runtime@7.29.7': {}
 
   '@babel/types@7.29.0':
     dependencies:
@@ -3286,30 +3301,37 @@ snapshots:
       tinyduration: 3.4.1
       tslib: 2.8.1
 
-  '@microsoft/kiota-http-fetchlibrary@1.0.0-preview.100':
+  '@microsoft/kiota-abstractions@1.0.0-preview.102':
     dependencies:
-      '@microsoft/kiota-abstractions': 1.0.0-preview.100(patch_hash=5c7dfe5071c2c5fe5f64d3237e5a1f1195efc49c8f3bb965df3d2010671f6de0)
+      '@opentelemetry/api': 1.9.1
+      '@std-uritemplate/std-uritemplate': 2.0.10
+      tinyduration: 3.4.1
+      tslib: 2.8.1
+
+  '@microsoft/kiota-http-fetchlibrary@1.0.0-preview.102':
+    dependencies:
+      '@microsoft/kiota-abstractions': 1.0.0-preview.102
       '@opentelemetry/api': 1.9.1
       tslib: 2.8.1
 
-  '@microsoft/kiota-serialization-form@1.0.0-preview.100':
+  '@microsoft/kiota-serialization-form@1.0.0-preview.102':
     dependencies:
-      '@microsoft/kiota-abstractions': 1.0.0-preview.100(patch_hash=5c7dfe5071c2c5fe5f64d3237e5a1f1195efc49c8f3bb965df3d2010671f6de0)
+      '@microsoft/kiota-abstractions': 1.0.0-preview.102
       tslib: 2.8.1
 
-  '@microsoft/kiota-serialization-json@1.0.0-preview.100':
+  '@microsoft/kiota-serialization-json@1.0.0-preview.102':
     dependencies:
-      '@microsoft/kiota-abstractions': 1.0.0-preview.100(patch_hash=5c7dfe5071c2c5fe5f64d3237e5a1f1195efc49c8f3bb965df3d2010671f6de0)
+      '@microsoft/kiota-abstractions': 1.0.0-preview.102
       tslib: 2.8.1
 
-  '@microsoft/kiota-serialization-multipart@1.0.0-preview.100':
+  '@microsoft/kiota-serialization-multipart@1.0.0-preview.102':
     dependencies:
-      '@microsoft/kiota-abstractions': 1.0.0-preview.100(patch_hash=5c7dfe5071c2c5fe5f64d3237e5a1f1195efc49c8f3bb965df3d2010671f6de0)
+      '@microsoft/kiota-abstractions': 1.0.0-preview.102
       tslib: 2.8.1
 
-  '@microsoft/kiota-serialization-text@1.0.0-preview.100':
+  '@microsoft/kiota-serialization-text@1.0.0-preview.102':
     dependencies:
-      '@microsoft/kiota-abstractions': 1.0.0-preview.100(patch_hash=5c7dfe5071c2c5fe5f64d3237e5a1f1195efc49c8f3bb965df3d2010671f6de0)
+      '@microsoft/kiota-abstractions': 1.0.0-preview.102
       tslib: 2.8.1
 
   '@mswjs/interceptors@0.41.9':
@@ -3612,6 +3634,8 @@ snapshots:
 
   '@standard-schema/spec@1.1.0': {}
 
+  '@std-uritemplate/std-uritemplate@2.0.10': {}
+
   '@std-uritemplate/std-uritemplate@2.0.8': {}
 
   '@storybook/addon-a11y@10.4.0(storybook@10.4.0(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@testing-library/dom@10.4.1)(@types/react@19.2.15)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))':
@@ -3709,12 +3733,12 @@ snapshots:
       storybook: 10.4.0(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@testing-library/dom@10.4.1)(@types/react@19.2.15)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       type-fest: 2.19.0
       vue: 3.5.34(typescript@6.0.3)
-      vue-component-type-helpers: 3.3.1
+      vue-component-type-helpers: 3.3.2
 
   '@testing-library/dom@10.4.1':
     dependencies:
-      '@babel/code-frame': 7.29.0
-      '@babel/runtime': 7.29.2
+      '@babel/code-frame': 7.29.7
+      '@babel/runtime': 7.29.7
       '@types/aria-query': 5.0.4
       aria-query: 5.3.0
       dom-accessibility-api: 0.5.16
@@ -5284,6 +5308,8 @@ snapshots:
   vue-component-type-helpers@2.2.12: {}
 
   vue-component-type-helpers@3.3.1: {}
+
+  vue-component-type-helpers@3.3.2: {}
 
   vue-docgen-api@4.79.2(vue@3.5.34(typescript@6.0.3)):
     dependencies:
