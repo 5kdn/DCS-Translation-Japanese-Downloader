@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite';
 import { expect, fn, userEvent, within } from 'storybook/test';
-import Button from './Button.vue';
+import AppButton from './AppButton.vue';
 
 const meta = {
-  title: 'Common/Button',
-  component: Button,
+  title: 'Common/AppButton',
+  component: AppButton,
   tags: ['autodocs'],
   argTypes: {
     label: { control: 'text' },
@@ -21,7 +21,7 @@ const meta = {
     loading: undefined,
     onClick: fn(),
   },
-} satisfies Meta<typeof Button>;
+} satisfies Meta<typeof AppButton>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

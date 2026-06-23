@@ -22,7 +22,7 @@ import type { TreeItem } from '@/types/type';
 defineOptions({
   components: {
     DownloadCategoryTabs: defineAsyncComponent(() => import('./components/download/DownloadCategoryTabs.vue')),
-    Footer: defineAsyncComponent(() => import('./components/Footer.vue')),
+    AppFooter: defineAsyncComponent(() => import('./components/AppFooter.vue')),
     IssueViewer: defineAsyncComponent(() => import('./components/IssueViewer.vue')),
     MizTranslationCloseConfirmDialog: defineAsyncComponent(
       () => import('./components/mizTranslation/MizTranslationCloseConfirmDialog.vue'),
@@ -31,7 +31,7 @@ defineOptions({
     MizTranslationEntrySection: defineAsyncComponent(
       () => import('./components/mizTranslation/MizTranslationEntrySection.vue'),
     ),
-    Button: defineAsyncComponent(() => import('./components/common/Button.vue')),
+    AppButton: defineAsyncComponent(() => import('./components/common/AppButton.vue')),
     UploadDialog: defineAsyncComponent(() => import('./components/UploadDialog.vue')),
   },
 });
@@ -384,7 +384,7 @@ v-app
           v-container#announce-desktop-app.text-center
             p.text-balance 翻訳データをmizファイルに追加までを自動化するWindowsデスクトップアプリがダウンロード可能です。
             p.text-balance デスクトップアプリ版ではファイルのアップロードも可能です。
-            Button(label="デスクトップアプリ" @click="_browseToDesktopAppDownloadPage").mt-2
+            AppButton(label="デスクトップアプリ" @click="_browseToDesktopAppDownloadPage").mt-2
 
           v-container#announce-how-to-apply.text-center
             h2 ミッションファイルへの適用のしかた

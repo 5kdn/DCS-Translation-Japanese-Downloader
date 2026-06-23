@@ -7,7 +7,7 @@ import type { IssueItem } from '@/types/type';
 
 defineOptions({
   components: {
-    Button: defineAsyncComponent(() => import('./common/Button.vue')),
+    AppButton: defineAsyncComponent(() => import('./common/AppButton.vue')),
   },
 });
 
@@ -113,7 +113,7 @@ v-dialog(v-model="isDialogOpen" eager max-width="min(900px, 90vw)")
             div.issue-header.d-flex.flex-column
               v-expansion-panel-title.d-flex.flex-row.flex-0-0.justify-space-between.align-center
                 p.text-headline-small.text-break.flex-grow-1.my-0 {{ issue.title }}
-                Button.ms-4(label='GitHubで見る' @click.stop='_NavToIssuePage(issue.issueUrl)')
+                AppButton.ms-4(label='GitHubで見る' @click.stop='_NavToIssuePage(issue.issueUrl)')
             v-expansion-panel-text
               div.markdown-body.pa-4.ma-4.border-thin.rounded.text-break(v-html='issue.safeHtml')
 

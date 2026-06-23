@@ -1,21 +1,21 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite';
 import { userEvent, waitFor, within } from 'storybook/test';
 import { h, resolveComponent } from 'vue';
-import Footer from './Footer.vue';
+import AppFooter from './AppFooter.vue';
 
 const meta = {
-  title: 'Footer/Footer',
-  component: Footer,
+  title: 'Footer/AppFooter',
+  component: AppFooter,
   tags: ['autodocs'],
   decorators: [
     () => ({
       render() {
         const VApp = resolveComponent('v-app');
-        return h(VApp, null, { default: () => h(Footer) });
+        return h(VApp, null, { default: () => h(AppFooter) });
       },
     }),
   ],
-} satisfies Meta<typeof Footer>;
+} satisfies Meta<typeof AppFooter>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

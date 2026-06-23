@@ -27,12 +27,14 @@ test.describe('Download E2E', () => {
 
   test('日付絞り込みとソートを実行できる', async ({ page }) => {
     await installAppApiMocks(page);
+    await page.clock.install({ time: new Date('2026-05-10T00:00:00Z') });
     await page.goto('/');
 
     await page.getByRole('textbox', { name: '最終更新日 (以降)' }).click();
     const dayButton = page.getByRole('button', { name: '10' }).first();
     await dayButton.click();
 
+    await expect(page.getByRole('textbox', { name: '最終更新日 (以降)' })).toHaveValue('2026/05/10');
     await expect(page.locator('tbody').getByRole('cell', { name: 'F-16C', exact: true })).toBeVisible();
     await expect(page.locator('tbody').getByRole('cell', { name: 'AH-64D', exact: true })).toHaveCount(0);
 
