@@ -1,4 +1,5 @@
-import { initialize, mswLoader } from 'msw-storybook-addon';
+import { setupWorker } from 'msw/browser';
+import { mswLoader } from 'msw-storybook-addon/csf3';
 import { defaultTreeItems } from '../tests/shared/msw/fixtures/appApiFixtures';
 import { createAppApiHandlers } from '../tests/shared/msw/handlers/createAppApiHandlers';
 import type { AppApiMockOptions } from '../tests/shared/msw/models/appApiMockTypes';
@@ -20,18 +21,23 @@ const handleUnhandledRequest = (request: Request): void => {
   console.error(`[msw] Unhandled ${request.method} request to ${url.toString()}.`);
 };
 
-initialize(
-  {
+const storybookMswLoader = mswLoader(async () => {
+  const worker = setupWorker(
+    ...createAppApiHandlers({
+      apiBaseUrl: STORYBOOK_API_BASE_URL,
+      ...STORYBOOK_DEFAULT_API_OPTIONS,
+    }),
+  );
+
+  await worker.start({
     onUnhandledRequest: handleUnhandledRequest,
     quiet: true,
-  },
-  createAppApiHandlers({
-    apiBaseUrl: STORYBOOK_API_BASE_URL,
-    ...STORYBOOK_DEFAULT_API_OPTIONS,
-  }),
-);
+  });
 
-export { mswLoader };
+  return worker;
+});
+
+export { storybookMswLoader };
 
 /**
  * @summary Storybook 用 MSW パラメータを生成する。
