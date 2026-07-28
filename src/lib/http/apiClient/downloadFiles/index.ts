@@ -197,7 +197,7 @@ export function deserializeIntoDownloadFiles500Error_errors(downloadFiles500Erro
 // @ts-ignore
 export function deserializeIntoDownloadFilesPostRequestBody(downloadFilesPostRequestBody: Partial<DownloadFilesPostRequestBody> | undefined = {}) : Record<string, (node: ParseNode) => void> {
     return {
-        "paths": n => { downloadFilesPostRequestBody.paths = n.getCollectionOfPrimitiveValues<string>(); },
+        "paths": n => { downloadFilesPostRequestBody.paths = n.getCollectionOfPrimitiveValues<string>("string"); },
     }
 }
 export interface DownloadFiles400Error extends AdditionalDataHolder, ApiError, Parsable {

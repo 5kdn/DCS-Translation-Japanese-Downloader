@@ -6,40 +6,40 @@
   "type": "module",
   "license": "MIT",
   "pnpm": {
-    "patchedDependencies": {
-      "@microsoft/kiota-abstractions@1.0.0-preview.100": "patches/@microsoft__kiota-abstractions@1.0.0-preview.100.patch"
-    },
     "onlyBuiltDependencies": [
       "msw"
     ]
   },
   "scripts": {
     "dev": "vite --port 5177",
-    "build": "pnpm run generate-licenses && vue-tsc -b && vite build",
+    "build": "pnpm run generate-licenses && pnpm run typecheck && vite build",
     "test": "pnpm run test:unit && pnpm run test:integration && pnpm run test:e2e && pnpm run test:storybook",
     "test:unit": "vitest --run --project unit",
     "test:integration": "vitest --run --project integration",
     "test:e2e": "pnpm exec playwright install chromium && playwright test",
     "test:storybook": "pnpm exec playwright install chromium && vitest --run --project storybook",
+    "typecheck": "vue-tsc -b",
     "lint": "biome lint .",
     "fmt": "biome format . --write",
     "check": "biome check .",
     "preview": "vite preview",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "generate-apiClient": "kiota generate --openapi https://dcs-translation-japanese-cloudflare-worker.dcs-translation-japanese.workers.dev/openapi.json --language TypeScript --clean-output -o src/lib/http/apiClient",
-    "update-apiClient": "kiota update -o src/lib/http/ --clean-output",
+    "restore-tools": "dotnet tool restore",
+    "update-kiota": "dotnet tool update Microsoft.OpenApi.Kiota --local && pnpm run update-apiClient",
+    "generate-apiClient": "pnpm run restore-tools && dotnet tool run kiota generate --openapi https://dcs-translation-japanese-cloudflare-worker.dcs-translation-japanese.workers.dev/openapi.json --language TypeScript --clean-output -o src/lib/http/apiClient && pnpm run typecheck",
+    "update-apiClient": "pnpm run restore-tools && dotnet tool run kiota update -o src/lib/http/ --clean-output && pnpm run typecheck",
     "generate-licenses": "license-checker-rseidelsohn --json --production --excludePrivatePackages --out src/assets/LICENSES/licenses.json --customPath license-checker-rseidelsohn-customFormat.json --clarificationsFile license-checker-rseidelsohn-license-clarifications.json",
     "chromatic": "pnpx chromatic"
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",
-    "@microsoft/kiota-abstractions": "1.0.0-preview.100",
-    "@microsoft/kiota-http-fetchlibrary": "1.0.0-preview.100",
-    "@microsoft/kiota-serialization-form": "1.0.0-preview.100",
-    "@microsoft/kiota-serialization-json": "1.0.0-preview.100",
-    "@microsoft/kiota-serialization-multipart": "1.0.0-preview.100",
-    "@microsoft/kiota-serialization-text": "1.0.0-preview.100",
+    "@microsoft/kiota-abstractions": "1.0.0-preview.103",
+    "@microsoft/kiota-http-fetchlibrary": "1.0.0-preview.103",
+    "@microsoft/kiota-serialization-form": "1.0.0-preview.103",
+    "@microsoft/kiota-serialization-json": "1.0.0-preview.103",
+    "@microsoft/kiota-serialization-multipart": "1.0.0-preview.103",
+    "@microsoft/kiota-serialization-text": "1.0.0-preview.103",
     "dompurify": "^3.4.12",
     "jszip": "^3.10.1",
     "markdown-it": "^14.3.0",

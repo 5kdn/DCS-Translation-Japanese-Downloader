@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { fetchCreateIssue, fetchCreatePr, fetchTree, healthCheck } from '@/lib/client';
+import { fetchCreateIssue, fetchCreatePr, fetchIssues, fetchTree, healthCheck } from '@/lib/client';
 import { defaultTreeItems } from '../../shared/msw/fixtures/appApiFixtures';
 import { createAppApiHandlers } from '../../shared/msw/handlers/createAppApiHandlers';
 import type { CapturedRequest } from '../../shared/msw/models/appApiMockTypes';
@@ -38,6 +38,45 @@ describe('client integration', () => {
       type: 'blob',
     });
     expect(treeItems[0]?.updatedAt).toBeInstanceOf(Date);
+  });
+
+  it('fetchIssues が文字列配列を含む API 応答を IssueItem へ変換する', async () => {
+    mswServer.use(
+      ...createAppApiHandlers({
+        apiBaseUrl: 'https://api.example.test',
+        issues: [
+          {
+            title: '[translation] Operation Black Knight',
+            body: 'translate mission',
+            issueNumber: 321,
+            state: 'open',
+            issueUrl: 'https://example.test/issues/321',
+            labels: ['translation', 'campaign'],
+            createdAt: '2026-05-10T00:00:00.000Z',
+            updatedAt: '2026-05-11T00:00:00.000Z',
+            closedAt: null,
+            assignees: ['octocat', 'maintainer'],
+          },
+        ],
+      }),
+    );
+
+    const issues = await fetchIssues({ state: 'open' });
+
+    expect(issues).toEqual([
+      {
+        title: '[translation] Operation Black Knight',
+        body: 'translate mission',
+        issueNumber: 321,
+        state: 'open',
+        issueUrl: 'https://example.test/issues/321',
+        labels: ['translation', 'campaign'],
+        createdAt: new Date('2026-05-10T00:00:00.000Z'),
+        updatedAt: new Date('2026-05-11T00:00:00.000Z'),
+        closedAt: undefined,
+        assignees: ['octocat', 'maintainer'],
+      },
+    ]);
   });
 
   it('fetchCreateIssue が HTTP 経由で payload を送信する', async () => {
