@@ -124,7 +124,7 @@ jobs:
       - run: pnpm i --frozen-lockfile
 
       - name: Cache Playwright browsers
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-ms-playwright-${{ hashFiles('pnpm-lock.yaml') }}
@@ -152,7 +152,7 @@ jobs:
       - run: pnpm i --frozen-lockfile
 
       - name: Cache Playwright browsers
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-ms-playwright-${{ hashFiles('pnpm-lock.yaml') }}
