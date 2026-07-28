@@ -999,9 +999,9 @@ describe('App', () => {
 
     expect(anchorClickSpy).toHaveBeenCalledTimes(1);
     expect(createObjectUrlSpy).toHaveBeenCalledTimes(1);
-    expect(await (createObjectUrlSpy.mock.calls[0]?.[0] as Blob).text()).toBe(
-      ['dictionary = {', '  ["DictKey_1"] = "翻訳1",', '}'].join('\n'),
-    );
+    const blob = createObjectUrlSpy.mock.calls[0]?.[0];
+    expect(blob).toBeInstanceOf(Blob);
+    expect(await (blob as Blob).text()).toBe(['dictionary = {', '  ["DictKey_1"] = "翻訳1",', '}'].join('\n'));
     const appendedAnchor = appendChildSpy.mock.calls.find((call) => call[0] instanceof HTMLAnchorElement)?.[0] as
       | HTMLAnchorElement
       | undefined;
@@ -1082,7 +1082,9 @@ describe('App', () => {
 
     expect(anchorClickSpy).toHaveBeenCalledTimes(1);
     expect(createObjectUrlSpy).toHaveBeenCalledTimes(1);
-    const content = await (createObjectUrlSpy.mock.calls[0]?.[0] as Blob).text();
+    const blob = createObjectUrlSpy.mock.calls[0]?.[0];
+    expect(blob).toBeInstanceOf(Blob);
+    const content = await (blob as Blob).text();
     expect(content).toContain(['msgid ""', 'msgstr ""'].join('\n'));
     expect(content).toMatch(/"PO-Revision-Date: \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\+0900\\n"/);
     expect(content).toContain(`"X-Generator: dcs-translation-japanese-downloader ${MIZ_TRANSLATION_GENERATOR_VERSION}\\n"`);
@@ -1117,9 +1119,9 @@ describe('App', () => {
 
     expect(anchorClickSpy).toHaveBeenCalledTimes(1);
     expect(createObjectUrlSpy).toHaveBeenCalledTimes(1);
-    expect(await (createObjectUrlSpy.mock.calls[0]?.[0] as Blob).text()).toContain(
-      '"Project-Id-Version: Digital Combat Simulator World\\n"',
-    );
+    const blob = createObjectUrlSpy.mock.calls[0]?.[0];
+    expect(blob).toBeInstanceOf(Blob);
+    expect(await (blob as Blob).text()).toContain('"Project-Id-Version: Digital Combat Simulator World\\n"');
 
     createObjectUrlSpy.mockRestore();
     revokeObjectUrlSpy.mockRestore();

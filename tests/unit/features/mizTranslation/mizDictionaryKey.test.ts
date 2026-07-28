@@ -49,16 +49,13 @@ describe('mizDictionaryKey', () => {
     expect(isTranslatableDictionaryKey(key)).toBe(false);
   });
 
-  it.each([
-    'DictKey__123',
-    'DictKey_sortie_abc',
-    'DictKey_description_123',
-    'DictKey_unknown_123',
-    'OtherKey_123',
-  ])('不正な dictionary key を拒否する: %s', (key) => {
-    expect(isDictionaryKey(key)).toBe(false);
-    expect(isTranslatableDictionaryKey(key)).toBe(false);
-  });
+  it.each(['DictKey__123', 'DictKey_sortie_abc', 'DictKey_description_123', 'DictKey_unknown_123', 'OtherKey_123'])(
+    '不正な dictionary key を拒否する: %s',
+    (key) => {
+      expect(isDictionaryKey(key)).toBe(false);
+      expect(isTranslatableDictionaryKey(key)).toBe(false);
+    },
+  );
 
   it.each([
     'DictKey_123',
