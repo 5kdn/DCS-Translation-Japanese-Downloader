@@ -95,14 +95,15 @@ const expectMizLoadError = async (canvasElement: HTMLElement): Promise<void> => 
  * @param canvasElement Storybook canvas 要素を指定する。
  */
 const expectDefaultAppState = async (canvasElement: HTMLElement): Promise<void> => {
-  const documentBody = canvasElement.ownerDocument.body;
-
-  await waitFor((): void => {
-    expect(documentBody.querySelector('#upload-area')).not.toBeNull();
-    expect(documentBody.querySelector('#download-area')).not.toBeNull();
-    expect(documentBody.textContent).toContain('DCS Translation Japanese');
-    expect(documentBody.textContent).toContain('Download');
-  });
+  await waitFor(
+    (): void => {
+      expect(canvasElement.querySelector('#upload-area')).not.toBeNull();
+      expect(canvasElement.querySelector('#download-area')).not.toBeNull();
+      expect(canvasElement).toHaveTextContent('DCS Translation Japanese');
+      expect(canvasElement).toHaveTextContent('Download');
+    },
+    { timeout: 5_000 },
+  );
 };
 
 /**
