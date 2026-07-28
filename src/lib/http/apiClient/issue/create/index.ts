@@ -285,9 +285,9 @@ export function deserializeIntoCreate500Error(create500Error: Partial<Create500E
 // @ts-ignore
 export function deserializeIntoCreatePostRequestBody(createPostRequestBody: Partial<CreatePostRequestBody> | undefined = {}) : Record<string, (node: ParseNode) => void> {
     return {
-        "assignees": n => { createPostRequestBody.assignees = n.getCollectionOfPrimitiveValues<string>(); },
+        "assignees": n => { createPostRequestBody.assignees = n.getCollectionOfPrimitiveValues<string>("string"); },
         "body": n => { createPostRequestBody.body = n.getStringValue(); },
-        "labels": n => { createPostRequestBody.labels = n.getCollectionOfPrimitiveValues<string>(); },
+        "labels": n => { createPostRequestBody.labels = n.getCollectionOfPrimitiveValues<string>("string"); },
         "title": n => { createPostRequestBody.title = n.getStringValue(); },
     }
 }

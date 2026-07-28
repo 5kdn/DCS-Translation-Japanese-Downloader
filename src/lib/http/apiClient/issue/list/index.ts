@@ -153,13 +153,13 @@ export function deserializeIntoListPostResponse(listPostResponse: Partial<ListPo
 // @ts-ignore
 export function deserializeIntoListPostResponse_data(listPostResponse_data: Partial<ListPostResponse_data> | undefined = {}) : Record<string, (node: ParseNode) => void> {
     return {
-        "assignees": n => { listPostResponse_data.assignees = n.getCollectionOfPrimitiveValues<string>(); },
+        "assignees": n => { listPostResponse_data.assignees = n.getCollectionOfPrimitiveValues<string>("string"); },
         "body": n => { listPostResponse_data.body = n.getStringValue(); },
         "closedAt": n => { listPostResponse_data.closedAt = n.getStringValue(); },
         "createdAt": n => { listPostResponse_data.createdAt = n.getStringValue(); },
         "issueNumber": n => { listPostResponse_data.issueNumber = n.getNumberValue(); },
         "issueUrl": n => { listPostResponse_data.issueUrl = n.getStringValue(); },
-        "labels": n => { listPostResponse_data.labels = n.getCollectionOfPrimitiveValues<string>(); },
+        "labels": n => { listPostResponse_data.labels = n.getCollectionOfPrimitiveValues<string>("string"); },
         "state": n => { listPostResponse_data.state = n.getEnumValue<ListPostResponse_data_state>(ListPostResponse_data_stateObject); },
         "title": n => { listPostResponse_data.title = n.getStringValue(); },
         "updatedAt": n => { listPostResponse_data.updatedAt = n.getStringValue(); },

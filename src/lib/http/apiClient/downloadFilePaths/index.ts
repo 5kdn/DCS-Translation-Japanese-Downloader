@@ -215,7 +215,7 @@ export function deserializeIntoDownloadFilePaths500Error_errors(downloadFilePath
 // @ts-ignore
 export function deserializeIntoDownloadFilePathsPostRequestBody(downloadFilePathsPostRequestBody: Partial<DownloadFilePathsPostRequestBody> | undefined = {}) : Record<string, (node: ParseNode) => void> {
     return {
-        "paths": n => { downloadFilePathsPostRequestBody.paths = n.getCollectionOfPrimitiveValues<string>(); },
+        "paths": n => { downloadFilePathsPostRequestBody.paths = n.getCollectionOfPrimitiveValues<string>("string"); },
     }
 }
 /**
