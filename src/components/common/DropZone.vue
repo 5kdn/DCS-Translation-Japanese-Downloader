@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // biome-ignore lint/correctness/noUnusedImports: used in Vue template
-import Button from './Button.vue';
+import CustomButton from './CustomButton.vue';
 
 const _props = withDefaults(
   defineProps<{
@@ -102,7 +102,7 @@ div.drop-zone.rounded-lg.pa-8.text-center(
     span.text-title-large(:style="{ color: _getThemeColor() }") {{ _props.headline }}
   p.mt-2(:style="{ color: _getThemeColor() }") または
   .d-flex.flex-column.flex-sm-row.justify-center.ga-3.mt-4
-    Button(:label="_props.buttonLabel" :loading="_props.isLoading" :color="_props.color" @click="_emitAction")
+    CustomButton(:label="_props.buttonLabel" :loading="_props.isLoading" :color="_props.color" @click="_emitAction")
 </template>
 
 <style lang="scss" scoped>
