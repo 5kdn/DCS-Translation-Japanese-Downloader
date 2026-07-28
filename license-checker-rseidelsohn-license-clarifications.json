@@ -4,5 +4,8 @@
   },
   "dompurify@3.4.5": {
     "licenses": "Apache-2.0"
+  },
+  "pako@1.0.11": {
+    "licenses": "MIT"
   }
 }
