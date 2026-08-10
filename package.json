@@ -40,12 +40,12 @@
     "@microsoft/kiota-serialization-json": "1.0.0-preview.103",
     "@microsoft/kiota-serialization-multipart": "1.0.0-preview.103",
     "@microsoft/kiota-serialization-text": "1.0.0-preview.103",
-    "dompurify": "^3.4.12",
+    "dompurify": "^3.4.13",
     "jszip": "^3.10.1",
-    "markdown-it": "^14.3.0",
+    "markdown-it": "^15.0.0",
     "markdown-it-task-lists": "^2.1.1",
-    "vue": "^3.5.40",
-    "vuetify": "^4.1.6"
+    "vue": "^3.5.41",
+    "vuetify": "^4.1.8"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.6",
