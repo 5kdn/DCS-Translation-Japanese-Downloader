@@ -38,6 +38,10 @@ updates:
     - "dependencies"
     - "npm"
   versioning-strategy: increase
+  ignore:
+    # vue-tsc の TypeScript 7 対応を確認後、この制限を解除する。
+    - dependency-name: "typescript"
+      versions: [">=7.0.0"]
   open-pull-requests-limit: 10
   rebase-strategy: "auto"
   commit-message:
