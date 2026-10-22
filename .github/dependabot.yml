@@ -33,7 +33,7 @@ updates:
     interval: "weekly"
     time: "03:40"
     timezone: "Asia/Tokyo"
-  target-branch: "master"
+  # セキュリティ更新にも設定を適用するため、target-branch は指定しない。
   labels:
     - "dependencies"
     - "npm"
@@ -49,6 +49,20 @@ updates:
     prefix-development: "chore"
     include: "scope"
   groups:
+    storybook:
+      applies-to: version-updates
+      patterns:
+        - "storybook"
+        - "@storybook/*"
+        - "@chromatic-com/storybook"
+        - "msw-storybook-addon"
+    storybook-security:
+      applies-to: security-updates
+      patterns:
+        - "storybook"
+        - "@storybook/*"
+        - "@chromatic-com/storybook"
+        - "msw-storybook-addon"
     kiota:
       patterns:
         - "@microsoft/kiota-*"
@@ -65,7 +79,6 @@ updates:
       patterns:
         - "@chromatic-com/*"
         - "@playwright/*"
-        - "@storybook/*"
         - "@vitejs/*"
         - "@vitest/*"
         - "@vue/*"
@@ -73,12 +86,10 @@ updates:
         - "jsdom"
         - "license-checker*"
         - "msw"
-        - "msw-storybook-addon"
         - "playwright"
         - "react"
         - "react-dom"
         - "sass"
-        - "storybook"
         - "terser"
         - "typescript"
         - "vite"
