@@ -1,7 +1,11 @@
+import addonChromatic from '@chromatic-com/storybook';
+import addonA11y from '@storybook/addon-a11y';
+import addonDocs from '@storybook/addon-docs';
+import addonVitest from '@storybook/addon-vitest';
 import { setup } from '@storybook/vue3';
-import type { Preview } from '@storybook/vue3-vite';
+import { definePreview } from '@storybook/vue3-vite';
 import { registerPlugins } from '../src/plugins';
-import { storybookMswLoader } from './msw';
+import { storybookMswAddon } from './msw';
 import '@mdi/font/css/materialdesignicons.css';
 // Plugins
 import { withVuetifyTheme } from './withVuetifyTheme.decorator';
@@ -26,9 +30,9 @@ export const GlobalTypes = {
   },
 };
 
-const preview: Preview = {
+const preview = definePreview({
+  addons: [addonChromatic(), addonDocs(), addonA11y(), addonVitest(), storybookMswAddon],
   decorators: [withVuetifyTheme],
-  loaders: [storybookMswLoader],
   parameters: {
     controls: {
       matchers: {
@@ -37,6 +41,6 @@ const preview: Preview = {
       },
     },
   },
-};
+});
 
 export default preview;
