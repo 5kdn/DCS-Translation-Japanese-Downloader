@@ -4,7 +4,7 @@ import { mswServer } from '../support/mswServer';
 let consoleInfoSpy: ReturnType<typeof vi.spyOn> | undefined;
 
 beforeAll(() => {
-  mswServer.listen({ onUnhandledRequest: 'error' });
+  mswServer.listen({ onUnhandledFrame: 'error' });
   consoleInfoSpy = vi.spyOn(console, 'info').mockImplementation(() => undefined);
 });
 

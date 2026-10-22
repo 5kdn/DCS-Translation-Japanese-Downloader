@@ -35,7 +35,7 @@
         "name": "@babel/types",
         "version": "7.29.7"
     },
-    "@jridgewell/sourcemap-codec@1.5.5": {
+    "@jridgewell/sourcemap-codec@1.6.0": {
         "licenses": "MIT",
         "repository": "https://github.com/jridgewell/sourcemaps",
         "publisher": "Justin Ridgewell",
@@ -43,7 +43,7 @@
         "licenseText": "Copyright 2024 Justin Ridgewell <justin@ridgewell.name>\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in\nall copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.",
         "copyright": "Copyright 2024 Justin Ridgewell <justin@ridgewell.name>",
         "name": "@jridgewell/sourcemap-codec",
-        "version": "1.5.5"
+        "version": "1.6.0"
     },
     "@mdi/font@7.4.47": {
         "licenses": "Apache-2.0",
@@ -365,7 +365,7 @@
         "name": "mdurl",
         "version": "2.1.0"
     },
-    "nanoid@3.3.16": {
+    "nanoid@3.3.20": {
         "licenses": "MIT",
         "repository": "https://github.com/ai/nanoid",
         "publisher": "Andrey Sitnik",
@@ -373,7 +373,7 @@
         "licenseText": "The MIT License (MIT)\n\nCopyright 2017 Andrey Sitnik <andrey@sitnik.ru>\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of\nthis software and associated documentation files (the \"Software\"), to deal in\nthe Software without restriction, including without limitation the rights to\nuse, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of\nthe Software, and to permit persons to whom the Software is furnished to do so,\nsubject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS\nFOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR\nCOPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER\nIN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN\nCONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.",
         "copyright": "Copyright 2017 Andrey Sitnik <andrey@sitnik.ru>",
         "name": "nanoid",
-        "version": "3.3.16"
+        "version": "3.3.20"
     },
     "pako@1.0.11": {
         "licenses": "MIT",
@@ -393,7 +393,7 @@
         "name": "picocolors",
         "version": "1.1.1"
     },
-    "postcss@8.5.24": {
+    "postcss@8.5.31": {
         "licenses": "MIT",
         "repository": "https://github.com/postcss/postcss",
         "publisher": "Andrey Sitnik",
@@ -401,7 +401,7 @@
         "licenseText": "The MIT License (MIT)\n\nCopyright 2013 Andrey Sitnik <andrey@sitnik.es>\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of\nthis software and associated documentation files (the \"Software\"), to deal in\nthe Software without restriction, including without limitation the rights to\nuse, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of\nthe Software, and to permit persons to whom the Software is furnished to do so,\nsubject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS\nFOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR\nCOPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER\nIN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN\nCONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.",
         "copyright": "Copyright 2013 Andrey Sitnik <andrey@sitnik.es>",
         "name": "postcss",
-        "version": "8.5.24"
+        "version": "8.5.31"
     },
     "process-nextick-args@2.0.1": {
         "licenses": "MIT",
@@ -447,14 +447,14 @@
         "name": "setimmediate",
         "version": "1.0.5"
     },
-    "source-map-js@1.2.1": {
+    "source-map-js@1.2.2": {
         "licenses": "BSD-3-Clause",
         "repository": "https://github.com/7rulnik/source-map-js",
         "publisher": "Valentin 7rulnik Semirulnik",
         "email": "v7rulnik@gmail.com",
         "licenseText": "Copyright (c) 2009-2011, Mozilla Foundation and contributors\nAll rights reserved.\n\nRedistribution and use in source and binary forms, with or without\nmodification, are permitted provided that the following conditions are met:\n\n* Redistributions of source code must retain the above copyright notice, this\n  list of conditions and the following disclaimer.\n\n* Redistributions in binary form must reproduce the above copyright notice,\n  this list of conditions and the following disclaimer in the documentation\n  and/or other materials provided with the distribution.\n\n* Neither the names of the Mozilla Foundation nor the names of project\n  contributors may be used to endorse or promote products derived from this\n  software without specific prior written permission.\n\nTHIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\" AND\nANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED\nWARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE\nDISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE\nFOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL\nDAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR\nSERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER\nCAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,\nOR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE\nOF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.",
         "name": "source-map-js",
-        "version": "1.2.1"
+        "version": "1.2.2"
     },
     "string_decoder@1.1.1": {
         "licenses": "MIT",
