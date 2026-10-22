@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.1](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/compare/v3.0.0...v3.0.1) (2026-10-22)
+
+
+### Bug Fixes
+
+* **deps:** update Kiota, JSZip, Vue and Vuetify ([#218](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/issues/218)) ([7037edf](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/commit/7037edf9742bed4f3ded9a4d355060e71fd4d82f))
+
 ## [3.0.0](https://github.com/5kdn/DCS-Translation-Japanese-Downloader/compare/v2.1.0...v3.0.0) (2026-05-19)
 
 
