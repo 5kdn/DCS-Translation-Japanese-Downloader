@@ -34,18 +34,18 @@
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",
-    "@microsoft/kiota-abstractions": "1.0.0-preview.103",
-    "@microsoft/kiota-http-fetchlibrary": "1.0.0-preview.103",
-    "@microsoft/kiota-serialization-form": "1.0.0-preview.103",
-    "@microsoft/kiota-serialization-json": "1.0.0-preview.103",
-    "@microsoft/kiota-serialization-multipart": "1.0.0-preview.103",
-    "@microsoft/kiota-serialization-text": "1.0.0-preview.103",
+    "@microsoft/kiota-abstractions": "^1.0.0-preview.111",
+    "@microsoft/kiota-http-fetchlibrary": "^1.0.0-preview.111",
+    "@microsoft/kiota-serialization-form": "^1.0.0-preview.111",
+    "@microsoft/kiota-serialization-json": "^1.0.0-preview.111",
+    "@microsoft/kiota-serialization-multipart": "^1.0.0-preview.111",
+    "@microsoft/kiota-serialization-text": "^1.0.0-preview.111",
     "dompurify": "^3.4.17",
-    "jszip": "^3.10.1",
+    "jszip": "^3.10.2",
     "markdown-it": "^15.0.3",
     "markdown-it-task-lists": "^2.1.1",
-    "vue": "^3.5.40",
-    "vuetify": "^4.1.6"
+    "vue": "^3.5.44",
+    "vuetify": "^4.3.0"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.6.2",
