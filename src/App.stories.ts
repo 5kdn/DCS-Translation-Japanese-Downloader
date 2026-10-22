@@ -1,7 +1,7 @@
-import type { Meta, StoryObj } from '@storybook/vue3-vite';
 import JSZip from 'jszip';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
-import { createStorybookMswParameters } from '../.storybook/msw';
+import { createStorybookMswBeforeEach } from '../.storybook/msw';
+import preview from '../.storybook/preview';
 import { defaultTreeItems } from '../tests/shared/msw/fixtures/appApiFixtures';
 import type { MockTreeItem } from '../tests/shared/msw/models/appApiMockTypes';
 import App from './App.vue';
@@ -12,12 +12,12 @@ type AppStoryOptions = {
 };
 
 /**
- * @summary App 用の MSW parameters を生成する。
+ * @summary App 用の MSW フックを生成する。
  * @param options Storybook 表示向けの固定応答を指定する。
- * @returns Storybook parameters を返す。
+ * @returns Storybook の beforeEach へ渡すフックを返す。
  */
-const createAppMswParameters = (options?: AppStoryOptions) => {
-  return createStorybookMswParameters({
+const createAppMswBeforeEach = (options?: AppStoryOptions): ReturnType<typeof createStorybookMswBeforeEach> => {
+  return createStorybookMswBeforeEach({
     healthOk: options?.healthOk,
     treeItems: options?.treeItems ?? defaultTreeItems,
     issues: [],
@@ -122,52 +122,49 @@ const expectEmptyAppState = async (canvasElement: HTMLElement): Promise<void> =>
   );
 };
 
-const meta = {
+const meta = preview.meta({
   title: 'App/App',
   component: App,
   tags: ['autodocs'],
-  parameters: createAppMswParameters(),
-} satisfies Meta<typeof App>;
+  beforeEach: createAppMswBeforeEach(),
+});
 
-export default meta;
-type Story = StoryObj<typeof meta>;
-
-export const Default: Story = {
+export const Default = meta.story({
   play: async ({ canvasElement }): Promise<void> => {
     await expectDefaultAppState(canvasElement);
   },
-};
+});
 
-export const Empty: Story = {
-  parameters: createAppMswParameters({ treeItems: [] }),
+export const Empty = meta.story({
+  beforeEach: createAppMswBeforeEach({ treeItems: [] }),
   play: async ({ canvasElement }): Promise<void> => {
     await expectEmptyAppState(canvasElement);
   },
-};
+});
 
-export const MizTranslationFlow: Story = {
-  parameters: createAppMswParameters(),
+export const MizTranslationFlow = meta.story({
+  beforeEach: createAppMswBeforeEach(),
   play: async ({ canvasElement }): Promise<void> => {
     const mizFile = await createSampleMizFile();
     await uploadMizFile(canvasElement, mizFile);
     await expectMizDialogOpened(canvasElement, mizFile.name);
   },
-};
+});
 
-export const MizTranslationLoadError: Story = {
-  parameters: createAppMswParameters(),
+export const MizTranslationLoadError = meta.story({
+  beforeEach: createAppMswBeforeEach(),
   play: async ({ canvasElement }): Promise<void> => {
     await uploadMizFile(canvasElement, createBrokenMizFile());
     await expectMizLoadError(canvasElement);
   },
-};
+});
 
-export const ApiUnavailable: Story = {
-  parameters: createAppMswParameters({ healthOk: false }),
+export const ApiUnavailable = meta.story({
+  beforeEach: createAppMswBeforeEach({ healthOk: false }),
   play: async ({ canvasElement }): Promise<void> => {
     const canvas = within(canvasElement);
 
     await expect(await canvas.findByText('エラーが発生しました。')).toBeInTheDocument();
     expect(canvas.queryByText('F-16C')).toBeNull();
   },
-};
+});

@@ -25,6 +25,16 @@ export default defineConfig({
       {
         extends: './vite.config.ts',
         plugins: [storybookTest({ configDir })],
+        optimizeDeps: {
+          include: [
+            '@chromatic-com/storybook',
+            '@storybook/addon-a11y',
+            '@storybook/addon-docs',
+            '@storybook/addon-vitest',
+            '@storybook/vue3-vite',
+            'msw-storybook-addon',
+          ],
+        },
         test: {
           name: 'storybook',
           browser: {

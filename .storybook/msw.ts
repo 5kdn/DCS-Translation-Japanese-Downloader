@@ -1,6 +1,6 @@
 import type { UnhandledFrameHandle } from 'msw';
 import { setupWorker } from 'msw/browser';
-import { mswLoader } from 'msw-storybook-addon/csf3';
+import addonMsw, { type MswApi } from 'msw-storybook-addon';
 import { defaultTreeItems } from '../tests/shared/msw/fixtures/appApiFixtures';
 import { createAppApiHandlers } from '../tests/shared/msw/handlers/createAppApiHandlers';
 import type { AppApiMockOptions } from '../tests/shared/msw/models/appApiMockTypes';
@@ -25,7 +25,7 @@ const handleUnhandledFrame: UnhandledFrameHandle = ({ frame }): void => {
   console.error(`[msw] Unhandled ${request.method} request to ${url.toString()}.`);
 };
 
-const storybookMswLoader = mswLoader(async () => {
+export const storybookMswAddon = addonMsw(async () => {
   const worker = setupWorker(
     ...createAppApiHandlers({
       apiBaseUrl: STORYBOOK_API_BASE_URL,
@@ -41,27 +41,21 @@ const storybookMswLoader = mswLoader(async () => {
   return worker;
 });
 
-export { storybookMswLoader };
-
 /**
- * @summary Storybook 用 MSW パラメータを生成する。
+ * @summary Story ごとに API モック設定を適用するフックを生成する。
  * @param options Story ごとに差し替える API モック設定を指定する。
- * @returns Storybook parameters へ渡す MSW 設定を返す。
+ * @returns Storybook の beforeEach へ渡すフックを返す。
  */
-export const createStorybookMswParameters = (
+export const createStorybookMswBeforeEach = (
   options: Omit<AppApiMockOptions, 'apiBaseUrl'> = {},
-): {
-  msw: {
-    handlers: ReturnType<typeof createAppApiHandlers>;
-  };
-} => {
-  return {
-    msw: {
-      handlers: createAppApiHandlers({
+): ((context: { msw: MswApi }) => void) => {
+  return ({ msw }): void => {
+    msw.use(
+      ...createAppApiHandlers({
         apiBaseUrl: STORYBOOK_API_BASE_URL,
         ...STORYBOOK_DEFAULT_API_OPTIONS,
         ...options,
       }),
-    },
+    );
   };
 };
