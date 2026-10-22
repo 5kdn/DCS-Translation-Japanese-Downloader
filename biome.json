@@ -58,6 +58,7 @@
       "!dist",
       "!src/lib/http/apiClient",
       "!src/assets/LICENSES",
+      "!.storybook/public/mockServiceWorker.js",
       "!storybook-static",
       "!test-results"
     ]

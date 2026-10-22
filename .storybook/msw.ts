@@ -1,3 +1,4 @@
+import type { UnhandledFrameHandle } from 'msw';
 import { setupWorker } from 'msw/browser';
 import { mswLoader } from 'msw-storybook-addon/csf3';
 import { defaultTreeItems } from '../tests/shared/msw/fixtures/appApiFixtures';
@@ -13,9 +14,12 @@ const STORYBOOK_DEFAULT_API_OPTIONS: Omit<AppApiMockOptions, 'apiBaseUrl'> = {
 
 /**
  * @summary Storybook API 向け未捕捉リクエスト時のみ明示ログを出力する。
- * @param request 対象リクエストを指定する。
+ * @param frame 対象ネットワークフレームを指定する。
  */
-const handleUnhandledRequest = (request: Request): void => {
+const handleUnhandledFrame: UnhandledFrameHandle = ({ frame }): void => {
+  if (frame.protocol !== 'http' || !frame.data || typeof frame.data !== 'object' || !('request' in frame.data)) return;
+  const { request } = frame.data;
+  if (!(request instanceof Request)) return;
   const url = new URL(request.url);
   if (!url.pathname.startsWith('/storybook-api')) return;
   console.error(`[msw] Unhandled ${request.method} request to ${url.toString()}.`);
@@ -30,7 +34,7 @@ const storybookMswLoader = mswLoader(async () => {
   );
 
   await worker.start({
-    onUnhandledRequest: handleUnhandledRequest,
+    onUnhandledFrame: handleUnhandledFrame,
     quiet: true,
   });
 
