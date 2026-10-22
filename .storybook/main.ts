@@ -5,6 +5,9 @@ const config: StorybookConfig = {
   stories: ['../src/**/*.stories.ts'],
   addons: ['@chromatic-com/storybook', '@storybook/addon-docs', '@storybook/addon-a11y', '@storybook/addon-vitest'],
   staticDirs: [{ from: './public', to: '/' }],
+  features: {
+    experimentalDocgenServer: true,
+  },
   framework: {
     name: '@storybook/vue3-vite',
     options: {},
