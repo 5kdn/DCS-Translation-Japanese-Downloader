@@ -234,8 +234,8 @@ importers:
         specifier: ^3.5.44
         version: 3.5.44(typescript@6.0.3)
       vuetify:
-        specifier: ^4.3.0
-        version: 4.3.0(typescript@6.0.3)(vue@3.5.44(typescript@6.0.3))
+        specifier: ^4.3.2
+        version: 4.3.2(typescript@6.0.3)(vue@3.5.44(typescript@6.0.3))
     devDependencies:
       '@biomejs/biome':
         specifier: ^2.6.5
@@ -3096,8 +3096,8 @@ packages:
       typescript:
         optional: true
 
-  vuetify@4.3.0:
-    resolution: {integrity: sha512-tQpJ/2oKCNeZQb7p3PpwGVca4B9IFUp4LuTpE/bOZ/lIC4U74EJxtriMdB8xj0wtZx40PFGbHPrdfJzZg1FX0A==}
+  vuetify@4.3.2:
+    resolution: {integrity: sha512-1xCK5H5zbzrzAZxl4xtkS3w+xU/u4Zmi00iuWj+q7UGKdKtJpk3z3yyef7QteZee+1xJe029PAR9vt1Clkdlwg==}
     peerDependencies:
       typescript: '>=4.7'
       vite-plugin-vuetify: '>=2.1.0'
@@ -5820,7 +5820,7 @@ snapshots:
     optionalDependencies:
       typescript: 6.0.3
 
-  vuetify@4.3.0(typescript@6.0.3)(vue@3.5.44(typescript@6.0.3)):
+  vuetify@4.3.2(typescript@6.0.3)(vue@3.5.44(typescript@6.0.3)):
     dependencies:
       '@vuetify/v0': 1.3.0(vue@3.5.44(typescript@6.0.3))
       vue: 3.5.44(typescript@6.0.3)
