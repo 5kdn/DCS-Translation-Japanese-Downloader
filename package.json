@@ -2,14 +2,14 @@
   "name": "@dcs-translation-japanese/webui",
   "version": "3.0.3",
   "private": true,
-  "packageManager": "pnpm@10.33.0",
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "11"
+    }
+  },
   "type": "module",
   "license": "MIT",
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "msw"
-    ]
-  },
   "scripts": {
     "dev": "vite --port 5177",
     "build": "pnpm run generate-licenses && pnpm run typecheck && vite build",

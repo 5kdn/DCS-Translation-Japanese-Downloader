@@ -19,7 +19,6 @@ on:
 
 env:
   NODE_VERSION: '24'
-  PNPM_VERSION: '10.33.0'
   VITE_API_BASE_URL: ${{ vars.API_BASE_URL }}
   VITE_TARGET_OWNER: ${{ vars.VITE_TARGET_OWNER }}
   VITE_TARGET_REPO: ${{ vars.VITE_TARGET_REPO }}
@@ -49,8 +48,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v6.1.0
-        with:
-          version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v7
