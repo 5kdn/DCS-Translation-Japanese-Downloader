@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.1.0](https://github.com/dcs-translation-japanese/WebUI/compare/v3.0.3...v3.1.0) (2026-11-11)
+
+
+### Features
+
+* **api:** migrate WebUI to API v2 ([#243](https://github.com/dcs-translation-japanese/WebUI/issues/243)) ([d69185c](https://github.com/dcs-translation-japanese/WebUI/commit/d69185cc4913d63dc611a8c78a44962ea9b7bcd3))
+
 ## [3.0.3](https://github.com/dcs-translation-japanese/WebUI/compare/v3.0.2...v3.0.3) (2026-10-29)
 
 
