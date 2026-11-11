@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { computed, ref, watch } from 'vue';
 import { toErrorMessageForDisplay } from '@/errors/errorMessage';
-import { type CreateIssueItem, type CreateIssueRequest, fetchCreateIssue } from '@/lib/client';
+import { type CreateIssueRequest, type CreateIssueResponse, fetchCreateIssue } from '@/lib/client';
 
 const props = withDefaults(
   defineProps<{
@@ -15,7 +15,7 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void;
-  (e: 'submit', items?: CreateIssueItem[]): void;
+  (e: 'submit', item: CreateIssueResponse): void;
   (e: 'close'): void;
   (e: 'error', message: string): void;
 }>();
@@ -145,8 +145,8 @@ const _submitDialog = async (): Promise<void> => {
       body: message,
       labels: resolveLabels(tab.value),
     };
-    const items = await fetchCreateIssue(request);
-    emit('submit', items);
+    const item = await fetchCreateIssue(request);
+    emit('submit', item);
     isSuccess = true;
   } catch (err: unknown) {
     console.error(err);

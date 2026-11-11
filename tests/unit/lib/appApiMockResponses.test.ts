@@ -22,9 +22,8 @@ describe('appApiMockResponses', () => {
     expect(response).toMatchObject({
       status: 200,
       body: {
-        success: true,
-        message: 'ok',
-        data: [
+        page: { nextCursor: null },
+        items: [
           {
             path: 'UserMissions/Sample/Mission_01.miz/l10n/JP/dictionary',
             updatedAt: '2026-05-09T00:00:00.000Z',
@@ -34,33 +33,29 @@ describe('appApiMockResponses', () => {
     });
   });
 
-  it('issue/create の失敗応答を共通生成する', () => {
+  it('POST /v2/issues の失敗応答を共通生成する', () => {
     const response = createIssueCreateResponse({
       apiBaseUrl: 'https://api.example.test',
       createIssueErrorMessage: 'issue create failed',
     });
 
-    expect(response).toEqual({
+    expect(response).toMatchObject({
       status: 500,
-      body: {
-        success: false,
-        message: 'issue create failed',
-      },
+      contentType: 'application/problem+json',
+      body: { status: 500, detail: 'issue create failed', type: 'about:blank' },
     });
   });
 
-  it('create-pr の失敗応答を共通生成する', () => {
+  it('POST /v2/prs の失敗応答を共通生成する', () => {
     const response = createPrCreateResponse({
       apiBaseUrl: 'https://api.example.test',
       createPrErrorMessage: 'create pr failed',
     });
 
-    expect(response).toEqual({
+    expect(response).toMatchObject({
       status: 500,
-      body: {
-        success: false,
-        message: 'create pr failed',
-      },
+      contentType: 'application/problem+json',
+      body: { status: 500, detail: 'create pr failed', type: 'about:blank' },
     });
   });
 

@@ -15,7 +15,7 @@ import {
   hasUploadedReadme,
 } from '@/features/upload/uploadDialogReadme';
 import type { UploadDialogSubmitHandler, UploadDialogSubmitResult } from '@/features/upload/uploadDialogSubmit';
-import type { CreatePrResponseItem } from '@/lib/client';
+import type { CreatePrResponse } from '@/lib/client';
 import type { TreeItem } from '@/types/type';
 
 defineOptions({
@@ -369,19 +369,18 @@ const _applyReadmeAndContinue = (): void => {
 
 /**
  * @summary 成功時の送信結果を生成する。
- * @param item API応答の先頭要素を指定する。
+ * @param item PR作成結果を指定する。
  * @returns 送信結果を返す。
  */
-const buildSuccessResult = (item: CreatePrResponseItem | undefined): UploadDialogSubmitResult => {
-  const prNumberText = item?.prNumber != null ? `PR #${item.prNumber}` : 'PR';
+const buildSuccessResult = (item: CreatePrResponse): UploadDialogSubmitResult => {
+  const prNumberText = item.number != null ? `PR #${item.number}` : 'PR';
   return {
     isSuccess: true,
     message: `${prNumberText} を作成しました。`,
-    prNumber: item?.prNumber,
-    prUrl: item?.prUrl,
+    prNumber: item.number,
+    prUrl: item.url,
     branchName: item?.branchName,
     commitSha: item?.commitSha,
-    note: item?.note,
   };
 };
 
@@ -431,7 +430,7 @@ const _submitUpload = async (): Promise<void> => {
       title: _title.value.trim(),
       description: _description.value.trim(),
     });
-    _submitResult.value = buildSuccessResult(result[0]);
+    _submitResult.value = buildSuccessResult(result);
     setSuccessMessage(_submitResult.value.message);
   } catch (error: unknown) {
     _submitResult.value = buildFailureResult(error);

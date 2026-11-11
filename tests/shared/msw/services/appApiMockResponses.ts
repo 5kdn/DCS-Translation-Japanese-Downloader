@@ -1,8 +1,9 @@
 import { DEFAULT_RAW_TEXT_BY_PATH, defaultTreeItems } from '../fixtures/appApiFixtures';
-import type { AppApiMockOptions, CapturedRequest, MockTreeItem } from '../models/appApiMockTypes';
+import type { AppApiMockOptions, CapturedRequest } from '../models/appApiMockTypes';
 
 export type JsonMockResponse = {
   status: number;
+  contentType: 'application/json' | 'application/problem+json';
   body: Record<string, unknown>;
 };
 
@@ -12,140 +13,85 @@ export type RawContentMockResponse = {
   body: string | Uint8Array;
 };
 
-/**
- * @summary 記録用リクエスト情報を生成する。
- * @param url リクエスト URL を指定する。
- * @param method HTTP メソッドを指定する。
- * @param bodyText リクエスト本文文字列を指定する。
- * @returns 共通形式のリクエスト記録を返す。
- */
-export const createCapturedRequest = (url: string, method: string, bodyText: string | null): CapturedRequest => {
-  return {
-    url,
-    method,
-    bodyText,
-  };
-};
+const problem = (detail: string, status: number): JsonMockResponse => ({
+  status,
+  contentType: 'application/problem+json',
+  body: { type: 'about:blank', title: 'API request failed', status, detail, instance: '/v2', code: 'INTERNAL_ERROR' },
+});
 
-/**
- * @summary health API のモック応答を生成する。
- * @param options モック設定を指定する。
- * @returns health API 用 JSON 応答を返す。
- */
-export const createHealthResponse = (options: AppApiMockOptions): JsonMockResponse => {
-  return {
-    status: 200,
-    body: {
-      status: options.healthOk === false ? 'ng' : 'ok',
-      timestamp: '2026-05-15T00:00:00.000Z',
-    },
-  };
-};
+export const createCapturedRequest = (url: string, method: string, bodyText: string | null): CapturedRequest => ({
+  url,
+  method,
+  bodyText,
+});
 
-const normalizeTreeItems = (treeItems: MockTreeItem[]): MockTreeItem[] => {
-  return treeItems.map((item: MockTreeItem) => {
-    return {
+export const createHealthResponse = (options: AppApiMockOptions): JsonMockResponse =>
+  options.healthOk === false
+    ? problem('Health check failed', 500)
+    : {
+        status: 200,
+        contentType: 'application/json',
+        body: { status: 'ok', timestamp: '2026-05-15T00:00:00.000Z' },
+      };
+
+export const createTreeResponse = (options: AppApiMockOptions): JsonMockResponse => ({
+  status: 200,
+  contentType: 'application/json',
+  body: {
+    commitSha: 'a'.repeat(40),
+    generatedAt: '2026-05-15T00:00:00.000Z',
+    items: (options.treeItems ?? defaultTreeItems).map((item) => ({
       ...item,
       updatedAt: item.updatedAt instanceof Date ? item.updatedAt.toISOString() : item.updatedAt,
-    };
-  });
-};
+    })),
+    page: { nextCursor: null },
+  },
+});
 
-/**
- * @summary tree API のモック応答を生成する。
- * @param options モック設定を指定する。
- * @returns tree API 用 JSON 応答を返す。
- */
-export const createTreeResponse = (options: AppApiMockOptions): JsonMockResponse => {
-  return {
-    status: 200,
-    body: {
-      success: true,
-      message: 'ok',
-      data: normalizeTreeItems(options.treeItems ?? defaultTreeItems),
-    },
-  };
-};
+export const createIssueListResponse = (options: AppApiMockOptions, state = 'all'): JsonMockResponse => ({
+  status: 200,
+  contentType: 'application/json',
+  body: {
+    items: (options.issues ?? []).filter((issue) => state === 'all' || issue.state === state),
+    page: { nextCursor: null },
+  },
+});
 
-/**
- * @summary issue/list API のモック応答を生成する。
- * @param options モック設定を指定する。
- * @returns issue/list API 用 JSON 応答を返す。
- */
-export const createIssueListResponse = (options: AppApiMockOptions): JsonMockResponse => {
-  return {
-    status: 200,
-    body: {
-      success: true,
-      data: options.issues ?? [],
-    },
-  };
-};
-
-/**
- * @summary issue/create API のモック応答を生成する。
- * @param options モック設定を指定する。
- * @returns issue/create API 用 JSON 応答を返す。
- */
 export const createIssueCreateResponse = (options: AppApiMockOptions): JsonMockResponse => {
-  if (options.createIssueErrorMessage !== null && options.createIssueErrorMessage !== undefined) {
-    return {
-      status: 500,
-      body: {
-        success: false,
-        message: options.createIssueErrorMessage,
-      },
-    };
-  }
-
+  if (options.createIssueErrorMessage != null) return problem(options.createIssueErrorMessage, 500);
   return {
-    status: 200,
-    body: {
-      success: true,
-      data: options.createIssueResponse ?? [{ issueNumber: 123, issueUrl: 'https://example.test/issues/123' }],
+    status: 201,
+    contentType: 'application/json',
+    body: options.createIssueResponse ?? {
+      number: 123,
+      url: 'https://example.test/issues/123',
+      title: 'Created Issue',
+      body: null,
+      state: 'open',
+      createdAt: '2026-05-15T00:00:00.000Z',
+      updatedAt: '2026-05-15T00:00:00.000Z',
+      closedAt: null,
     },
   };
 };
 
-/**
- * @summary create-pr API のモック応答を生成する。
- * @param options モック設定を指定する。
- * @returns create-pr API 用 JSON 応答を返す。
- */
 export const createPrCreateResponse = (options: AppApiMockOptions): JsonMockResponse => {
-  if (options.createPrErrorMessage !== null && options.createPrErrorMessage !== undefined) {
-    return {
-      status: 500,
-      body: {
-        success: false,
-        message: options.createPrErrorMessage,
-      },
-    };
-  }
-
+  if (options.createPrErrorMessage != null) return problem(options.createPrErrorMessage, 500);
   return {
     status: 200,
-    body: {
-      success: true,
-      data: options.createPrResponse ?? [
-        {
-          prNumber: 456,
-          prUrl: 'https://example.test/pr/456',
+    contentType: 'application/json',
+    body: options.createPrResponse
+      ? { ...options.createPrResponse }
+      : {
+          number: 456,
+          url: 'https://example.test/pr/456',
           branchName: 'feature/User-Campaign/Sample-Campaign/AddFile--20260516-120000JST',
-          commitSha: 'abc123',
-          note: 'created',
+          commitSha: 'a'.repeat(40),
+          reused: false,
         },
-      ],
-    },
   };
 };
 
-/**
- * @summary raw GitHub ファイル取得のモック応答を生成する。
- * @param options モック設定を指定する。
- * @param path 取得対象パスを指定する。
- * @returns raw file 用応答を返す。
- */
 export const createRawFileResponse = (options: AppApiMockOptions, path: string): RawContentMockResponse => {
   const rawTextByPath = { ...DEFAULT_RAW_TEXT_BY_PATH, ...options.rawTextByPath };
   const rawErrorPathSet = new Set(options.rawErrorPaths ?? []);

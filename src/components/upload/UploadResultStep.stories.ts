@@ -19,7 +19,6 @@ export const Success: Story = {
       prUrl: 'https://example.test/pr/123',
       branchName: 'feature/Aircraft/F-16C/AddFile--20260223-161501JST',
       commitSha: 'abc123',
-      note: 'created',
     },
   },
 };

@@ -1,17 +1,15 @@
-import type { ListPostResponse_data } from '@/lib/http/apiClient/issue/list';
 import { createStorybookMswBeforeEach } from '../../.storybook/msw';
 import preview from '../../.storybook/preview';
+import type { MockIssue } from '../../tests/shared/msw/models/appApiMockTypes';
 import IssueViewer from './IssueViewer.vue';
 
-const createIssue = (overrides?: Partial<ListPostResponse_data>): ListPostResponse_data => {
+const createIssue = (overrides?: Partial<MockIssue>): MockIssue => {
   return {
-    assignees: ['maintainer'],
     body: '既定の Issue 本文です。',
     closedAt: null,
     createdAt: '2026-04-01T00:00:00Z',
-    issueNumber: 1,
-    issueUrl: 'https://example.test/issues/1',
-    labels: ['storybook'],
+    number: 1,
+    url: 'https://example.test/issues/1',
     state: 'open',
     title: 'Storybook Issue',
     updatedAt: '2026-04-02T00:00:00Z',
@@ -24,7 +22,7 @@ const createIssue = (overrides?: Partial<ListPostResponse_data>): ListPostRespon
  * @param issues Storybook 上で表示する Issue 一覧を指定する。
  * @returns Storybook の beforeEach へ渡すフックを返す。
  */
-const createIssueViewerMswBeforeEach = (issues: ListPostResponse_data[]): ReturnType<typeof createStorybookMswBeforeEach> => {
+const createIssueViewerMswBeforeEach = (issues: MockIssue[]): ReturnType<typeof createStorybookMswBeforeEach> => {
   return createStorybookMswBeforeEach({
     issues,
   });
@@ -71,11 +69,11 @@ export const LongText = meta.story({
   ]),
 });
 
-export const UndefinedBody = meta.story({
+export const NullBody = meta.story({
   beforeEach: createIssueViewerMswBeforeEach([
     createIssue({
       title: '本文未設定の Issue',
-      body: undefined,
+      body: null,
     }),
   ]),
 });
@@ -102,10 +100,10 @@ export const ManyIssues = meta.story({
   beforeEach: createIssueViewerMswBeforeEach(
     Array.from(
       { length: 7 },
-      (_value, index): ListPostResponse_data =>
+      (_value, index): MockIssue =>
         createIssue({
-          issueNumber: index + 1,
-          issueUrl: `https://example.test/issues/${index + 1}`,
+          number: index + 1,
+          url: `https://example.test/issues/${index + 1}`,
           title: `Issue ${index + 1}`,
           body: `Issue ${index + 1} の本文です。`,
         }),

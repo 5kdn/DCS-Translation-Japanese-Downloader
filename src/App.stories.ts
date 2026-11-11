@@ -164,7 +164,9 @@ export const ApiUnavailable = meta.story({
   play: async ({ canvasElement }): Promise<void> => {
     const canvas = within(canvasElement);
 
-    await expect(await canvas.findByText('エラーが発生しました。')).toBeInTheDocument();
+    await expect(
+      await canvas.findByText('サーバー側のInternal Errorに起因するエラーが発生しました。 Health check failed'),
+    ).toBeInTheDocument();
     expect(canvas.queryByText('F-16C')).toBeNull();
   },
 });

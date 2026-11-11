@@ -9,7 +9,7 @@ const meta = {
   tags: ['autodocs'],
   args: {
     onSubmit: async (): Promise<CreatePrResponse> => {
-      return [];
+      return { number: 123, url: 'https://example.test/pr/123' };
     },
     treeItems: [] as TreeItem[],
   },
@@ -23,15 +23,13 @@ export const Default: Story = {};
 export const ResultStepSuccess: Story = {
   args: {
     onSubmit: async (): Promise<CreatePrResponse> => {
-      return [
-        {
-          prNumber: 123,
-          prUrl: 'https://example.test/pr/123',
-          branchName: 'feature/Aircraft/F-16C/AddFile--20260223-161501JST',
-          commitSha: 'abc123',
-          note: 'created',
-        },
-      ];
+      return {
+        number: 123,
+        url: 'https://example.test/pr/123',
+        branchName: 'feature/Aircraft/F-16C/AddFile--20260223-161501JST',
+        commitSha: 'a'.repeat(40),
+        reused: false,
+      };
     },
   },
 };
@@ -65,7 +63,7 @@ export const GeneratedReadmeIsSubmitted: Story = {
       if (!hasReadme) {
         throw new Error('README_Translation.md が送信対象に含まれていません。');
       }
-      return [{ prNumber: 456 }];
+      return { number: 456, url: 'https://example.test/pr/456' };
     },
   },
 };
@@ -80,7 +78,7 @@ export const ExistingReadmeWithoutChangesIsNotSubmitted: Story = {
       if (hasReadme) {
         throw new Error('未変更の README_Translation.md が送信対象に含まれています。');
       }
-      return [{ prNumber: 457 }];
+      return { number: 457, url: 'https://example.test/pr/457' };
     },
   },
 };
@@ -95,7 +93,7 @@ export const ExistingReadmeContinueWithoutChangesIsNotSubmitted: Story = {
       if (hasReadme) {
         throw new Error('変更無し導線で README_Translation.md が送信対象に含まれています。');
       }
-      return [{ prNumber: 460 }];
+      return { number: 460, url: 'https://example.test/pr/460' };
     },
   },
 };
@@ -110,7 +108,7 @@ export const ExistingReadmeWhitespaceOnlyChangeIsNotSubmitted: Story = {
       if (hasReadme) {
         throw new Error('空白差分だけの README_Translation.md が送信対象に含まれています。');
       }
-      return [{ prNumber: 458 }];
+      return { number: 458, url: 'https://example.test/pr/458' };
     },
   },
 };
@@ -125,7 +123,7 @@ export const ExistingReadmeWithChangesIsSubmitted: Story = {
       if (!hasReadme) {
         throw new Error('変更済みの README_Translation.md が送信対象に含まれていません。');
       }
-      return [{ prNumber: 459 }];
+      return { number: 459, url: 'https://example.test/pr/459' };
     },
   },
 };
@@ -140,7 +138,7 @@ export const ExistingReadmeForUserMission: Story = {
       if (!hasReadme) {
         throw new Error('User Mission の README_Translation.md が送信対象に含まれていません。');
       }
-      return [{ prNumber: 461 }];
+      return { number: 461, url: 'https://example.test/pr/461' };
     },
   },
 };

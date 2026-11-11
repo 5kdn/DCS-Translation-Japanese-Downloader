@@ -21,6 +21,38 @@ describe('toErrorMessageForDisplay', () => {
     expect(toErrorMessageForDisplay(error)).toBe(getClientErrorCategoryLabel(ClientErrorCategoryObject.Throttling));
   });
 
+  it.each([
+    [409, 'ブランチが競合'],
+    [422, '入力内容に不整合'],
+    [429, 'Retry-After'],
+  ])('v2の%sを具体的に通知する', (status, expected) => {
+    const error = new ClientError({
+      category: status === 429 ? ClientErrorCategoryObject.Throttling : ClientErrorCategoryObject.InvalidRequest,
+      context: 'create',
+      cause: {
+        responseStatusCode: status,
+        responseHeaders: { 'Retry-After': ['60'] },
+        type: 'about:blank',
+        title: 'Request failed',
+        status,
+        detail: '確認が必要です。',
+        instance: '/v2/prs',
+        code: 'VALIDATION_ERROR',
+      },
+    });
+    expect(error).toMatchObject({
+      status,
+      type: 'about:blank',
+      title: 'Request failed',
+      detail: '確認が必要です。',
+      instance: '/v2/prs',
+      code: 'VALIDATION_ERROR',
+    });
+    expect(toErrorMessageForDisplay(error)).toContain(expected);
+    expect(toErrorMessageForDisplay(error)).toContain('確認が必要です。');
+    if (status === 429) expect(toErrorMessageForDisplay(error)).toContain('60');
+  });
+
   it('不明な例外は Other の表示名を返す', () => {
     expect(toErrorMessageForDisplay('unknown')).toBe(getClientErrorCategoryLabel(ClientErrorCategoryObject.Other));
   });

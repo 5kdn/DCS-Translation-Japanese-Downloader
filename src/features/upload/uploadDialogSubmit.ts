@@ -4,7 +4,7 @@ import type {
   UploadDialogSelectedFile,
   UploadTargetType,
 } from '@/features/upload/uploadDialogDomain';
-import type { CreatePrResponseItem } from '@/lib/client';
+import type { CreatePrResponse } from '@/lib/client';
 
 export type UploadDialogSubmitPayload = {
   fileName: string;
@@ -25,7 +25,6 @@ export type UploadDialogSubmitResult = {
   prUrl?: string | null;
   branchName?: string | null;
   commitSha?: string | null;
-  note?: string | null;
 };
 
-export type UploadDialogSubmitHandler = (payload: UploadDialogSubmitPayload) => Promise<CreatePrResponseItem[]>;
+export type UploadDialogSubmitHandler = (payload: UploadDialogSubmitPayload) => Promise<CreatePrResponse>;

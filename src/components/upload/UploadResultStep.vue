@@ -20,9 +20,6 @@ div.pt-2(v-if="result !== null")
       p.text-medium-emphasis(v-if="result.prUrl")
         | PR URL:
         a(:href="result.prUrl" target="_blank" rel="noopener noreferrer") {{ result.prUrl }}
-      div(v-if="result.note")
-        p.text-title-small.font-weight-medium.mt-4 補足
-        p.mt-2.text-pre-wrap.text-break {{ result.note }}
   v-alert.mt-4(v-if="result.isSuccess" type="info" variant="tonal")
     p アップロードされたファイルは、ファイルパスなどの内容を確認した後に正式に取り込まれます。
     p 取り込み完了まで数日かかる場合があります。

@@ -12,7 +12,7 @@ export const createTreeItem = (path: string, updatedAt: string): MockTreeItem =>
     type: 'blob',
     mode: '100644',
     url: `https://example.test/${encodeURIComponent(path)}`,
-    sha: path.replaceAll('/', '-'),
+    sha: 'a'.repeat(40),
     size: 128,
     updatedAt,
   };
