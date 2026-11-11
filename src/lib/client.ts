@@ -1,5 +1,5 @@
 import { AnonymousAuthenticationProvider } from '@microsoft/kiota-abstractions';
-import { FetchRequestAdapter } from '@microsoft/kiota-http-fetchlibrary';
+import { FetchRequestAdapter, RetryHandlerOptions } from '@microsoft/kiota-http-fetchlibrary';
 import {
   ClientError,
   ClientErrorCategoryObject,
@@ -9,39 +9,54 @@ import {
   toClientError,
 } from '@/errors/clientErrors';
 import type { UploadChangeType, UploadDialogSelectedFile, UploadTargetType } from '@/features/upload/uploadDialogDomain';
-import { parseDate, parseNullableDate } from '@/helpers/parser';
 import { createApiClient } from '@/lib/http/apiClient/apiClient';
-import {
-  type CreatePrPostRequestBody,
-  CreatePrPostRequestBody_filesMember1_operationObject,
-} from '@/lib/http/apiClient/createPr';
-import { HealthGetResponse_statusObject } from '@/lib/http/apiClient/health';
-import type { CreatePostRequestBody } from '@/lib/http/apiClient/issue/create';
-import { PostStateQueryParameterTypeObject } from '@/lib/http/apiClient/issue/list';
+import type { Issue, IssueCreate, Page, PullRequestCreate, PullRequestCreation } from '@/lib/http/apiClient/models';
 import type { IssueItem, TreeItem } from '@/types/type';
 
-/**
- * @summary APIクライアントを生成する。
- * @returns APIクライアントを返却する。
- */
 const resolveBaseUrl = (): string => {
   const raw = import.meta.env.VITE_API_BASE_URL;
-  if (typeof raw !== 'string') {
-    throw new Error('VITE_API_BASE_URL が未設定です。');
+  if (typeof raw !== 'string') throw new Error('VITE_API_BASE_URL が未設定です。');
+  const value = raw
+    .trim()
+    .replace(/^['"]|['"]$/g, '')
+    .replace(/\/+$/, '');
+  const url = new URL(value);
+  if (
+    !['http:', 'https:'].includes(url.protocol) ||
+    url.pathname !== '/' ||
+    url.search ||
+    url.hash ||
+    url.username ||
+    url.password
+  ) {
+    throw new Error('VITE_API_BASE_URL は /v2 を含まない API のオリジンを指定してください。');
   }
-  const trimmed = raw.trim();
-  const unquoted = trimmed.replace(/^['"]|['"]$/g, '');
-  if (unquoted.length === 0) {
-    throw new Error('VITE_API_BASE_URL が空です。');
-  }
-  return unquoted;
+  return url.origin;
 };
 
-const createClient = (): ReturnType<typeof createApiClient> => {
-  const requestAdapter = new FetchRequestAdapter(new AnonymousAuthenticationProvider());
-  requestAdapter.baseUrl = resolveBaseUrl();
-  return createApiClient(requestAdapter);
+const createClient = () => {
+  const adapter = new FetchRequestAdapter(new AnonymousAuthenticationProvider());
+  adapter.baseUrl = resolveBaseUrl();
+  return createApiClient(adapter).v2;
 };
+
+export type CreatePrRequest = {
+  title: string;
+  description: string;
+  targetType: UploadTargetType;
+  targetName: string;
+  selectedChangeTypes: UploadChangeType[];
+  selectedFiles: (UploadDialogSelectedFile | { path: string; operation: 'delete' })[];
+};
+export type CreatePrResponse = PullRequestCreation;
+export type CreateIssueRequest = {
+  title: string;
+  body: string;
+  labels?: string[];
+  assignees?: string[];
+};
+export type CreateIssueResponse = IssueItem;
+export type ListIssueRequest = { state: 'open' | 'closed' | 'all' };
 
 const UPLOAD_CHANGE_TYPE_TOKEN_MAP: Record<UploadChangeType, string> = {
   ファイルの追加: 'AddFile',
@@ -53,25 +68,6 @@ const UPLOAD_CHANGE_TYPE_TOKEN_MAP: Record<UploadChangeType, string> = {
 
 // biome-ignore lint/complexity/useRegexLiterals: 制御文字を含む禁止文字集合を文字列で保持して noControlCharactersInRegex を回避する。
 const GIT_REF_FORBIDDEN_CHARACTER_PATTERN = new RegExp('[\\u0000-\\u001f\\u007f ~^:?*[\\\\\\]]', 'g');
-
-export type CreatePrRequest = {
-  title: string;
-  description: string;
-  targetType: UploadTargetType;
-  targetName: string;
-  selectedChangeTypes: UploadChangeType[];
-  selectedFiles: UploadDialogSelectedFile[];
-};
-
-export type CreatePrResponseItem = {
-  branchName?: string | null;
-  commitSha?: string | null;
-  note?: string | null;
-  prNumber?: number | null;
-  prUrl?: string | null;
-};
-
-export type CreatePrResponse = CreatePrResponseItem[];
 
 /**
  * @summary 変更種別一覧をブランチ名用トークンへ変換する。
@@ -121,6 +117,7 @@ export const sanitizeBranchNameSegment = (value: string): string => {
     .normalize('NFKC')
     .replaceAll('/', '-')
     .replaceAll('..', '-')
+    .replaceAll('@{', '-')
     .replace(GIT_REF_FORBIDDEN_CHARACTER_PATTERN, '-')
     .replace(/\.+/g, '.')
     .replace(/-+/g, '-')
@@ -159,376 +156,185 @@ const buildUploadCommitMessage = (title: string): string => {
   return `feat: ${title}`;
 };
 
-/**
- * @summary selectedFiles を create-pr API 用配列へ変換する。
- * @param selectedFiles 送信対象ファイル一覧を指定する。
- * @returns API 用ファイル配列を返す。
- */
+const invalidRequest = (context: string, problem: string): never => {
+  throw new ClientError({ category: ClientErrorCategoryObject.InvalidRequest, context, message: problem });
+};
+
+const invalidResponse = (context: string, problem: string): never => {
+  throw new ClientResponseError({ context, operation: context, reason: 'missing_field', problem });
+};
+
 const buildCreatePrFiles = async (
-  selectedFiles: UploadDialogSelectedFile[],
-): Promise<NonNullable<CreatePrPostRequestBody['files']>> => {
+  selectedFiles: CreatePrRequest['selectedFiles'],
+): Promise<NonNullable<PullRequestCreate['files']>> => {
+  const paths = new Set<string>();
+  if (selectedFiles.length < 1 || selectedFiles.length > 100)
+    invalidRequest('fetchCreatePr', 'ファイルは1〜100件指定してください。');
   return Promise.all(
-    selectedFiles.map(async (selectedFile: UploadDialogSelectedFile) => {
-      return {
-        path: selectedFile.path,
-        content: await selectedFile.file.text(),
-        operation: CreatePrPostRequestBody_filesMember1_operationObject.Upsert,
-      };
+    selectedFiles.map(async (selectedFile) => {
+      const path = selectedFile.path;
+      if (
+        !/^(DCSWorld|UserMissions)\//.test(path) ||
+        new TextEncoder().encode(path).length > 4096 ||
+        /[\\\\\p{Cc}]/u.test(path) ||
+        path.split('/').some((segment) => !segment || segment === '.' || segment === '..' || segment.startsWith('.git')) ||
+        paths.has(path)
+      ) {
+        invalidRequest('fetchCreatePr', 'ファイルパスが不正、または重複しています。');
+      }
+      paths.add(path);
+      if ('operation' in selectedFile && selectedFile.operation === 'delete') return { path, operation: 'delete' };
+      if (!('file' in selectedFile)) return invalidRequest('fetchCreatePr', 'ファイルの内容が必要です。');
+      const content = await selectedFile.file.text();
+      if (content.length > 1048576) invalidRequest('fetchCreatePr', 'ファイルの内容は1,048,576文字以内にしてください。');
+      return { path, content, operation: 'upsert' };
     }),
   );
 };
 
-// **********************************************
-// Tree 関連
-// **********************************************
+const getNextCursor = (context: string, page: Page | null | undefined, seen: Set<string>): string | undefined => {
+  if (!page || !('nextCursor' in page)) return invalidResponse(context, 'ページ情報がありません。');
+  // Kiota は JSON null を undefined に変換するため、キーの有無と値を別々に確認する。
+  if (page.nextCursor == null) return undefined;
+  if (page.nextCursor === '' || seen.has(page.nextCursor)) return invalidResponse(context, '継続カーソルが不正です。');
+  seen.add(page.nextCursor);
+  return page.nextCursor;
+};
 
-/**
- * @summary GitHub からファイル一覧を取得する。
- * @returns ファイル一覧を返却する。
- * @throws 通信失敗、または応答形式不正の場合に例外を送出する。
- */
+const toIssueItem = (issue: Issue): IssueItem => ({
+  title: issue.title ?? undefined,
+  body: issue.body ?? null,
+  number: issue.number ?? undefined,
+  state: issue.state ?? undefined,
+  url: issue.url ?? undefined,
+  createdAt: issue.createdAt ?? undefined,
+  updatedAt: issue.updatedAt ?? undefined,
+  closedAt: issue.closedAt ?? null,
+});
+
 export const fetchTree = async (): Promise<TreeItem[]> => {
   const context = 'fetchTree';
-  const operation = 'tree.get';
   try {
-    const apiClient = createClient();
-
-    const response = await requestWithContext(
-      context,
-      operation,
-      (): ReturnType<typeof apiClient.tree.get> => apiClient.tree.get(),
-    );
-    if (response === undefined)
-      throw new ClientResponseError({ context, operation, reason: 'undefined_response', problem: '応答が undefined である。' });
-    if (response.success === false)
-      throw new ClientResponseError({
-        context,
-        operation,
-        reason: 'success_false',
-        problem: `success=false message=${response.message ?? 'なし'}`,
-      });
-
-    const data = response.data;
-    if (data == null)
-      throw new ClientResponseError({
-        context,
-        operation,
-        reason: 'missing_field',
-        problem: 'response.data が null/undefined である。',
-        cause: response,
-      });
-
-    return data.map((d: (typeof data)[number]): TreeItem => {
-      return {
-        path: d.path ?? undefined,
-        type: d.type ?? undefined,
-        mode: d.mode ?? undefined,
-        url: d.url ?? undefined,
-        sha: d.sha ?? undefined,
-        size: d.size ?? undefined,
-        updatedAt: d.updatedAt ?? undefined,
-      } as TreeItem;
-    });
+    const client = createClient();
+    const items: TreeItem[] = [];
+    const seen = new Set<string>();
+    let cursor: string | undefined;
+    let commitSha: string | undefined;
+    let generatedAt: number | undefined;
+    do {
+      const response = await requestWithContext(context, 'v2.tree.get', () =>
+        client.tree.get({ queryParameters: { limit: 10000, cursor } }),
+      );
+      if (!response?.items || !response.commitSha || !response.generatedAt)
+        return invalidResponse(context, 'ツリーのスナップショットが不正です。');
+      if (commitSha !== undefined && (response.commitSha !== commitSha || response.generatedAt.getTime() !== generatedAt)) {
+        return invalidResponse(context, '取得途中でスナップショットが変わりました。');
+      }
+      commitSha = response.commitSha;
+      generatedAt = response.generatedAt.getTime();
+      items.push(
+        ...response.items.map((item) => ({
+          path: item.path ?? undefined,
+          type: item.type ?? undefined,
+          mode: item.mode ?? undefined,
+          url: item.url ?? undefined,
+          sha: item.sha ?? undefined,
+          size: item.size ?? undefined,
+          updatedAt: item.updatedAt ?? undefined,
+        })),
+      );
+      cursor = getNextCursor(context, response.page, seen);
+    } while (cursor !== undefined);
+    return items;
   } catch (error: unknown) {
     const clientError = toClientError(context, error);
-    logClientError(clientError, { function: context, operation });
+    logClientError(clientError);
     throw clientError;
   }
 };
 
-// **********************************************
-// Issues 関連
-// **********************************************
-
-export type ListIssueRequest = {
-  state: 'open' | 'closed' | 'all';
-};
-
-/**
- * @summary Issue 一覧を取得して返却する。
- * @param request 絞り込み条件を指定する。
- * @returns Issue 一覧を返却する。
- * @throws 通信失敗、または応答が失敗（success=false）の場合に例外を送出する。
- */
 export const fetchIssues = async (request: ListIssueRequest): Promise<IssueItem[]> => {
   const context = 'fetchIssues';
-  const operation = 'issue.list.post';
   try {
-    const apiClient = createClient();
-
-    const queryParameters = {
-      state:
-        request.state === 'all'
-          ? PostStateQueryParameterTypeObject.All
-          : request.state === 'closed'
-            ? PostStateQueryParameterTypeObject.Closed
-            : PostStateQueryParameterTypeObject.Open,
-    };
-
-    const response = await requestWithContext(
-      context,
-      operation,
-      (): ReturnType<typeof apiClient.issue.list.post> => apiClient.issue.list.post({ queryParameters }),
-    );
-    if (response === undefined)
-      throw new ClientResponseError({
-        context,
-        operation,
-        reason: 'undefined_response',
-        problem: `応答が undefined である。state=${request.state}`,
-      });
-    if (response.success === false)
-      throw new ClientResponseError({
-        context,
-        operation,
-        reason: 'success_false',
-        problem: `success=false state=${request.state} message=${response.message ?? 'なし'}`,
-        cause: response,
-      });
-
-    const data = response.data;
-    if (data == null)
-      throw new ClientResponseError({
-        context,
-        operation,
-        reason: 'missing_field',
-        problem: `response.data が null/undefined である。state=${request.state}`,
-        cause: response,
-      });
-
-    return data.map((d: (typeof data)[number]): IssueItem => {
-      return {
-        title: d.title ?? undefined,
-        body: d.body ?? undefined,
-        issueNumber: d.issueNumber ?? undefined,
-        state: d.state ?? undefined,
-        issueUrl: d.issueUrl ?? undefined,
-        labels: d.labels ?? undefined,
-        createdAt: parseDate(d.createdAt),
-        updatedAt: parseDate(d.updatedAt),
-        closedAt: parseNullableDate(d.closedAt),
-        assignees: d.assignees ?? undefined,
-      };
-    });
+    const client = createClient();
+    const items: IssueItem[] = [];
+    const seen = new Set<string>();
+    let cursor: string | undefined;
+    do {
+      const response = await requestWithContext(context, 'v2.issues.get', () =>
+        client.issues.get({ queryParameters: { state: request.state, limit: 100, cursor } }),
+      );
+      if (!response?.items) return invalidResponse(context, 'Issue一覧がありません。');
+      items.push(...response.items.map(toIssueItem));
+      cursor = getNextCursor(context, response.page, seen);
+    } while (cursor !== undefined);
+    return items;
   } catch (error: unknown) {
     const clientError = toClientError(context, error);
-    logClientError(clientError, { function: context, operation, request });
+    logClientError(clientError);
     throw clientError;
   }
 };
 
-export type CreateIssueRequest = {
-  title: string;
-  body: string;
-  labels?: string[] | null;
-  assignees?: string[] | null;
-};
-
-export type CreateIssueItem = {
-  issueUrl?: string | null;
-  issueNumber?: number | null;
-};
-
-export type CreateIssueResponse = CreateIssueItem[];
-
-/**
- * @summary Issue を作成して返却する。
- * @param request 作成内容を指定する。
- * @returns 作成結果の一覧を返却する。通常は 1 件であるが、API の仕様により複数件となる場合がある。
- * @throws 通信失敗、または応答が失敗（success=false）の場合に例外を送出する。
- */
 export const fetchCreateIssue = async (request: CreateIssueRequest): Promise<CreateIssueResponse> => {
   const context = 'fetchCreateIssue';
-  const operation = 'issue.create.post';
   try {
-    if (request.title.trim() === '') {
-      throw new ClientError({
-        category: ClientErrorCategoryObject.InvalidRequest,
-        context,
-        operation,
-        message: `${context}: ${operation} のリクエストが不正である。title が空である。`,
-        cause: request,
-      });
-    }
-
-    const apiClient = createClient();
-
-    const body: CreatePostRequestBody = {
+    if (!request.title.trim() || request.title.length > 256 || request.body.length > 65536)
+      invalidRequest(context, 'Issueのタイトルまたは本文が不正です。');
+    const body: IssueCreate = {
       title: request.title,
       body: request.body,
       labels: request.labels,
       assignees: request.assignees,
     };
-
-    const response = await requestWithContext(
-      context,
-      operation,
-      (): ReturnType<typeof apiClient.issue.create.post> => apiClient.issue.create.post(body),
+    const client = createClient();
+    const response = await requestWithContext(context, 'v2.issues.post', () =>
+      client.issues.post(body, { options: [new RetryHandlerOptions({ maxRetries: 0 })] }),
     );
-    if (response === undefined)
-      throw new ClientResponseError({ context, operation, reason: 'undefined_response', problem: '応答が undefined である。' });
-    if (response.success === false)
-      throw new ClientResponseError({
-        context,
-        operation,
-        reason: 'success_false',
-        problem: `success=false message=${response.message ?? 'なし'}`,
-        cause: response,
-      });
-
-    const data = response.data;
-    if (data == null)
-      throw new ClientResponseError({
-        context,
-        operation,
-        reason: 'missing_field',
-        problem: 'response.data が null/undefined である。',
-        cause: response,
-      });
-
-    return data.map((d: (typeof data)[number]): CreateIssueItem => {
-      return {
-        issueNumber: d.issueNumber,
-        issueUrl: d.issueUrl,
-      } as CreateIssueItem;
-    });
+    if (!response?.number || !response.url) return invalidResponse(context, 'Issue作成結果が不正です。');
+    return toIssueItem(response);
   } catch (error: unknown) {
     const clientError = toClientError(context, error);
-    logClientError(clientError, {
-      function: context,
-      operation,
-      request: {
-        titleLength: request.title.length,
-        bodyLength: request.body.length,
-        labelsCount: request.labels?.length ?? 0,
-        assigneesCount: request.assignees?.length ?? 0,
-      },
-    });
+    logClientError(clientError);
     throw clientError;
   }
 };
 
-// **********************************************
-// Pull Request 関連
-// **********************************************
-
-/**
- * @summary Pull Request を作成して返却する。
- * @param request 作成内容を指定する。
- * @returns 作成結果の一覧を返却する。
- * @throws 通信失敗、または応答が失敗（success=false）の場合に例外を送出する。
- */
 export const fetchCreatePr = async (request: CreatePrRequest): Promise<CreatePrResponse> => {
   const context = 'fetchCreatePr';
-  const operation = 'createPr.post';
   try {
-    if (request.title.trim() === '') {
-      throw new ClientError({
-        category: ClientErrorCategoryObject.InvalidRequest,
-        context,
-        operation,
-        message: `${context}: ${operation} のリクエストが不正である。title が空である。`,
-        cause: request,
-      });
-    }
-    if (request.selectedFiles.length === 0) {
-      throw new ClientError({
-        category: ClientErrorCategoryObject.InvalidRequest,
-        context,
-        operation,
-        message: `${context}: ${operation} のリクエストが不正である。selectedFiles が空である。`,
-        cause: request,
-      });
-    }
-
-    const apiClient = createClient();
-    const body: CreatePrPostRequestBody = {
+    const branchName = buildUploadBranchName(request, new Date());
+    if (!request.title.trim() || request.title.length > 256 || request.description.length > 65536 || branchName.length > 255)
+      invalidRequest(context, 'PRのタイトル、本文またはブランチ名が不正です。');
+    const body: PullRequestCreate = {
       prTitle: request.title,
       prBody: request.description,
+      branchName,
       commitMessage: buildUploadCommitMessage(request.title),
-      branchName: buildUploadBranchName(request, new Date()),
       files: await buildCreatePrFiles(request.selectedFiles),
     };
-
-    const response = await requestWithContext(
-      context,
-      operation,
-      (): ReturnType<typeof apiClient.createPr.post> => apiClient.createPr.post(body),
+    const client = createClient();
+    const response = await requestWithContext(context, 'v2.prs.post', () =>
+      client.prs.post(body, { options: [new RetryHandlerOptions({ maxRetries: 0 })] }),
     );
-    if (response === undefined) {
-      throw new ClientResponseError({ context, operation, reason: 'undefined_response', problem: '応答が undefined である。' });
-    }
-    if (response.success === false) {
-      throw new ClientResponseError({
-        context,
-        operation,
-        reason: 'success_false',
-        problem: `success=false message=${response.message ?? 'なし'}`,
-        cause: response,
-      });
-    }
-
-    const data = response.data;
-    if (data == null) {
-      throw new ClientResponseError({
-        context,
-        operation,
-        reason: 'missing_field',
-        problem: 'response.data が null/undefined である。',
-        cause: response,
-      });
-    }
-
-    return data.map((item: (typeof data)[number]): CreatePrResponseItem => {
-      return {
-        branchName: item.branchName,
-        commitSha: item.commitSha,
-        note: item.note,
-        prNumber: item.prNumber,
-        prUrl: item.prUrl,
-      };
-    });
+    if (!response?.number || !response.url) return invalidResponse(context, 'PR作成結果が不正です。');
+    return response;
   } catch (error: unknown) {
     const clientError = toClientError(context, error);
-    logClientError(clientError, {
-      function: context,
-      operation,
-      request: {
-        titleLength: request.title.length,
-        descriptionLength: request.description.length,
-        targetType: request.targetType,
-        targetName: request.targetName,
-        selectedChangeTypes: request.selectedChangeTypes,
-        selectedFilesCount: request.selectedFiles.length,
-      },
-    });
+    logClientError(clientError);
     throw clientError;
   }
 };
 
-// **********************************************
-// Health 関連
-// **********************************************
-
-/**
- * @summary APIサーバーの死活監視を行う。
- * @returns APIサーバーの死活状態。
- * @throws API 呼び出しに失敗した場合は例外を送出する。
- */
 export const healthCheck = async (): Promise<boolean> => {
   const context = 'healthCheck';
-  const operation = 'health.get';
   try {
-    const apiClient = createClient();
-    const response = await requestWithContext(
-      context,
-      operation,
-      (): ReturnType<typeof apiClient.health.get> => apiClient.health.get(),
-    );
-    return response?.status === HealthGetResponse_statusObject.Ok;
+    const client = createClient();
+    const response = await requestWithContext(context, 'v2.health.get', () => client.health.get());
+    return response?.status === 'ok' && response.timestamp instanceof Date && !Number.isNaN(response.timestamp.getTime());
   } catch (error: unknown) {
     const clientError = toClientError(context, error);
-    logClientError(clientError, { function: context, operation });
+    logClientError(clientError);
     throw clientError;
   }
 };

@@ -1,9 +1,12 @@
-import type { CreatePrPostResponse_data } from '@/lib/http/apiClient/createPr';
-import type { CreatePostResponse_data } from '@/lib/http/apiClient/issue/create';
-import type { ListPostResponse_data } from '@/lib/http/apiClient/issue/list';
-import type { TreeGetResponse_data } from '@/lib/http/apiClient/tree';
+import type { Issue, PullRequestCreation, TreeItem } from '@/lib/http/apiClient/models';
 
-export type MockTreeItem = Omit<TreeGetResponse_data, 'updatedAt'> & {
+export type MockIssue = Omit<Issue, 'createdAt' | 'updatedAt' | 'closedAt'> & {
+  createdAt?: string;
+  updatedAt?: string;
+  closedAt?: string | null;
+};
+
+export type MockTreeItem = Omit<TreeItem, 'updatedAt'> & {
   updatedAt?: string | Date | null;
 };
 
@@ -17,10 +20,10 @@ export type AppApiMockOptions = {
   apiBaseUrl?: string;
   healthOk?: boolean;
   treeItems?: MockTreeItem[];
-  issues?: ListPostResponse_data[];
-  createIssueResponse?: CreatePostResponse_data[];
+  issues?: MockIssue[];
+  createIssueResponse?: MockIssue;
   createIssueErrorMessage?: string | null;
-  createPrResponse?: CreatePrPostResponse_data[];
+  createPrResponse?: PullRequestCreation;
   createPrErrorMessage?: string | null;
   rawTextByPath?: Record<string, string>;
   rawBinaryByPath?: Record<string, number[]>;

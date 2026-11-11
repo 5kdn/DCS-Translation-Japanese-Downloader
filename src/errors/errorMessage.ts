@@ -72,7 +72,16 @@ const categorizeFromStatusCode = (statusCode: number, headers: Record<string, st
  * @returns 表示用のエラーカテゴリ表示名を返す。
  */
 export const toErrorMessageForDisplay = (error: unknown): string => {
-  if (error instanceof ClientError) return getClientErrorCategoryLabel(error.category);
+  if (error instanceof ClientError) {
+    const message =
+      error.status === 409
+        ? 'ブランチが競合しています。内容を確認して再度送信してください。'
+        : error.status === 422
+          ? '入力内容に不整合があります。ファイルと送信内容を確認してください。'
+          : getClientErrorCategoryLabel(error.category);
+    const retry = error.status === 429 && error.retryAfter ? ` 再試行の目安（Retry-After）: ${error.retryAfter}` : '';
+    return `${message}${error.detail ? ` ${error.detail}` : ''}${retry}`;
+  }
   if (isNetworkErrorLike(error)) return getClientErrorCategoryLabel(ClientErrorCategoryObject.Network);
 
   if (isRecord(error)) {

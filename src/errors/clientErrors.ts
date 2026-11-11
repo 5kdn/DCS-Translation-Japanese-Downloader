@@ -50,6 +50,13 @@ export class ClientError extends Error {
   readonly category: ClientErrorCategory;
   readonly context: string;
   readonly operation?: string;
+  readonly status?: number;
+  readonly type?: string;
+  readonly title?: string;
+  readonly detail?: string;
+  readonly instance?: string;
+  readonly code?: string;
+  readonly retryAfter?: string;
 
   /**
    * @summary 分類済みエラーを生成する。
@@ -66,6 +73,16 @@ export class ClientError extends Error {
     this.category = category;
     this.context = context;
     this.operation = operation;
+    this.status = getResponseStatusCode(cause);
+    if (isRecord(cause)) {
+      this.type = typeof cause.type === 'string' ? cause.type : undefined;
+      this.title = typeof cause.title === 'string' ? cause.title : undefined;
+      this.detail = typeof cause.detail === 'string' ? cause.detail : undefined;
+      this.instance = typeof cause.instance === 'string' ? cause.instance : undefined;
+      this.code = typeof cause.code === 'string' ? cause.code : undefined;
+    }
+    const headers = getResponseHeaders(cause);
+    this.retryAfter = Object.entries(headers ?? {}).find(([key]) => key.toLowerCase() === 'retry-after')?.[1]?.[0];
   }
 }
 
@@ -96,7 +113,7 @@ export class ClientOperationError extends Error {
 export type ClientResponseErrorParams = {
   context: string;
   operation: string;
-  reason?: 'undefined_response' | 'missing_field' | 'success_false' | 'unexpected';
+  reason?: 'undefined_response' | 'missing_field' | 'unexpected';
   problem: string;
   cause?: unknown;
 };
@@ -216,8 +233,6 @@ const categorizeFromStatusCode = (statusCode: number, headers: Record<string, st
  */
 const categorizeFromResponseReason = (reason: ClientResponseError['reason']): ClientErrorCategory => {
   switch (reason) {
-    case 'success_false':
-      return ClientErrorCategoryObject.InvalidRequest;
     case 'undefined_response':
     case 'missing_field':
       return ClientErrorCategoryObject.InternalError;

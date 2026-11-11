@@ -16,7 +16,7 @@ const config: StorybookConfig = {
     const env = loadEnv('development', process.cwd(), 'VITE_');
     return mergeConfig(config, {
       define: {
-        'import.meta.env.VITE_API_BASE_URL': JSON.stringify('/storybook-api'),
+        'import.meta.env.VITE_API_BASE_URL': JSON.stringify('https://api.example.test'),
         'import.meta.env.VITE_TARGET_OWNER': JSON.stringify(env.VITE_TARGET_OWNER ?? 'dummy-owner'),
         'import.meta.env.VITE_TARGET_REPO': JSON.stringify(env.VITE_TARGET_REPO ?? 'dummy-repo'),
         'import.meta.env.VITE_TARGET_REF': JSON.stringify(env.VITE_TARGET_REF ?? 'master'),

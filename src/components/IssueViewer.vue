@@ -109,11 +109,11 @@ v-dialog(v-model="isDialogOpen" eager max-width="min(900px, 90vw)")
       v-alert.my-2(type="error" variant="tonal" v-if="errorMessage") {{ errorMessage }}
       v-container.issue-viewer.overflow-y-auto
         v-expansion-panels
-          v-expansion-panel(v-for='issue in _issuesWithSafeHtml' :key="issue.issueUrl")
+          v-expansion-panel(v-for='issue in _issuesWithSafeHtml' :key="issue.url")
             div.issue-header.d-flex.flex-column
               v-expansion-panel-title.d-flex.flex-row.flex-0-0.justify-space-between.align-center
                 p.text-headline-small.text-break.flex-grow-1.my-0 {{ issue.title }}
-                CustomButton.ms-4(label='GitHubで見る' @click.stop='_NavToIssuePage(issue.issueUrl)')
+                CustomButton.ms-4(label='GitHubで見る' @click.stop='_NavToIssuePage(issue.url)')
             v-expansion-panel-text
               div.markdown-body.pa-4.ma-4.border-thin.rounded.text-break(v-html='issue.safeHtml')
 

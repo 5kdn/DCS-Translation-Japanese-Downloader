@@ -6,13 +6,13 @@ describe('toClientError', () => {
     const error = new ClientResponseError({
       context: 'test',
       operation: 'op',
-      reason: 'success_false',
+      reason: 'missing_field',
       problem: 'ng',
     });
 
     const result = toClientError('ctx', error);
 
-    expect(result.category).toBe(ClientErrorCategoryObject.InvalidRequest);
+    expect(result.category).toBe(ClientErrorCategoryObject.InternalError);
   });
 
   it('ClientOperationError はステータスコードで分類する', () => {
